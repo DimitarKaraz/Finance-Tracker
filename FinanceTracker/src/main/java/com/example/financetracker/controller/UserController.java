@@ -1,5 +1,6 @@
 package com.example.financetracker.controller;
 
+
 import com.example.financetracker.model.dto.UserRegisterRequestDTO;
 import com.example.financetracker.model.dto.UserRegisterResponseDTO;
 import com.example.financetracker.service.UserService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")    // ?
 public class UserController extends AbstractController {
 
+
     @Autowired
     private ModelMapper modelMapper;
 
@@ -24,13 +26,9 @@ public class UserController extends AbstractController {
     @PostMapping()
     public UserRegisterResponseDTO register(@RequestBody UserRegisterRequestDTO requestDTO) {
         return userService.addUser(requestDTO);
-
     }
 
 
-    @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
-    }
+
 
 }
