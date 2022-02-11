@@ -1,5 +1,6 @@
 package com.example.financetracker.service;
 
+import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.model.repositories.UserRepository;
 import com.example.financetracker.model.dto.UserRegisterRequestDTO;
 import com.example.financetracker.model.dto.UserRegisterResponseDTO;
