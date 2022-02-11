@@ -1,6 +1,6 @@
 package com.example.financetracker.model.dto;
 
-import com.example.financetracker.model.User;
+import com.example.financetracker.model.pojo.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
