@@ -1,7 +1,7 @@
 package com.example.financetracker.model.dto;
 
 
-import com.example.financetracker.model.User;
+import com.example.financetracker.model.pojo.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,11 +16,6 @@ import java.time.LocalDate;
 public class UserRegisterResponseDTO {
 
     private int id;
-    private String firstName;
-    private String lastName;
-    private User.Gender gender;
-    private LocalDate dateOfBirth;
-    private String email;
-    private String profileImageUrl;
+
 
 }

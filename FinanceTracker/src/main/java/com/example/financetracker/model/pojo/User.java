@@ -1,4 +1,4 @@
-package com.example.financetracker.model;
+package com.example.financetracker.model.pojo;
 
 import com.sun.istack.NotNull;
 import lombok.Data;
