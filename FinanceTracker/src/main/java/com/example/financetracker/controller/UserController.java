@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/users")    // ?
 public class UserController extends AbstractController {
@@ -17,10 +19,21 @@ public class UserController extends AbstractController {
     @Autowired
     private UserService userService;
 
-    @PostMapping()
+    @PostMapping("/register")
     public UserRegisterResponseDTO register(@RequestBody UserRegisterRequestDTO requestDTO) {
         return userService.addUser(requestDTO);
     }
+
+    @PostMapping("/login")
+    public UserLoginResponseDTO login(@RequestBody UserLoginRequestDTO requestDTO, HttpSession session){
+        //todo watch lecture
+        UserLoginResponseDTO response = userService.login(requestDTO);
+        session.setAttribute("LoggedUser", response.getId());
+        session.setMaxInactiveInterval(60*30);
+        return response;
+    }
+
+
 
 
 

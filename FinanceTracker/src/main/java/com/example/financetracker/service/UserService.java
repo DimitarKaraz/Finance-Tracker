@@ -42,5 +42,9 @@ public class UserService {
         return modelMapper.map(userPojo, UserRegisterResponseDTO.class);
     }
 
+    public UserLoginResponseDTO login(UserLoginRequestDTO requestDTO){
+        User user = userRepository.findByEmail(requestDTO.getEmail)
+    }
+
 
 }
