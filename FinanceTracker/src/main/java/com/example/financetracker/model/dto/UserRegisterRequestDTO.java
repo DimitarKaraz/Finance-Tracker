@@ -4,7 +4,6 @@ import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.NotFound;
 import org.springframework.stereotype.Component;
 
 @Component
