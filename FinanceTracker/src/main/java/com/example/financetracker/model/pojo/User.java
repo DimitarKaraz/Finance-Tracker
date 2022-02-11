@@ -1,10 +1,9 @@
 package com.example.financetracker.model.pojo;
 
-import com.sun.istack.NotNull;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
 import java.time.LocalDate;

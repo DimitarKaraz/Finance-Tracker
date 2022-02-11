@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/user")    // ?
 public class UserController {
+@RequestMapping("/users")    // ?
+public class UserController extends AbstractController {
 
     @Autowired
     private ModelMapper modelMapper;

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.OneToMany;
 
-
 @Component
 @Getter
 @Setter
@@ -19,5 +18,6 @@ public class UserRegisterResponseDTO {
     @OneToMany(mappedBy = "user_id")
     private List<Account> userAccounts;
     private String profileImageUrl;
+
 
 }
