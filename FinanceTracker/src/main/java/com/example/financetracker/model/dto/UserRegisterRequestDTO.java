@@ -4,8 +4,9 @@ import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.NotFound;
 import org.springframework.stereotype.Component;
+
+import javax.validation.constraints.NotEmpty;
 
 @Component
 @Getter
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class UserRegisterRequestDTO {
 
     @NotNull
+    @NotEmpty
     private String email;
     private String password;
     private String confirmPassword;
