@@ -1,5 +1,6 @@
 package com.example.financetracker.model;
 
+import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class User {
 
-    @Id
+    @Id()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
@@ -40,8 +41,8 @@ public class User {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-
-    enum Gender{
+    //todo not sure if public is ok
+    public enum Gender{
         MALE, FEMALE, OTHER
     }
 
