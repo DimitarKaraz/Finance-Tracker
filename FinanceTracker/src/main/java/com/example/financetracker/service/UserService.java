@@ -23,9 +23,6 @@ public class UserService {
     private PasswordEncoder encoder;
 
     public UserRegisterResponseDTO addUser(UserRegisterRequestDTO requestDTO) {
-        //TODO: validate email
-        // and passwords
-
         if (!EmailValidator.validateEmail(requestDTO.getEmail())) {
             throw new BadRequestException("Please enter a valid email!");
         }
