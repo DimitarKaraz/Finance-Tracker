@@ -1,13 +1,12 @@
 package com.example.financetracker.model.dto;
 
-
-import com.example.financetracker.model.pojo.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
+import javax.persistence.OneToMany;
+
 
 @Component
 @Getter
@@ -16,6 +15,9 @@ import java.time.LocalDate;
 public class UserRegisterResponseDTO {
 
     private int id;
-
+    private String email;
+    @OneToMany(mappedBy = "user_id")
+    private List<Account> userAccounts;
+    private String profileImageUrl;
 
 }

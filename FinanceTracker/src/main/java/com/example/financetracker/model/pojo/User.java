@@ -41,6 +41,8 @@ public class User {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
+
+
     //todo not sure if public is ok
     public enum Gender{
         MALE, FEMALE, OTHER
