@@ -49,15 +49,13 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-<<<<<<< HEAD
 
-=======
->>>>>>> 3deb592c22dc4c7a1f78d50255a92a8a0de80fff
-        
-<<<<<<< HEAD
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>2.4.5</version>
+        </dependency>
 
-=======
->>>>>>> 3deb592c22dc4c7a1f78d50255a92a8a0de80fff
     </dependencies>
 
     <build>
