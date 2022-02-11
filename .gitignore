@@ -44,5 +44,5 @@ build/
 /dataSources.local.xml
 
 #Some other stuff
-.ini
-.bak
+*.ini
+*.bak
