@@ -1,6 +1,6 @@
 package com.example.financetracker.controller;
 
-import com.example.financetracker.model.pojo.User;
+
 import com.example.financetracker.model.dto.UserRegisterRequestDTO;
 import com.example.financetracker.model.dto.UserRegisterResponseDTO;
 import com.example.financetracker.service.UserService;
@@ -15,10 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/users")    // ?
 public class UserController extends AbstractController {
-
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Autowired
     private UserService userService;

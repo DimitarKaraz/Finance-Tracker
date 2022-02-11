@@ -22,7 +22,8 @@ public class Account {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column
-    private String currency;
+//    @OneToOne()
+//    @JoinColumn(name = "currency_id")
+//    private String currency;
 
 }

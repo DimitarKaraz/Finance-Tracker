@@ -19,6 +19,7 @@ public class UserService {
 
     public UserRegisterResponseDTO addUser(UserRegisterRequestDTO requestDTO) {
         //TODO: validate email and passwords
+
         if (userRepository.findByEmail(requestDTO.getEmail()) != null) {
             throw new BadRequestException("Email already exists.");
         }
