@@ -1,8 +1,10 @@
 package com.example.financetracker.model.dto;
 
+import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.NotFound;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 public class UserRegisterRequestDTO {
 
+    @NotNull
     private String email;
     private String password;
     private String confirmPassword;
