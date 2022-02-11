@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorDTO {
+public class ExceptionDTO {
 
     private String errorMessage;
 
