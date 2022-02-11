@@ -8,6 +8,8 @@ import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.utilities.email_validator.EmailValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +19,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private PasswordEncoder encoder;
 
     public UserRegisterResponseDTO addUser(UserRegisterRequestDTO requestDTO) {
         //TODO: validate email
@@ -29,7 +33,10 @@ public class UserService {
         if (userRepository.findByEmail(requestDTO.getEmail()) != null) {
             throw new BadRequestException("Email already exists.");
         }
-        //TODO: bcrypt password
+        if (!requestDTO.getConfirmPassword().equals(requestDTO.getPassword())){
+            throw new BadRequestException("Password does not match.");
+        }
+        requestDTO.setPassword(encoder.encode(requestDTO.getPassword()));
         User userPojo = modelMapper.map(requestDTO, User.class);
         userRepository.save(userPojo);
         return modelMapper.map(userPojo, UserRegisterResponseDTO.class);
