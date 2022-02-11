@@ -67,17 +67,16 @@
             <artifactId>javaee-api</artifactId>
             <version>8.0.1</version>
         </dependency>
-<<<<<<< HEAD
         <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-crypto -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
             <version>5.4.5</version>
-=======
+        </dependency>
+
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
->>>>>>> f92901bfd7c9cdaaae20e53f9a5c965a4699142b
         </dependency>
     </dependencies>
 
