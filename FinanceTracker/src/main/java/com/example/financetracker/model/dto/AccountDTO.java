@@ -1,0 +1,26 @@
+package com.example.financetracker.model.dto;
+
+
+import com.example.financetracker.model.pojo.AccountType;
+import com.example.financetracker.model.pojo.Currency;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+
+@Component
+@Getter
+@Setter
+@NoArgsConstructor
+public class AccountDTO {
+
+    private int accountId;
+    private int userId;
+    private AccountType accountType;
+    private Currency currency;
+    private BigDecimal balance;
+    private String name;
+
+}
