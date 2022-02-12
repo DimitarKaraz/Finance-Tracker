@@ -7,9 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @RestController
-@RequestMapping("/users")    // ?
+@RequestMapping("/users")
 public class UserController extends AbstractController {
 
     @Autowired
@@ -21,21 +22,31 @@ public class UserController extends AbstractController {
     }
 
     @PostMapping("/login")
-    public UserLoginResponseDTO login(@RequestBody UserLoginRequestDTO requestDTO, HttpSession session){
-        //todo watch lecture
+    public UserLoginResponseDTO login(@RequestBody UserLoginRequestDTO requestDTO, HttpSession session) {
         UserLoginResponseDTO response = userService.login(requestDTO);
         session.setAttribute("LoggedUser", response.getId());
-        session.setMaxInactiveInterval(60*30);
+        session.setMaxInactiveInterval(60 * 30);
         return response;
     }
 
+
     @PutMapping("/editprofile")
-    public UserProfileDTO editProfile(@RequestBody UserProfileDTO requestDTO){
-         return userService.editProfile(requestDTO);
+    public UserProfileDTO editProfile(@RequestBody UserProfileDTO requestDTO) {
+        return userService.editProfile(requestDTO);
     }
 
+    @GetMapping("/{id}")
+    public UserProfileDTO getUserById(@PathVariable int id) {
+        //TODO: check if request is valid with Interceptor (valid session, valid id input)
+        return userService.getUser(id);
+    }
 
-
-
+    @GetMapping()
+    public List<UserProfileDTO> getAllUsers() {
+        //TODO: check if request is valid with Interceptor (valid session)
+        return userService.getAllUser();
+    }
 
 }
+
+
