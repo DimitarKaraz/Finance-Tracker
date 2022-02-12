@@ -1,6 +1,7 @@
 package com.example.financetracker.model.dto;
 
 import com.example.financetracker.model.pojo.User;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,9 +13,9 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserDTO {
+public class UserProfileDTO {
 
-    private int id;
+    private int userId;
     private String firstName;
     private String lastName;
     private User.Gender gender;

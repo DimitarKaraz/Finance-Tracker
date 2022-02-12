@@ -2,13 +2,11 @@ package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.AuthenticationException;
 import com.example.financetracker.exceptions.BadRequestException;
-import com.example.financetracker.model.dto.UserLoginRequestDTO;
-import com.example.financetracker.model.dto.UserLoginResponseDTO;
+import com.example.financetracker.model.dto.*;
 import com.example.financetracker.model.repositories.UserRepository;
-import com.example.financetracker.model.dto.UserRegisterRequestDTO;
-import com.example.financetracker.model.dto.UserRegisterResponseDTO;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.utilities.email_validator.EmailValidator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -50,5 +48,15 @@ public class UserService {
         return modelMapper.map(user, UserLoginResponseDTO.class);
     }
 
+    public UserProfileDTO editProfile(UserProfileDTO requestDTO){
+        User user = userRepository.getById(requestDTO.getUserId());
+        user.setDateOfBirth(requestDTO.getDateOfBirth());
+        user.setFirstName(requestDTO.getFirstName());
+        user.setLastName(requestDTO.getLastName());
+        user.setGender(requestDTO.getGender().name());
+        user.setProfileImageUrl(requestDTO.getProfileImageUrl());
+        userRepository.save(user);
+        return modelMapper.map(user, UserProfileDTO.class);
 
+    }
 }

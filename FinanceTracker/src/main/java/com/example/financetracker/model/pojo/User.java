@@ -1,5 +1,6 @@
 package com.example.financetracker.model.pojo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class User {
 
-    @Id()
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userId;
 
@@ -25,7 +26,7 @@ public class User {
     private String lastName;
 
     @Column(name = "gender")
-    private Gender gender;
+    private String gender;
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
@@ -42,8 +43,14 @@ public class User {
 
 
     //todo not sure if public is ok
+    //todo maybe regex?
     public enum Gender{
-        MALE, FEMALE, OTHER
+        @JsonProperty("Male")
+        MALE,
+        @JsonProperty("Female")
+        FEMALE,
+        @JsonProperty("Other")
+        OTHER
     }
 
 }

@@ -1,16 +1,10 @@
 package com.example.financetracker.controller;
 
 
-import com.example.financetracker.model.dto.UserLoginRequestDTO;
-import com.example.financetracker.model.dto.UserLoginResponseDTO;
-import com.example.financetracker.model.dto.UserRegisterRequestDTO;
-import com.example.financetracker.model.dto.UserRegisterResponseDTO;
+import com.example.financetracker.model.dto.*;
 import com.example.financetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 
@@ -35,6 +29,10 @@ public class UserController extends AbstractController {
         return response;
     }
 
+    @PutMapping("/editprofile")
+    public UserProfileDTO editProfile(@RequestBody UserProfileDTO requestDTO){
+         return userService.editProfile(requestDTO);
+    }
 
 
 
