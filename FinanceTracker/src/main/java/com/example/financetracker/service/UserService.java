@@ -76,7 +76,18 @@ public class UserService {
         List<User> allUsers = userRepository.findAll();
         return allUsers.stream().map(user -> modelMapper.map(user, UserProfileDTO.class))
                 .collect(Collectors.toList());
+    }
 
+    public void changePassword(ChangePasswordRequestDTO requestDTO){
+        if (!requestDTO.getNewPassword().equals(requestDTO.getConfirmNewPassword())){
+            throw new BadRequestException("Passwords do not match.");
+        }
+        User user = userRepository.getById(requestDTO.getUserId());
+        if (!encoder.matches(requestDTO.getOldPassword(), user.getPassword())){
+            throw new BadRequestException(("Wrong password."));
+        }
+        user.setPassword(encoder.encode(requestDTO.getNewPassword()));
+        userRepository.save(user);
     }
 
     public void deleteUser(int id) {
