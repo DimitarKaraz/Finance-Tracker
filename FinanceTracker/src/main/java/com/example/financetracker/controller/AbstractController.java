@@ -1,5 +1,6 @@
 package com.example.financetracker.controller;
 
+import com.example.financetracker.exceptions.AuthenticationException;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.model.dto.ExceptionDTO;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,14 @@ public class AbstractController {
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionDTO handleBadRequestException(BadRequestException e){
+
+        return new ExceptionDTO(e.getMessage());
+
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ExceptionDTO handleAuthenticationException(AuthenticationException e){
 
         return new ExceptionDTO(e.getMessage());
 

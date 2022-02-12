@@ -1,6 +1,9 @@
 package com.example.financetracker.service;
 
+import com.example.financetracker.exceptions.AuthenticationException;
 import com.example.financetracker.exceptions.BadRequestException;
+import com.example.financetracker.model.dto.UserLoginRequestDTO;
+import com.example.financetracker.model.dto.UserLoginResponseDTO;
 import com.example.financetracker.model.repositories.UserRepository;
 import com.example.financetracker.model.dto.UserRegisterRequestDTO;
 import com.example.financetracker.model.dto.UserRegisterResponseDTO;
@@ -40,7 +43,11 @@ public class UserService {
     }
 
     public UserLoginResponseDTO login(UserLoginRequestDTO requestDTO){
-        User user = userRepository.findByEmail(requestDTO.getEmail)
+        User user = userRepository.findByEmail(requestDTO.getEmail());
+        if (user == null || !(encoder.matches(requestDTO.getPassword(), user.getPassword()))){
+            throw new AuthenticationException("Wrong email or password.");
+        }
+        return modelMapper.map(user, UserLoginResponseDTO.class);
     }
 
 
