@@ -17,7 +17,7 @@ public class AccountController extends AbstractController{
     private AccountService accountService;
 
     @PostMapping("/create_account")
-    public Account createAccount(@RequestBody AccountCreateRequestDTO requestDTO, @PathVariable("user_id") int userId){
+    public AccountDTO createAccount(@RequestBody AccountCreateRequestDTO requestDTO, @PathVariable("user_id") int userId){
         return accountService.createAccount(requestDTO, userId);
     }
 
