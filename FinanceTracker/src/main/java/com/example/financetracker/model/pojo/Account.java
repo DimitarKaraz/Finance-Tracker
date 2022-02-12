@@ -28,7 +28,7 @@ public class Account {
     private Currency currency;
 
     @ManyToOne
-    @JoinColumn(name = "account_type_id")
+    @JoinColumn(name = "type_id")
     private AccountType accountType;
 
     //todo not sure if works?
@@ -37,8 +37,6 @@ public class Account {
 
     @Column(name = "name")
     private String name;
-
-
 
 
 

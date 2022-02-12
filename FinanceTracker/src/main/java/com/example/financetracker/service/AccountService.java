@@ -1,10 +1,11 @@
 package com.example.financetracker.service;
 
+import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.accountDTOs.AccountDTO;
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.repositories.AccountRepository;
-import com.example.financetracker.model.dto.AccountCreateRequestDTO;
+import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
 import com.example.financetracker.model.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +24,15 @@ public class AccountService {
     @Autowired
     private UserRepository userRepository;
 
-
-    public Account createAccount(AccountCreateRequestDTO requestDTO, int userId){
+//accountRepository.existsByName(requestDTO.getName())
+    public AccountDTO createAccount(AccountCreateRequestDTO requestDTO, int userId){
+        if (accountRepository.findByName(requestDTO.getName()) != null){
+            throw new BadRequestException("Account with that name already exists.");
+        }
         Account account = modelMapper.map(requestDTO, Account.class);
         account.setUser(userRepository.findByUserId(userId));
         accountRepository.save(account);
-        return account;
+        return modelMapper.map(account, AccountDTO.class);
     }
 
     public List<AccountDTO> getAllAccountsByUserId(int id) {
