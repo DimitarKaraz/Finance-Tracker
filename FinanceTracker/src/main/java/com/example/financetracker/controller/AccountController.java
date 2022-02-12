@@ -5,7 +5,7 @@ import com.example.financetracker.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import com.example.financetracker.model.dto.AccountCreateRequestDTO;
+import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
 import com.example.financetracker.model.pojo.Account;
 
 

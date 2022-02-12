@@ -4,7 +4,7 @@ import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.accountDTOs.AccountDTO;
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.repositories.AccountRepository;
-import com.example.financetracker.model.dto.AccountCreateRequestDTO;
+import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
 import com.example.financetracker.model.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
