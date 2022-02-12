@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.net.http.HttpResponse;
 import java.util.List;
 
 @RestController
@@ -30,7 +31,7 @@ public class UserController extends AbstractController {
     }
 
 
-    @PutMapping("/editprofile")
+    @PutMapping("/edit_profile")
     public UserProfileDTO editProfile(@RequestBody UserProfileDTO requestDTO) {
         return userService.editProfile(requestDTO);
     }
@@ -45,6 +46,14 @@ public class UserController extends AbstractController {
     public List<UserProfileDTO> getAllUsers() {
         //TODO: check if request is valid with Interceptor (valid session)
         return userService.getAllUser();
+    }
+
+    @PutMapping("/change_password")
+    public String changePassword(@RequestBody ChangePasswordRequestDTO requestDTO){
+        userService.changePassword(requestDTO);
+        //todo change return
+
+        return "Password changed.";
     }
 
 }

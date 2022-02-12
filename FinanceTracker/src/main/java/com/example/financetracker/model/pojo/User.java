@@ -47,11 +47,11 @@ public class User {
     //todo not sure if public is ok
     //todo maybe regex?
     public enum Gender{
-        @JsonProperty("Male")
+        @JsonProperty("male")
         MALE,
-        @JsonProperty("Female")
+        @JsonProperty("female")
         FEMALE,
-        @JsonProperty("Other")
+        @JsonProperty("other")
         OTHER
     }
 
