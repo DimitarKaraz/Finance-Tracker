@@ -11,4 +11,5 @@ import org.springframework.stereotype.Component;
 @Setter
 @NoArgsConstructor
 public class CreateAccountRequestDTO {
+
 }
