@@ -63,8 +63,7 @@ public class UserController extends AbstractController {
         userService.deleteUser(id);
         return ResponseEntity.ok().body("Your profile was deleted. We will miss you!");
     }
-
-
+    
 }
 
 
