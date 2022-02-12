@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.net.http.HttpResponse;
 import java.util.List;
 
 @RestController
@@ -54,6 +55,14 @@ public class UserController extends AbstractController {
         return ResponseEntity.ok().body("Your profile was deleted. We will miss you!");
     }
 
+
+    @PutMapping("/change_password")
+    public String changePassword(@RequestBody ChangePasswordRequestDTO requestDTO){
+        userService.changePassword(requestDTO);
+        //todo change return
+
+        return "Password changed.";
+    }
 
 }
 
