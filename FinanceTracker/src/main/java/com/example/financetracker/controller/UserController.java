@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.net.http.HttpResponse;
 import java.util.List;
 
 @RestController
@@ -45,6 +44,7 @@ public class UserController extends AbstractController {
     @PutMapping("/{id}/change_password")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequestDTO requestDTO){
         //TODO: check if request is valid with Interceptor (valid session, valid id input)
+        //todo maybe change return to ChangePasswordResponseDTO
         userService.changePassword(requestDTO);
         return ResponseEntity.ok().body("Password was changed successfully.");
     }
