@@ -4,6 +4,7 @@ package com.example.financetracker.controller;
 import com.example.financetracker.model.dto.*;
 import com.example.financetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -30,7 +31,7 @@ public class UserController extends AbstractController {
     }
 
 
-    @PutMapping("/editprofile")
+    @PutMapping("/edit_profile")
     public UserProfileDTO editProfile(@RequestBody UserProfileDTO requestDTO) {
         return userService.editProfile(requestDTO);
     }
@@ -46,6 +47,13 @@ public class UserController extends AbstractController {
         //TODO: check if request is valid with Interceptor (valid session)
         return userService.getAllUser();
     }
+
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<String> deleteUserById(@PathVariable int id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok().body("Your profile was deleted. We will miss you!");
+    }
+
 
 }
 

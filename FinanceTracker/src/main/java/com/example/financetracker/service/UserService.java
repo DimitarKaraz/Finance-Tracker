@@ -2,6 +2,7 @@ package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.AuthenticationException;
 import com.example.financetracker.exceptions.BadRequestException;
+import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.dto.*;
 import com.example.financetracker.model.repositories.UserRepository;
 import com.example.financetracker.model.pojo.User;
@@ -9,6 +10,7 @@ import com.example.financetracker.utilities.email_validator.EmailValidator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -65,7 +67,7 @@ public class UserService {
     public UserProfileDTO getUser(int id) {
         User userPojo = userRepository.findByUserId(id);
         if (userPojo == null) {
-            throw new BadRequestException("User does not exist.");
+            throw new NotFoundException("User does not exist.");
         }
         return modelMapper.map(userPojo, UserProfileDTO.class);
     }
@@ -77,4 +79,13 @@ public class UserService {
 
     }
 
+    public void deleteUser(int id) {
+        if (!userRepository.existsById(id)) {
+            throw new NotFoundException("User does not exist.");
+        }
+        userRepository.deleteById(id);
+        if (userRepository.existsById(id)) {
+            throw new NotFoundException("User does not exist.");
+        }
+    }
 }
