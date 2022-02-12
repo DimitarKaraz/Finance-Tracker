@@ -4,9 +4,11 @@ package com.example.financetracker.controller;
 import com.example.financetracker.model.dto.*;
 import com.example.financetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.SecurityContextProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -33,7 +35,8 @@ public class UserController extends AbstractController {
 
 
     @PutMapping("/{id}/edit_profile")
-    public UserProfileDTO editProfile(@RequestBody UserProfileDTO requestDTO) {
+    public UserProfileDTO editProfile(@RequestBody UserProfileDTO requestDTO, HttpServletRequest x) {
+        x.getUserPrincipal();
         //TODO: check if request is valid with Interceptor (valid session, valid id input)
         return userService.editProfile(requestDTO);
     }
@@ -63,7 +66,7 @@ public class UserController extends AbstractController {
         userService.deleteUser(id);
         return ResponseEntity.ok().body("Your profile was deleted. We will miss you!");
     }
-    
+
 }
 
 
