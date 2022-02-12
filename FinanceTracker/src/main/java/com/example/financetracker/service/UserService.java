@@ -1,16 +1,14 @@
 package com.example.financetracker.service;
 
-import com.example.financetracker.exceptions.AuthenticationException;
+import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.NotFoundException;
-import com.example.financetracker.model.dto.*;
+import com.example.financetracker.model.dto.userDTOs.*;
 import com.example.financetracker.model.repositories.UserRepository;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.utilities.email_validator.EmailValidator;
-import com.fasterxml.jackson.annotation.JsonValue;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +45,7 @@ public class UserService {
     public UserLoginResponseDTO login(UserLoginRequestDTO requestDTO){
         User userPojo = userRepository.findByEmail(requestDTO.getEmail());
         if (userPojo == null || !(encoder.matches(requestDTO.getPassword(), userPojo.getPassword()))){
-            throw new AuthenticationException("Wrong email or password.");
+            throw new UnauthorizedException("Wrong email or password.");
         }
         return modelMapper.map(userPojo, UserLoginResponseDTO.class);
     }
@@ -72,7 +70,7 @@ public class UserService {
         return modelMapper.map(userPojo, UserProfileDTO.class);
     }
 
-    public List<UserProfileDTO> getAllUser() {
+    public List<UserProfileDTO> getAllUsers() {
         List<User> allUsers = userRepository.findAll();
         return allUsers.stream().map(user -> modelMapper.map(user, UserProfileDTO.class))
                 .collect(Collectors.toList());

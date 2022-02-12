@@ -1,10 +1,9 @@
 package com.example.financetracker.controller;
 
 
-import com.example.financetracker.model.dto.*;
+import com.example.financetracker.model.dto.userDTOs.*;
 import com.example.financetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.SecurityContextProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,7 +57,7 @@ public class UserController extends AbstractController {
     @GetMapping()
     public List<UserProfileDTO> getAllUsers() {
         //TODO: check if request is valid with Interceptor (valid session)
-        return userService.getAllUser();
+        return userService.getAllUsers();
     }
 
     @DeleteMapping("/{id}/delete")

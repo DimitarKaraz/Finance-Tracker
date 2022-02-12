@@ -1,4 +1,4 @@
-package com.example.financetracker.model.dto;
+package com.example.financetracker.model.dto.userDTOs;
 
 import com.example.financetracker.model.pojo.Account;
 import lombok.Getter;
@@ -13,13 +13,12 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserRegisterResponseDTO {
+public class UserLoginResponseDTO {
 
     private int id;
     private String email;
     @OneToMany(mappedBy = "user_id")
     private List<Account> userAccounts;
     private String profileImageUrl;
-
 
 }

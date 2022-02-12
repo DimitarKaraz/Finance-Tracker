@@ -1,4 +1,4 @@
-package com.example.financetracker.model.dto;
+package com.example.financetracker.model.dto.userDTOs;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

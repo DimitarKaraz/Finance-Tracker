@@ -1,6 +1,6 @@
 package com.example.financetracker.controller;
 
-import com.example.financetracker.exceptions.AuthenticationException;
+import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.exceptions.NotImplementedException;
@@ -17,9 +17,9 @@ public class AbstractController {
         return new ExceptionDTO(e.getMessage());
     }
 
-    @ExceptionHandler(AuthenticationException.class)
+    @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ExceptionDTO handleAuthenticationException(AuthenticationException e){
+    public ExceptionDTO handleAuthenticationException(UnauthorizedException e){
         return new ExceptionDTO(e.getMessage());
     }
 

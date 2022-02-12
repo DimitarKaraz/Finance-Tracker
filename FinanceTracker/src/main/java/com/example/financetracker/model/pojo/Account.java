@@ -23,11 +23,11 @@ public class Account {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "currency_id")
     private Currency currency;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "account_type_id")
     private AccountType accountType;
 

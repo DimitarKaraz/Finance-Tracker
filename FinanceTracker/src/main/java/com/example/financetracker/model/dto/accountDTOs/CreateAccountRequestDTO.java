@@ -1,4 +1,4 @@
-package com.example.financetracker.model.dto;
+package com.example.financetracker.model.dto.accountDTOs;
 
 
 import lombok.Getter;

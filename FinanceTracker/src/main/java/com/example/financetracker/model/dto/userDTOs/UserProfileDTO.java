@@ -1,4 +1,4 @@
-package com.example.financetracker.model.dto;
+package com.example.financetracker.model.dto.userDTOs;
 
 import com.example.financetracker.model.pojo.User;
 import com.fasterxml.jackson.annotation.JsonValue;
