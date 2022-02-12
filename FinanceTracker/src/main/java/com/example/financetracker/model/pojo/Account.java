@@ -23,9 +23,13 @@ public class Account {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private String currency;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "currency_id")
+    private Currency currency;
 
-    private String type;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_type_id")
+    private AccountType accountType;
 
     //todo not sure if works?
     @Column(name = "balance")
