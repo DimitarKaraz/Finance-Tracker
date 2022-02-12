@@ -2,18 +2,17 @@ package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.AuthenticationException;
 import com.example.financetracker.exceptions.BadRequestException;
-import com.example.financetracker.model.dto.UserLoginRequestDTO;
-import com.example.financetracker.model.dto.UserLoginResponseDTO;
+import com.example.financetracker.model.dto.*;
 import com.example.financetracker.model.repositories.UserRepository;
-import com.example.financetracker.model.dto.UserRegisterRequestDTO;
-import com.example.financetracker.model.dto.UserRegisterResponseDTO;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.utilities.email_validator.EmailValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -43,12 +42,25 @@ public class UserService {
     }
 
     public UserLoginResponseDTO login(UserLoginRequestDTO requestDTO){
-        User user = userRepository.findByEmail(requestDTO.getEmail());
-        if (user == null || !(encoder.matches(requestDTO.getPassword(), user.getPassword()))){
+        User userPojo = userRepository.findByEmail(requestDTO.getEmail());
+        if (userPojo == null || !(encoder.matches(requestDTO.getPassword(), userPojo.getPassword()))){
             throw new AuthenticationException("Wrong email or password.");
         }
-        return modelMapper.map(user, UserLoginResponseDTO.class);
+        return modelMapper.map(userPojo, UserLoginResponseDTO.class);
     }
 
 
+    public UserProfileDTO getUser(int id) {
+        User userPojo = userRepository.findByUserId(id);
+        if (userPojo == null) {
+            throw new BadRequestException("User does not exist.");
+        }
+        return modelMapper.map(userPojo, UserProfileDTO.class);
+    }
+
+    public List<UserProfileDTO> getAllUser() {
+        List<User> allUsers = userRepository.findAll();
+        return allUsers.stream().map(user -> modelMapper.map(user, UserProfileDTO.class))
+                .collect(Collectors.toList());
+    }
 }

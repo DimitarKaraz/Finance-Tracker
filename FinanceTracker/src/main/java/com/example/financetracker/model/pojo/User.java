@@ -3,6 +3,7 @@ package com.example.financetracker.model.pojo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class User {
 
     @Id()
@@ -45,5 +47,6 @@ public class User {
     public enum Gender{
         MALE, FEMALE, OTHER
     }
+
 
 }

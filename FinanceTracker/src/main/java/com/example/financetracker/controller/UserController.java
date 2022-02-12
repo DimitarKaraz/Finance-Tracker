@@ -1,21 +1,16 @@
 package com.example.financetracker.controller;
 
 
-import com.example.financetracker.model.dto.UserLoginRequestDTO;
-import com.example.financetracker.model.dto.UserLoginResponseDTO;
-import com.example.financetracker.model.dto.UserRegisterRequestDTO;
-import com.example.financetracker.model.dto.UserRegisterResponseDTO;
+import com.example.financetracker.model.dto.*;
 import com.example.financetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @RestController
-@RequestMapping("/users")    // ?
+@RequestMapping("/users")
 public class UserController extends AbstractController {
 
     @Autowired
@@ -28,13 +23,23 @@ public class UserController extends AbstractController {
 
     @PostMapping("/login")
     public UserLoginResponseDTO login(@RequestBody UserLoginRequestDTO requestDTO, HttpSession session){
-        //todo watch lecture
         UserLoginResponseDTO response = userService.login(requestDTO);
         session.setAttribute("LoggedUser", response.getId());
         session.setMaxInactiveInterval(60*30);
         return response;
     }
 
+    @GetMapping("/{id}")
+    public UserProfileDTO getUserById(@PathVariable int id) {
+        //TODO: check if request is valid with Interceptor (valid session, valid id input)
+        return userService.getUser(id);
+    }
+
+    @GetMapping()
+    public List<UserProfileDTO> getAllUsers() {
+        //TODO: check if request is valid with Interceptor (valid session)
+        return userService.getAllUser();
+    }
 
 
 
