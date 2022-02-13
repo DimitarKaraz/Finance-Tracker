@@ -3,6 +3,7 @@ package com.example.financetracker.controller;
 import com.example.financetracker.model.dto.accountDTOs.AccountResponseDTO;
 import com.example.financetracker.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
@@ -11,6 +12,8 @@ import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
 @RestController
 @RequestMapping("/users/{user_id}")
 public class AccountController extends AbstractController{
+    //TODO: make url above "/users/{user_id}/accounts" and fix the ones below
+    //TODO: move {account_id} to request body?
 
     @Autowired
     private AccountService accountService;
@@ -35,6 +38,12 @@ public class AccountController extends AbstractController{
         //todo maybe create new DTO or rename AccountCreateRequestDTO
         //TODO: check if request is valid with Interceptor (valid session, valid id input)
         return accountService.editAccount(requestDTO, userId, accountId);
+    }
+
+    @DeleteMapping("/accounts/delete")
+    public ResponseEntity<String> deleteAccount(@RequestParam("account_id") int accountId) {
+        accountService.deleteAccount(accountId);
+        return ResponseEntity.ok().body("Account deleted successfully.");
     }
 
 }

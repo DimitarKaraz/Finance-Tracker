@@ -1,6 +1,7 @@
 package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.BadRequestException;
+import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.accountDTOs.AccountResponseDTO;
 import com.example.financetracker.model.pojo.Account;
@@ -63,12 +64,24 @@ public class AccountService {
         //might overwrite again, need to change matching strategy
         Account account = modelMapper.map(requestDTO, Account.class);
         account.setAccountId(accountId);
-        account.setUser(userRepository.findByUserId(userId));
         account.setAccountType(requestDTO.getAccountType());
         account.setBalance(requestDTO.getBalance());
-        account.setCurrency(requestDTO.getCurrency());
+        account.setCurrency(requestDTO.getCurrency());  //TODO: recalculate absolute value
         account.setName(requestDTO.getName());
         accountRepository.save(account);
         return modelMapper.map(account, AccountResponseDTO.class);
+    }
+
+    public void deleteAccount(int accountId) {
+        if (!accountRepository.existsById(accountId)) {
+            throw new NotFoundException("Account does not exist.");
+        }
+//        if (accountRepository.getById(accountId).isDefault()) {
+//            throw new BadRequestException("This account cannot be deleted.");
+//        }
+        accountRepository.deleteById(accountId);
+        if (accountRepository.existsById(accountId)) {
+            throw new NotFoundException("Failed to delete account.");
+        }
     }
 }
