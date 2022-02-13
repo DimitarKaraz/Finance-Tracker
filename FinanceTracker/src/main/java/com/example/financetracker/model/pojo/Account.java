@@ -31,7 +31,6 @@ public class Account {
     @JoinColumn(name = "type_id")
     private AccountType accountType;
 
-    //todo not sure if works?
     @Column(name = "balance")
     private BigDecimal balance;
 
