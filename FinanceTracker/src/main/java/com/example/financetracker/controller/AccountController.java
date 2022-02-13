@@ -30,4 +30,11 @@ public class AccountController extends AbstractController{
         return accountService.getAccountById(userId, accountId);
     }
 
+    @PutMapping("/accounts/{account_id}/edit_account")
+    public AccountResponseDTO editAccount(@RequestBody AccountCreateRequestDTO requestDTO, @PathVariable("user_id") int userId, @PathVariable("account_id") int accountId){
+        //todo maybe create new DTO or rename AccountCreateRequestDTO
+        //TODO: check if request is valid with Interceptor (valid session, valid id input)
+        return accountService.editAccount(requestDTO, userId, accountId);
+    }
+
 }

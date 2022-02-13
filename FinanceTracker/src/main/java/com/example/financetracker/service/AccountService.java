@@ -12,6 +12,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,11 +26,12 @@ public class AccountService {
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional
     public AccountResponseDTO createAccount(AccountCreateRequestDTO requestDTO, int userId){
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         if (accountRepository.findAccountByUser_UserIdAndName(userId, requestDTO.getName()) != null){
-            throw new BadRequestException("Account with that name already exists.");
+            throw new BadRequestException("An account with that name already exists.");
         }
         Account account = modelMapper.map(requestDTO, Account.class);
         account.setUser(userRepository.findByUserId(userId));
@@ -51,5 +53,22 @@ public class AccountService {
             throw new UnauthorizedException("You do not have access to this user's accounts.");
         }
         return modelMapper.map(acc, AccountResponseDTO.class);
+    }
+
+    @Transactional
+    public AccountResponseDTO editAccount(AccountCreateRequestDTO requestDTO, int userId, int accountId){
+        if (accountRepository.findAccountByUser_UserIdAndName(userId, requestDTO.getName()) != null){
+            throw new BadRequestException("An account with that name already exists.");
+        }
+        //might overwrite again, need to change matching strategy
+        Account account = modelMapper.map(requestDTO, Account.class);
+        account.setAccountId(accountId);
+        account.setUser(userRepository.findByUserId(userId));
+        account.setAccountType(requestDTO.getAccountType());
+        account.setBalance(requestDTO.getBalance());
+        account.setCurrency(requestDTO.getCurrency());
+        account.setName(requestDTO.getName());
+        accountRepository.save(account);
+        return modelMapper.map(account, AccountResponseDTO.class);
     }
 }
