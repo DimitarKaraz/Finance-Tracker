@@ -25,7 +25,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder encoder;
 
-    public UserRegisterResponseDTO addUser(UserRegisterRequestDTO requestDTO) {
+    public UserResponseDTO addUser(UserRegisterRequestDTO requestDTO) {
         if (!EmailValidator.validateEmail(requestDTO.getEmail())) {
             throw new BadRequestException("Please enter a valid email!");
         }
@@ -38,18 +38,18 @@ public class UserService {
         requestDTO.setPassword(encoder.encode(requestDTO.getPassword()));
         User userPojo = modelMapper.map(requestDTO, User.class);
         userRepository.save(userPojo);
-        return modelMapper.map(userPojo, UserRegisterResponseDTO.class);
+        return modelMapper.map(userPojo, UserResponseDTO.class);
     }
 
-    public UserLoginResponseDTO login(UserLoginRequestDTO requestDTO){
+    public UserResponseDTO login(UserLoginRequestDTO requestDTO){
         User userPojo = userRepository.findByEmail(requestDTO.getEmail());
         if (userPojo == null || !(encoder.matches(requestDTO.getPassword(), userPojo.getPassword()))){
             throw new UnauthorizedException("Wrong email or password.");
         }
-        return modelMapper.map(userPojo, UserLoginResponseDTO.class);
+        return modelMapper.map(userPojo, UserResponseDTO.class);
     }
 
-    public UserProfileDTO editProfile(UserProfileDTO requestDTO){
+    public UserResponseDTO editProfile(UserResponseDTO requestDTO){
         User user = userRepository.getById(requestDTO.getUserId());
         user.setDateOfBirth(requestDTO.getDateOfBirth());
         user.setFirstName(requestDTO.getFirstName());
@@ -57,21 +57,21 @@ public class UserService {
         user.setGender(requestDTO.getGender().name());
         user.setProfileImageUrl(requestDTO.getProfileImageUrl());
         userRepository.save(user);
-        return modelMapper.map(user, UserProfileDTO.class);
+        return modelMapper.map(user, UserResponseDTO.class);
 
     }
 
-    public UserProfileDTO getUser(int id) {
+    public UserResponseDTO getUser(int id) {
         User userPojo = userRepository.findByUserId(id);
         if (userPojo == null) {
             throw new NotFoundException("User does not exist.");
         }
-        return modelMapper.map(userPojo, UserProfileDTO.class);
+        return modelMapper.map(userPojo, UserResponseDTO.class);
     }
 
-    public List<UserProfileDTO> getAllUsers() {
+    public List<UserResponseDTO> getAllUsers() {
         List<User> allUsers = userRepository.findAll();
-        return allUsers.stream().map(user -> modelMapper.map(user, UserProfileDTO.class))
+        return allUsers.stream().map(user -> modelMapper.map(user, UserResponseDTO.class))
                 .collect(Collectors.toList());
     }
 

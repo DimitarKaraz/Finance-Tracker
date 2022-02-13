@@ -12,8 +12,6 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,8 +24,7 @@ public class AccountService {
     private ModelMapper modelMapper;
     @Autowired
     private UserRepository userRepository;
-
-
+    
     public AccountResponseDTO createAccount(AccountCreateRequestDTO requestDTO, int userId){
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 

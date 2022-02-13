@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserProfileDTO {
+public class UserResponseDTO {
 
     private int userId;
     private String firstName;

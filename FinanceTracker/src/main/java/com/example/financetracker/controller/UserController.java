@@ -19,21 +19,21 @@ public class UserController extends AbstractController {
     private UserService userService;
 
     @PostMapping("/register")
-    public UserRegisterResponseDTO register(@RequestBody UserRegisterRequestDTO requestDTO) {
+    public UserResponseDTO register(@RequestBody UserRegisterRequestDTO requestDTO) {
         return userService.addUser(requestDTO);
     }
 
     @PostMapping("/login")
-    public UserLoginResponseDTO login(@RequestBody UserLoginRequestDTO requestDTO, HttpSession session) {
-        UserLoginResponseDTO response = userService.login(requestDTO);
-        session.setAttribute("LoggedUser", response.getId());
+    public UserResponseDTO login(@RequestBody UserLoginRequestDTO requestDTO, HttpSession session) {
+        UserResponseDTO response = userService.login(requestDTO);
+        session.setAttribute("LoggedUser", response.getUserId());
         session.setMaxInactiveInterval(60 * 30);
         return response;
     }
 
 
     @PutMapping("/{id}/edit_profile")
-    public UserProfileDTO editProfile(@RequestBody UserProfileDTO requestDTO, HttpServletRequest x) {
+    public UserResponseDTO editProfile(@RequestBody UserResponseDTO requestDTO, HttpServletRequest x) {
         x.getUserPrincipal();
         //TODO: check if request is valid with Interceptor (valid session, valid id input)
         return userService.editProfile(requestDTO);
@@ -49,13 +49,13 @@ public class UserController extends AbstractController {
     }
 
     @GetMapping("/{id}")
-    public UserProfileDTO getUserById(@PathVariable int id) {
+    public UserResponseDTO getUserById(@PathVariable int id) {
         //TODO: check if request is valid with Interceptor (valid session, valid id input)
         return userService.getUser(id);
     }
 
     @GetMapping()
-    public List<UserProfileDTO> getAllUsers() {
+    public List<UserResponseDTO> getAllUsers() {
         //TODO: check if request is valid with Interceptor (valid session)
         return userService.getAllUsers();
     }
