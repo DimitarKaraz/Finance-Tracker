@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotBlank;
 
 @Component
 @Getter
@@ -14,9 +13,7 @@ import javax.validation.constraints.NotBlank;
 public class UserRegisterRequestDTO {
 
     private String email;
-    @NotBlank
     private String password;
-    @NotBlank
     private String confirmPassword;
 
 }

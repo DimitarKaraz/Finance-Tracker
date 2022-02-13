@@ -12,8 +12,6 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +25,6 @@ public class AccountService {
     @Autowired
     private UserRepository userRepository;
 
-    @Transactional
     public AccountResponseDTO createAccount(AccountCreateRequestDTO requestDTO, int userId){
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
@@ -56,7 +53,6 @@ public class AccountService {
         return modelMapper.map(acc, AccountResponseDTO.class);
     }
 
-    @Transactional
     public AccountResponseDTO editAccount(AccountCreateRequestDTO requestDTO, int userId, int accountId){
         if (accountRepository.findAccountByUser_UserIdAndName(userId, requestDTO.getName()) != null){
             throw new BadRequestException("An account with that name already exists.");
