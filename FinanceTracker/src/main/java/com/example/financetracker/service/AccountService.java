@@ -24,7 +24,7 @@ public class AccountService {
     private ModelMapper modelMapper;
     @Autowired
     private UserRepository userRepository;
-    
+
     public AccountResponseDTO createAccount(AccountCreateRequestDTO requestDTO, int userId){
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
