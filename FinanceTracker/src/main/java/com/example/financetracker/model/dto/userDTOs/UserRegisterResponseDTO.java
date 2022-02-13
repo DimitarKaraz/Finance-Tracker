@@ -17,8 +17,6 @@ public class UserRegisterResponseDTO {
 
     private int id;
     private String email;
-    @OneToMany(mappedBy = "user_id")
-    private List<Account> userAccounts;
     private String profileImageUrl;
 
 

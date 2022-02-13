@@ -14,9 +14,7 @@ import javax.validation.constraints.NotBlank;
 public class UserRegisterRequestDTO {
 
     private String email;
-    @NotBlank
     private String password;
-    @NotBlank
     private String confirmPassword;
 
 }
