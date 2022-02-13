@@ -18,7 +18,6 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int accountId;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
