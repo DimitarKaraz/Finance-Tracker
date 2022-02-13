@@ -29,7 +29,6 @@ public class UserService {
         if (!EmailValidator.validateEmail(requestDTO.getEmail())) {
             throw new BadRequestException("Please enter a valid email!");
         }
-
         if (userRepository.findByEmail(requestDTO.getEmail()) != null) {
             throw new BadRequestException("Email already exists.");
         }

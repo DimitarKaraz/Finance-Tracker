@@ -13,7 +13,6 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
 
     Account findAccountsByAccountId(int id);
 
-    boolean existsByName(String name);
+    Account findAccountByUser_UserIdAndName(int userId, String name);
 
-    Account findByName(String name);
 }

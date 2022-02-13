@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AccountDTO {
+public class AccountResponseDTO {
 
     private int accountId;
     private int userId;
