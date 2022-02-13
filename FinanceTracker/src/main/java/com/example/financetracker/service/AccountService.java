@@ -61,13 +61,13 @@ public class AccountService {
         if (accountRepository.findAccountByUser_UserIdAndName(userId, requestDTO.getName()) != null){
             throw new BadRequestException("An account with that name already exists.");
         }
-        //might overwrite again, need to change matching strategy
         Account account = modelMapper.map(requestDTO, Account.class);
         account.setAccountId(accountId);
         account.setAccountType(requestDTO.getAccountType());
         account.setBalance(requestDTO.getBalance());
         account.setCurrency(requestDTO.getCurrency());  //TODO: recalculate absolute value
         account.setName(requestDTO.getName());
+        account.setUser(userRepository.findByUserId(userId));
         accountRepository.save(account);
         return modelMapper.map(account, AccountResponseDTO.class);
     }
