@@ -27,7 +27,7 @@ public class Account {
     private Currency currency;
 
     @ManyToOne
-    @JoinColumn(name = "type_id")
+    @JoinColumn(name = "account_type_id")
     private AccountType accountType;
 
     @Column(name = "balance")

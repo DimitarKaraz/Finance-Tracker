@@ -15,7 +15,7 @@ public class AccountType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int typeId;
+    private int accountTypeId;
 
     @Column
     private String name;
