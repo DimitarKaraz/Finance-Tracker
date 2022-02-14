@@ -1,6 +1,8 @@
 package com.example.financetracker.controller;
 
 import com.example.financetracker.model.dto.categoryDTOs.CategoryCreateRequestDTO;
+import com.example.financetracker.model.dto.categoryDTOs.CategoryEditRequestDTO;
+import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.pojo.Category;
 import com.example.financetracker.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +26,18 @@ public class CategoryController {
     }
 
     @PostMapping("/create")
-    public Category createCategory(@RequestBody CategoryCreateRequestDTO requestDTO){
+    public CategoryResponseDTO createCategory(@RequestBody CategoryCreateRequestDTO requestDTO){
         return categoryService.createCategory(requestDTO);
+    }
+
+    @PutMapping("/edit")
+    public CategoryResponseDTO editCategory(@RequestBody CategoryEditRequestDTO requestDTO){
+        return categoryService.editCategory(requestDTO);
+    }
+
+    @DeleteMapping("/delete")
+    public void deleteCategory(@RequestBody CategoryEditRequestDTO requestDTO){
+        categoryService.deleteCategory(requestDTO);
     }
 
 }
