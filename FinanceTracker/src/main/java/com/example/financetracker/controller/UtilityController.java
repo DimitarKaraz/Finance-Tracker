@@ -2,6 +2,7 @@ package com.example.financetracker.controller;
 
 import com.example.financetracker.model.pojo.AccountType;
 import com.example.financetracker.model.pojo.Currency;
+import com.example.financetracker.model.pojo.TransactionType;
 import com.example.financetracker.service.UtilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,11 @@ public class UtilityController {
     @GetMapping("/account_types")
     public List<AccountType> getAllAccountTypes(){
         return utilityService.getAllAccountTypes();
+    }
+
+    @GetMapping("/transaction_types")
+    public List<TransactionType> getAllTransactionTypes(){
+        return utilityService.getAllTransactionTypes();
     }
 
 }

@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import javax.validation.Valid;
@@ -23,23 +22,23 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseWrapper<UserResponseDTO>> register(@RequestBody UserRegisterRequestDTO requestDTO) {
-        ResponseWrapper<UserResponseDTO> wrapper = new ResponseWrapper<>("User was registered.", userService.addUser(requestDTO), HttpStatus.CREATED, LocalDateTime.now());
+    public ResponseEntity<ResponseWrapper<UserProfileDTO>> register(@RequestBody UserRegisterRequestDTO requestDTO) {
+        ResponseWrapper<UserProfileDTO> wrapper = new ResponseWrapper<>("User was registered.", userService.addUser(requestDTO), HttpStatus.CREATED, LocalDateTime.now());
         return ResponseEntity.status(201).body(wrapper);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseWrapper<UserResponseDTO>> login(@Valid @RequestBody UserLoginRequestDTO requestDTO, HttpSession session) {
-        UserResponseDTO response = userService.login(requestDTO);
+    public ResponseEntity<ResponseWrapper<UserProfileDTO>> login(@Valid @RequestBody UserLoginRequestDTO requestDTO, HttpSession session) {
+        UserProfileDTO response = userService.login(requestDTO);
         session.setAttribute("LoggedUser", response.getUserId());
         session.setMaxInactiveInterval(60 * 30);
-        ResponseWrapper<UserResponseDTO> wrapper = new ResponseWrapper<>("User was registered.", response, HttpStatus.OK, LocalDateTime.now());
+        ResponseWrapper<UserProfileDTO> wrapper = new ResponseWrapper<>("User was registered.", response, HttpStatus.OK, LocalDateTime.now());
         return ResponseEntity.ok().body(wrapper);
     }
 
 
     @PutMapping("/{id}/edit_profile")
-    public UserResponseDTO editProfile(@RequestBody UserResponseDTO requestDTO) {
+    public UserProfileDTO editProfile(@RequestBody UserProfileDTO requestDTO) {
         //TODO: check if request is valid with Interceptor (valid session, valid id input)
         return userService.editProfile(requestDTO);
     }
@@ -54,13 +53,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserResponseDTO getUserById(@PathVariable int id) {
+    public UserProfileDTO getUserById(@PathVariable int id) {
         //TODO: check if request is valid with Interceptor (valid session, valid id input)
         return userService.getUser(id);
     }
 
     @GetMapping()
-    public List<UserResponseDTO> getAllUsers() {
+    public List<UserProfileDTO> getAllUsers() {
         //TODO: check if request is valid with Interceptor (valid session)
         return userService.getAllUsers();
     }

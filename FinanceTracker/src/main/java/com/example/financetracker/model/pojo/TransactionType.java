@@ -9,20 +9,18 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "account_types")
+@Table(name = "transaction_types")
 @Getter
 @Setter
 @NoArgsConstructor
-public class AccountType {
+public class TransactionType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Min(value = 1, message = "Invalid account type id.")
-    private int accountTypeId;
+    @Min(value = 1, message = "Invalid transaction type id.")
+    private int transactionTypeId;
 
-    @Column
-    @NotBlank(message = "Invalid account type name.")
+    @NotBlank(message = "Invalid transaction type name.")
     private String name;
-
 
 }

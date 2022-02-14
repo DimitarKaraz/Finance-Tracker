@@ -21,11 +21,11 @@ public class Currency {
     private int currencyId;
 
     @Column(name = "name")
-    @NotBlank(message = "Invalid name.")
+    @NotBlank(message = "Invalid currency name.")
     private String name;
 
     @Column(name = "abbreviation")
-    @NotBlank(message = "Invalid abbreviation.")
+    @NotBlank(message = "Invalid currency abbreviation.")
     private String abbreviation;
 
 
