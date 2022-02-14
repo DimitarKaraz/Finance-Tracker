@@ -3,6 +3,7 @@ package com.example.financetracker.service;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.exceptions.UnauthorizedException;
+import com.example.financetracker.model.dto.accountDTOs.AccountEditRequestDTO;
 import com.example.financetracker.model.dto.accountDTOs.AccountResponseDTO;
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.repositories.AccountRepository;
@@ -12,6 +13,9 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,17 +57,18 @@ public class AccountService {
         return modelMapper.map(acc, AccountResponseDTO.class);
     }
 
-    public AccountResponseDTO editAccount(AccountCreateRequestDTO requestDTO, int userId, int accountId){
-        if (accountRepository.findAccountByUser_UserIdAndName(userId, requestDTO.getName()) != null){
+
+    public AccountResponseDTO editAccount(AccountEditRequestDTO requestDTO){
+        if (accountRepository.findAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName()) != null){
             throw new BadRequestException("An account with that name already exists.");
         }
         Account account = modelMapper.map(requestDTO, Account.class);
-        account.setAccountId(accountId);
+        account.setAccountId(requestDTO.getAccountId());
         account.setAccountType(requestDTO.getAccountType());
         account.setBalance(requestDTO.getBalance());
         account.setCurrency(requestDTO.getCurrency());  //TODO: recalculate absolute value
         account.setName(requestDTO.getName());
-        account.setUser(userRepository.findByUserId(userId));
+        account.setUser(userRepository.findByUserId(requestDTO.getUserId()));
         accountRepository.save(account);
         return modelMapper.map(account, AccountResponseDTO.class);
     }

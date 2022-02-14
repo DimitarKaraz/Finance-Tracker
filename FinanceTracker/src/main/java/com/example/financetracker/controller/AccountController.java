@@ -1,12 +1,16 @@
 package com.example.financetracker.controller;
 
+import com.example.financetracker.model.dto.accountDTOs.AccountEditRequestDTO;
 import com.example.financetracker.model.dto.accountDTOs.AccountResponseDTO;
 import com.example.financetracker.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
+
+import javax.validation.Valid;
 
 
 @RestController
@@ -34,10 +38,9 @@ public class AccountController extends AbstractController{
     }
 
     @PutMapping("/accounts/{account_id}/edit_account")
-    public AccountResponseDTO editAccount(@RequestBody AccountCreateRequestDTO requestDTO, @PathVariable("user_id") int userId, @PathVariable("account_id") int accountId){
-        //todo maybe create new DTO or rename AccountCreateRequestDTO
+    public AccountResponseDTO editAccount(@Valid @RequestBody AccountEditRequestDTO requestDTO){
         //TODO: check if request is valid with Interceptor (valid session, valid id input)
-        return accountService.editAccount(requestDTO, userId, accountId);
+        return accountService.editAccount(requestDTO);
     }
 
     @DeleteMapping("/accounts/delete")
