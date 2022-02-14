@@ -13,6 +13,9 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class UserLoginRequestDTO {
 
+    @NotBlank(message = "Invalid email.")
     private String email;
+
+    @NotBlank(message = "Invalid password.")
     private String password;
 }

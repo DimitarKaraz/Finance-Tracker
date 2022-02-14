@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -28,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseWrapper<UserResponseDTO>> login(@RequestBody UserLoginRequestDTO requestDTO, HttpSession session) {
+    public ResponseEntity<ResponseWrapper<UserResponseDTO>> login(@Valid @RequestBody UserLoginRequestDTO requestDTO, HttpSession session) {
         UserResponseDTO response = userService.login(requestDTO);
         session.setAttribute("LoggedUser", response.getUserId());
         session.setMaxInactiveInterval(60 * 30);
@@ -38,15 +39,14 @@ public class UserController {
 
 
     @PutMapping("/{id}/edit_profile")
-    public UserResponseDTO editProfile(@RequestBody UserResponseDTO requestDTO, HttpServletRequest x) {
-        x.getUserPrincipal();
+    public UserResponseDTO editProfile(@RequestBody UserResponseDTO requestDTO) {
         //TODO: check if request is valid with Interceptor (valid session, valid id input)
         return userService.editProfile(requestDTO);
     }
 
 
     @PutMapping("/{id}/change_password")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequestDTO requestDTO){
+    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestDTO requestDTO){
         //TODO: check if request is valid with Interceptor (valid session, valid id input)
         //todo maybe change return to ChangePasswordResponseDTO
         userService.changePassword(requestDTO);

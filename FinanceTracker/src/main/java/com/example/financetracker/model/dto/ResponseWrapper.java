@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ResponseWrapper<DTO> {
+public class ResponseWrapper<DTO> { //TODO: add interface
 
     private String message;
     private DTO dto;

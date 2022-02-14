@@ -22,8 +22,8 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/create_account")
-    public AccountResponseDTO createAccount(@RequestBody AccountCreateRequestDTO requestDTO, @PathVariable("user_id") int userId){
-        return accountService.createAccount(requestDTO, userId);
+    public AccountResponseDTO createAccount(@Valid @RequestBody AccountCreateRequestDTO requestDTO){
+        return accountService.createAccount(requestDTO);
     }
 
     @GetMapping("/accounts")
