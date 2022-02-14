@@ -29,14 +29,14 @@ public class AccountService {
     @Autowired
     private UserRepository userRepository;
 
-    public AccountResponseDTO createAccount(AccountCreateRequestDTO requestDTO, int userId){
+    public AccountResponseDTO createAccount(AccountCreateRequestDTO requestDTO){
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-        if (accountRepository.findAccountByUser_UserIdAndName(userId, requestDTO.getName()) != null){
+        if (accountRepository.findAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName()) != null){
             throw new BadRequestException("An account with that name already exists.");
         }
         Account account = modelMapper.map(requestDTO, Account.class);
-        account.setUser(userRepository.findByUserId(userId));
+        account.setUser(userRepository.findByUserId(requestDTO.getUserId()));
         accountRepository.save(account);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);

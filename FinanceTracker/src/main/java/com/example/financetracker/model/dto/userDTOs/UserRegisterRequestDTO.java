@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotBlank;
+
 
 @Component
 @Getter
@@ -12,8 +14,13 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 public class UserRegisterRequestDTO {
 
+    @NotBlank(message = "Invalid email.")
     private String email;
+
+    @NotBlank(message = "Invalid password.")
     private String password;
+
+    @NotBlank(message = "Invalid password.")
     private String confirmPassword;
 
 }

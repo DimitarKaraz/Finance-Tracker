@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
 
@@ -16,24 +17,26 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class AccountEditRequestDTO {
 
-    @Min(1)
+    @Min(value = 1, message = "Invalid user id.")
     private int userId;
 
-    @Min(1)
+    @Min(value = 1, message = "Invalid account id.")
     private int accountId;
 
-    @NotBlank
+    @NotBlank(message = "Invalid name.")
     private String name;
 
-    @NotNull
+    @NotNull(message = "Invalid currency.")
+    @Valid
     private Currency currency;
 
-    @NotNull
+    @NotNull(message = "Invalid account type.")
+    @Valid
     private AccountType accountType;
 
-    @NotNull
-    @Min(0)
-    @Digits(integer = 13, fraction = 2)
+    @NotNull(message = "Invalid balance.")
+    @Min(value = 0, message = "Invalid balance.")
+    @Digits(integer = 13, fraction = 2, message = "Invalid balance.")
     private BigDecimal balance;
 
 }
