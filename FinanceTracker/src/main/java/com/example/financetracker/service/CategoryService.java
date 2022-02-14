@@ -1,5 +1,6 @@
 package com.example.financetracker.service;
 
+import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryCreateRequestDTO;
 import com.example.financetracker.model.pojo.Category;
@@ -36,11 +37,10 @@ public class CategoryService {
         if (userRepository.findByUserId(category.getUser().getUserId()) == null){
             throw new UnauthorizedException("You have to be logged in to create a category.");
         }
-        //todo check if category with this name already exists for user or predefined categories
-        //not sure if the code below works
-        /*if (categoryRepository.findByUser_UserIdAndNameOrUser_UserIdIsNullAndName() != null){
-            System.out.println("A category with that name already exists.");
-        }*/
+        if ((categoryRepository.findByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName()) != null)
+                || (categoryRepository.findByNameAndUser_UserIdIsNull(requestDTO.getName()) != null)){
+            throw new BadRequestException("A category with that name already exists.");
+        }
         categoryRepository.save(category);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
         return category;
