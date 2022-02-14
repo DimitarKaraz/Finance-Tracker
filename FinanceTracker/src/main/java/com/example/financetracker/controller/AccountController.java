@@ -5,7 +5,6 @@ import com.example.financetracker.model.dto.accountDTOs.AccountResponseDTO;
 import com.example.financetracker.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
@@ -15,7 +14,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/users/{user_id}")
-public class AccountController extends AbstractController{
+public class AccountController {
     //TODO: make url above "/users/{user_id}/accounts" and fix the ones below
     //TODO: move {account_id} to request body?
 

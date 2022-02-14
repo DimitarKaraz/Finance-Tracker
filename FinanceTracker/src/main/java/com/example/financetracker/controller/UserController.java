@@ -1,34 +1,39 @@
 package com.example.financetracker.controller;
 
 
+import com.example.financetracker.model.dto.ResponseWrapper;
 import com.example.financetracker.model.dto.userDTOs.*;
 import com.example.financetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
-public class UserController extends AbstractController {
+public class UserController {
 
     @Autowired
     private UserService userService;
 
     @PostMapping("/register")
-    public UserResponseDTO register(@RequestBody UserRegisterRequestDTO requestDTO) {
-        return userService.addUser(requestDTO);
+    public ResponseEntity<ResponseWrapper<UserResponseDTO>> register(@RequestBody UserRegisterRequestDTO requestDTO) {
+        ResponseWrapper<UserResponseDTO> wrapper = new ResponseWrapper<>("User was registered.", userService.addUser(requestDTO), HttpStatus.CREATED, LocalDateTime.now());
+        return ResponseEntity.status(201).body(wrapper);
     }
 
     @PostMapping("/login")
-    public UserResponseDTO login(@RequestBody UserLoginRequestDTO requestDTO, HttpSession session) {
+    public ResponseEntity<ResponseWrapper<UserResponseDTO>> login(@RequestBody UserLoginRequestDTO requestDTO, HttpSession session) {
         UserResponseDTO response = userService.login(requestDTO);
         session.setAttribute("LoggedUser", response.getUserId());
         session.setMaxInactiveInterval(60 * 30);
-        return response;
+        ResponseWrapper<UserResponseDTO> wrapper = new ResponseWrapper<>("User was registered.", response, HttpStatus.OK, LocalDateTime.now());
+        return ResponseEntity.ok().body(wrapper);
     }
 
 

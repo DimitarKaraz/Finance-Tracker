@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-public class UtilityController extends AbstractController {
+public class UtilityController {
 
     @Autowired
     private UtilityService utilityService;
