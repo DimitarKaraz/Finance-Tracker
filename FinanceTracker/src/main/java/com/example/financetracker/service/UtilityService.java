@@ -1,9 +1,11 @@
 package com.example.financetracker.service;
 
 import com.example.financetracker.model.pojo.AccountType;
+import com.example.financetracker.model.pojo.CategoryIcon;
 import com.example.financetracker.model.pojo.Currency;
 import com.example.financetracker.model.pojo.TransactionType;
 import com.example.financetracker.model.repositories.AccountTypeRepository;
+import com.example.financetracker.model.repositories.CategoryIconRepository;
 import com.example.financetracker.model.repositories.CurrencyRepository;
 import com.example.financetracker.model.repositories.TransactionTypeRepository;
 import lombok.experimental.Accessors;
@@ -20,6 +22,8 @@ public class UtilityService {
     private AccountTypeRepository accountTypeRepository;
     @Autowired
     private TransactionTypeRepository transactionTypeRepository;
+    @Autowired
+    private CategoryIconRepository categoryIconRepository;
 
     public List<Currency> getAllCurrencies() {
         return currencyRepository.findAll();
@@ -30,5 +34,9 @@ public class UtilityService {
 
     public List<TransactionType> getAllTransactionTypes(){
         return transactionTypeRepository.findAll();
+    }
+
+    public List<CategoryIcon> getAllCategoryIcons(){
+        return categoryIconRepository.findAll();
     }
 }
