@@ -1,17 +1,13 @@
 package com.example.financetracker.model.dto.userDTOs;
 
 import com.example.financetracker.model.pojo.User;
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 
 @Component
@@ -29,7 +25,7 @@ public class UserProfileDTO {
     @NotBlank(message = "Invalid last name.")
     private String lastName;
 
-    //todo somehow validate enum
+    //Validated by @JsonProperty
     private User.Gender gender;
 
     //todo somehow validate date

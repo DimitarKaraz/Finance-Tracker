@@ -2,7 +2,10 @@ package com.example.financetracker.controller;
 
 
 import com.example.financetracker.model.dto.ResponseWrapper;
-import com.example.financetracker.model.dto.userDTOs.*;
+import com.example.financetracker.model.dto.userDTOs.ChangePasswordRequestDTO;
+import com.example.financetracker.model.dto.userDTOs.UserLoginRequestDTO;
+import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
+import com.example.financetracker.model.dto.userDTOs.UserRegisterRequestDTO;
 import com.example.financetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,8 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.time.LocalDateTime;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -22,9 +25,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseWrapper<UserProfileDTO>> register(@RequestBody UserRegisterRequestDTO requestDTO) {
-        ResponseWrapper<UserProfileDTO> wrapper = new ResponseWrapper<>("User was registered.", userService.addUser(requestDTO), HttpStatus.CREATED, LocalDateTime.now());
-        return ResponseEntity.status(201).body(wrapper);
+    public ResponseEntity<ResponseWrapper<UserProfileDTO>> register(@Valid @RequestBody UserRegisterRequestDTO requestDTO) {
+        return ResponseWrapper.wrap("User was registered.", userService.addUser(requestDTO), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
@@ -32,42 +34,44 @@ public class UserController {
         UserProfileDTO response = userService.login(requestDTO);
         session.setAttribute("LoggedUser", response.getUserId());
         session.setMaxInactiveInterval(60 * 30);
-        ResponseWrapper<UserProfileDTO> wrapper = new ResponseWrapper<>("User was registered.", response, HttpStatus.OK, LocalDateTime.now());
-        return ResponseEntity.ok().body(wrapper);
+        return ResponseWrapper.wrap("User was registered.", response, HttpStatus.OK);
     }
 
-
     @PutMapping("/{id}/edit_profile")
-    public UserProfileDTO editProfile(@RequestBody UserProfileDTO requestDTO) {
-        //TODO: check if request is valid with Interceptor (valid session, valid id input)
-        return userService.editProfile(requestDTO);
+    public ResponseEntity<ResponseWrapper<UserProfileDTO>> editProfile(@RequestBody UserProfileDTO requestDTO) {
+        //TODO: SECURITY
+        return ResponseWrapper.wrap("Profile was edited.", userService.editProfile(requestDTO), HttpStatus.OK);
     }
 
 
     @PutMapping("/{id}/change_password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestDTO requestDTO){
-        //TODO: check if request is valid with Interceptor (valid session, valid id input)
-        //todo maybe change return to ChangePasswordResponseDTO
+        //TODO: SECURITY -> LOG USER OUT and return OK:
+        //SecurityContextLogoutHandler sss = new SecurityContextLogoutHandler();
+        //sss.logout(...);
         userService.changePassword(requestDTO);
-        return ResponseEntity.ok().body("Password was changed successfully.");
+        return ResponseEntity.ok().body("Password was changed.");
     }
 
     @GetMapping("/{id}")
-    public UserProfileDTO getUserById(@PathVariable int id) {
-        //TODO: check if request is valid with Interceptor (valid session, valid id input)
-        return userService.getUser(id);
+    public ResponseEntity<ResponseWrapper<UserProfileDTO>> getUserById(@PathVariable int id) {
+        //TODO: SECURITY
+        return ResponseWrapper.wrap("User retrieved.", userService.getUser(id), HttpStatus.OK);
     }
 
     @GetMapping()
-    public List<UserProfileDTO> getAllUsers() {
-        //TODO: check if request is valid with Interceptor (valid session)
-        return userService.getAllUsers();
+    public ResponseEntity<ResponseWrapper<List<UserProfileDTO>>> getAllUsers() {
+        //TODO: SECURITY
+        return ResponseWrapper.wrap("All users retrieved.", userService.getAllUsers(), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<String> deleteUserById(@PathVariable int id) {
+        //TODO: SECURITY -> LOG USER OUT:
+        //SecurityContextLogoutHandler sss = new SecurityContextLogoutHandler();
+        //sss.logout(...);
         userService.deleteUser(id);
-        return ResponseEntity.ok().body("Your profile was deleted. We will miss you!");
+        return ResponseEntity.ok().body("\"message\": \"Your profile was deleted. We will miss you!\"\n" + "\"timestamp\": " + LocalDateTime.now());
     }
 
 }
