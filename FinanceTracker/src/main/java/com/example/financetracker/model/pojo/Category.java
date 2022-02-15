@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "categories")
@@ -12,7 +13,6 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 public class Category {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,5 +33,7 @@ public class Category {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToMany(mappedBy = "categories")
+    private List<Budget> budgets;
 
 }

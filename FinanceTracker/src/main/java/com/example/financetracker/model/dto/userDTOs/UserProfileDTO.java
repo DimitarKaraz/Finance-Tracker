@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
 
 @Component
@@ -29,7 +31,8 @@ public class UserProfileDTO {
     //Validated by @JsonProperty
     private User.Gender gender;
 
-    //todo somehow validate date
+    @NotNull
+    @PastOrPresent
     private LocalDate dateOfBirth;
 
     @NotBlank(message = "Invalid email.", groups = EditUserRequest.class)

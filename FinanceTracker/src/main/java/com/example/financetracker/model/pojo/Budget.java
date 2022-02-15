@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Table(name = "accounts")
@@ -36,5 +37,12 @@ public class Budget {
     private Account account;
 
     private String note;
+
+    @ManyToMany
+    @JoinTable(
+            name = "budgets_have_categories",
+            joinColumns = @JoinColumn(name = "budget_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> categories;
 
 }

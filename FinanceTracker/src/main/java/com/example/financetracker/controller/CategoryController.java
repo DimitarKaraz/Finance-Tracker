@@ -14,13 +14,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
 public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/{user_id}/categories")
+    @GetMapping("/users/{user_id}/categories")
     public ResponseEntity<ResponseWrapper<List<Category>>> getAllCategoriesByUserId(@PathVariable("user_id") int id){
         //TODO: SECURITY -> only for user with the same id
         return ResponseWrapper.wrap("Categories for user " + id + " retrieved.",
