@@ -39,6 +39,6 @@ public class BudgetCreateRequestDTO {
     private String note;
 
     @NotEmpty
-    private Set<Category> categories;
+    private Set<Integer> categoryIds;
 
 }

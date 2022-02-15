@@ -38,7 +38,7 @@ public class BudgetController {
     @PutMapping("/edit_budget")
     public ResponseEntity<ResponseWrapper<BudgetResponseDTO>> editBudget(@RequestBody BudgetEditRequestDTO requestDTO) {
         //TODO: SECURITY -> only for users with the same id
-        return ResponseWrapper.wrap("Account edited.", budgetService.editBudget(requestDTO), HttpStatus.OK);
+        return ResponseWrapper.wrap("Budget edited.", budgetService.editBudget(requestDTO), HttpStatus.OK);
     }
 
     @DeleteMapping("/{budget_id}/delete_budget")
