@@ -1,6 +1,7 @@
 package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.BadRequestException;
+import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryCreateRequestDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryEditRequestDTO;
@@ -94,21 +95,14 @@ public class CategoryService {
         return modelMapper.map(category, CategoryResponseDTO.class);
     }
 
-    public void deleteCategory(CategoryEditRequestDTO requestDTO){
-        Category category = categoryRepository.findByCategoryId(requestDTO.getCategoryId());
-        if (category == null) {
-            throw new BadRequestException("Invalid category.");
+    public void deleteCategory(int id){
+        if (!categoryRepository.existsById(id)) {
+            throw new NotFoundException("Category does not exist.");
         }
-        if (!userRepository.existsById(requestDTO.getUserId()) || requestDTO.getUserId() != category.getUser().getUserId()){
-            //TODO: SECURITY -> only for user with the same id; otherwise LOG USER OUT and return OK:
-            //SecurityContextLogoutHandler sss = new SecurityContextLogoutHandler();
-            //sss.logout(...);
-            throw new UnauthorizedException("You have to be logged in to create a category.");
-        }
-        if (category.getUser() == null) {
+        if (categoryRepository.findByCategoryId(id).getUser() == null) {
             throw new BadRequestException("This category cannot be deleted.");
         }
-        categoryRepository.deleteById(category.getCategoryId());
+        categoryRepository.deleteById(id);
     }
 
 }

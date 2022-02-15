@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface BudgetRepository extends JpaRepository<Budget, Integer> {
 
 
+    boolean existsByAccount_AccountIdAndName(int accountId, String name);
 }

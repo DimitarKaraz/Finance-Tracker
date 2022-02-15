@@ -92,8 +92,5 @@ public class UserService {
             throw new NotFoundException("User does not exist.");
         }
         userRepository.deleteById(id);
-        if (userRepository.existsById(id)) {
-            throw new NotFoundException("Failed to delete user.");
-        }
     }
 }

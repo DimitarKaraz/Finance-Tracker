@@ -48,10 +48,10 @@ public class AccountController {
         return ResponseWrapper.wrap("Account edited.", accountService.editAccount(requestDTO), HttpStatus.OK);
     }
 
-    @DeleteMapping("/accounts/delete")
-    public ResponseEntity<String> deleteAccount(@Valid @RequestBody AccountEditRequestDTO requestDTO) {
+    @DeleteMapping("/accounts/{acc_id}/delete_account")
+    public ResponseEntity<String> deleteAccount(@PathVariable("acc_id") int id) {
         //TODO: SECURITY -> only for user with same id
-        accountService.deleteAccount(requestDTO);
+        accountService.deleteAccount(id);
         return ResponseEntity.ok().body("Account deleted successfully.");
     }
 

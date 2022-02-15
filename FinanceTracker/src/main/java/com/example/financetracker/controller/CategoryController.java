@@ -36,9 +36,12 @@ public class CategoryController {
         return ResponseWrapper.wrap("Category edited.", categoryService.editCategory(requestDTO), HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete_category")
-    public ResponseEntity<String> deleteCategory(@RequestBody CategoryEditRequestDTO requestDTO){
-        categoryService.deleteCategory(requestDTO);
+    @DeleteMapping("/{cat_id}/delete_category")
+    public ResponseEntity<String> deleteCategory(@PathVariable("cat_id") int id){
+        //TODO: SECURITY -> only for user with the same id; otherwise LOG USER OUT and return OK:
+        //SecurityContextLogoutHandler sss = new SecurityContextLogoutHandler();
+        //sss.logout(...);
+        categoryService.deleteCategory(id);
         return ResponseEntity.ok().body("Category deleted.");
     }
 

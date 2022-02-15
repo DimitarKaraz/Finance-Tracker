@@ -15,6 +15,9 @@ import java.util.Set;
 @NoArgsConstructor
 public class BudgetEditRequestDTO {
 
+    @Min(value = 1, message = "Invalid budget id.")
+    private int budgetId;
+
     @NotBlank(message = "Invalid name.")
     private String name;
 
@@ -26,6 +29,7 @@ public class BudgetEditRequestDTO {
     @Min(value = 1, message = "Invalid account id.")
     private int accountId;
 
+    @NotNull(message = "Invalid note.")
     private String note;
 
     @NotEmpty

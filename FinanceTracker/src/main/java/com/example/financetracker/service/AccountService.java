@@ -86,16 +86,13 @@ public class AccountService {
         return modelMapper.map(account, AccountResponseDTO.class);
     }
 
-    public void deleteAccount(AccountEditRequestDTO requestDTO) {
-        if (!accountRepository.existsById(requestDTO.getAccountId())) {
+    public void deleteAccount(int id) {
+        if (!accountRepository.existsById(id)) {
             throw new NotFoundException("Account does not exist.");
         }
 //        if (accountRepository.getById(accountId).isDefault()) {
 //            throw new BadRequestException("This account cannot be deleted.");
 //        }
-        accountRepository.deleteById(requestDTO.getAccountId());
-        if (accountRepository.existsById(requestDTO.getAccountId())) {
-            throw new NotFoundException("Failed to delete account.");
-        }
+        accountRepository.deleteById(id);
     }
 }
