@@ -1,14 +1,15 @@
 package com.example.financetracker.controller;
 
 import com.example.financetracker.model.dto.ResponseWrapper;
-import com.example.financetracker.model.dto.budgetDTOs.BudgetEditRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetCreateRequestDTO;
+import com.example.financetracker.model.dto.budgetDTOs.BudgetEditRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.service.BudgetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class BudgetController {
     }
 
     @PutMapping("/edit_budget")
-    public ResponseEntity<ResponseWrapper<BudgetResponseDTO>> editBudget(@RequestBody BudgetEditRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<BudgetResponseDTO>> editBudget(@Valid @RequestBody BudgetEditRequestDTO requestDTO) {
         //TODO: SECURITY -> only for users with the same id
         return ResponseWrapper.wrap("Account edited.", budgetService.editBudget(requestDTO), HttpStatus.OK);
     }

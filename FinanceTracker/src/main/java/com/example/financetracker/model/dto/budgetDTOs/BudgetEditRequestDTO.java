@@ -1,6 +1,5 @@
 package com.example.financetracker.model.dto.budgetDTOs;
 
-import com.example.financetracker.model.pojo.Category;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,7 +23,7 @@ public class BudgetEditRequestDTO {
     @NotNull(message = "Invalid limit.")
     @Min(value = 0, message = "Invalid limit.")
     @Digits(integer = 13, fraction = 2, message = "Invalid limit.")
-    private BigDecimal limit;
+    private BigDecimal maxLimit;
 
     @Min(value = 1, message = "Invalid account id.")
     private int accountId;
@@ -33,5 +32,5 @@ public class BudgetEditRequestDTO {
     private String note;
 
     @NotEmpty
-    private Set<Category> categories;
+    private Set<Integer> categoryIds;
 }

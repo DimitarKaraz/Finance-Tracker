@@ -2,20 +2,22 @@ package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.NotFoundException;
+import com.example.financetracker.exceptions.UnauthorizedException;
+import com.example.financetracker.model.dto.budgetDTOs.BudgetCreateRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetEditRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.pojo.Account;
-import com.example.financetracker.model.dto.budgetDTOs.BudgetCreateRequestDTO;
 import com.example.financetracker.model.pojo.Budget;
+import com.example.financetracker.model.pojo.Category;
 import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,7 +51,7 @@ public class BudgetService {
         Budget budget = modelMapper.map(requestDTO, Budget.class);
         budget.setInterval(intervalRepository.findById(requestDTO.getIntervalId()).orElse(null));
         budget.setAccount(accountRepository.findById(requestDTO.getAccountId()).orElse(null));
-        budget.setLimit(requestDTO.getLimit());
+        budget.setMaxLimit(requestDTO.getMaxLimit());
         budget.setAmountSpent(new BigDecimal(0));
         //TODO: DAO
         budget.setCategories(requestDTO.getCategoryIds().stream()
@@ -57,46 +59,60 @@ public class BudgetService {
                 .collect(Collectors.toSet()));
         budgetRepository.save(budget);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
-        return modelMapper.map(budget, BudgetResponseDTO.class);
+        return convertToDTO(budget);
     }
 
     public List<BudgetResponseDTO> getAllBudgetsByUserId(int userId){
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("Invalid user id.");
+        }
         List<Budget> budgets = budgetRepository.findAllByAccount_User_UserId(userId);
-        return budgets.stream().map(budget -> modelMapper.map(budget, BudgetResponseDTO.class)).collect(Collectors.toList());
+        return budgets.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public BudgetResponseDTO getBudgetById(int budgetId){
-        Optional<Budget> budget = budgetRepository.findById(budgetId);
-        if (budget.isEmpty()){
-            throw new BadRequestException("The budget you are trying to delete does not exist.");
+        Budget budget = budgetRepository.findById(budgetId).orElse(null);
+        if (budget == null){
+            throw new NotFoundException("Invalid budget id.");
         }
-        return modelMapper.map(budget.get(), BudgetResponseDTO.class);
+        //TODO: SECURITY:
+//        if (budget.getAccount().getUser().getUserId() != <user session id>) {
+//            throw new UnauthorizedException("You must be logged in.");
+//        }
+        return convertToDTO(budget);
     }
 
     public BudgetResponseDTO editBudget(BudgetEditRequestDTO requestDTO) {
-        if (budgetRepository.existsById(requestDTO.getBudgetId())) {
-            throw new BadRequestException("Invalid budget id.");
+        Budget budget = budgetRepository.findById(requestDTO.getBudgetId()).orElse(null);
+
+        if (budget == null) {
+            throw new NotFoundException("Invalid budget id.");
         }
         Account account = accountRepository.findById(requestDTO.getAccountId()).orElse(null);
         if (account == null) {
             throw new BadRequestException("Invalid account id.");
         }
+        if (budget.getAccount().getAccountId() != requestDTO.getAccountId()) {
+            throw new UnauthorizedException("You don't have permission to edit this budget.");
+        }
         //TODO: SECURITY -> only for users with same id
         if (!userRepository.existsById(account.getUser().getUserId())) {
-            throw new BadRequestException("Invalid user id.");
+            throw new NotFoundException("Invalid user id.");
         }
-        Budget budget = modelMapper.map(requestDTO, Budget.class);
         if (!budget.getName().equals(requestDTO.getName())) {
             if (budgetRepository.existsByAccount_AccountIdAndName(requestDTO.getAccountId(), requestDTO.getName())) {
                 throw new BadRequestException("A budget with that name already exists.");
             }
         }
         budget.setName(requestDTO.getName());
-        budget.setLimit(requestDTO.getLimit());
+        budget.setMaxLimit(requestDTO.getMaxLimit());
         budget.setNote(requestDTO.getNote());
-        budget.setCategories(requestDTO.getCategories());
+        //TODO: DAO
+        budget.setCategories(requestDTO.getCategoryIds().stream()
+                .map(integer -> categoryRepository.findById(integer).orElse(null))
+                .collect(Collectors.toSet()));
         budgetRepository.save(budget);
-        return modelMapper.map(budget, BudgetResponseDTO.class);
+        return convertToDTO(budget);
     }
 
     public void deleteBudget(int id) {
@@ -104,6 +120,12 @@ public class BudgetService {
             throw new NotFoundException("Budget does not exist.");
         }
         budgetRepository.deleteById(id);
+    }
+
+    private BudgetResponseDTO convertToDTO(Budget budget) {
+        BudgetResponseDTO responseDTO = modelMapper.map(budget, BudgetResponseDTO.class);
+        responseDTO.setCategoryIds(budget.getCategories().stream().map(Category::getCategoryId).collect(Collectors.toSet()));
+        return responseDTO;
     }
 
 }

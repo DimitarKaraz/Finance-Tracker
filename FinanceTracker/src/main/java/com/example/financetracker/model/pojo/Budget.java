@@ -3,6 +3,7 @@ package com.example.financetracker.model.pojo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -14,6 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class Budget {
 
     @Id
@@ -26,8 +28,8 @@ public class Budget {
     @Column(name = "amount_spent")
     private BigDecimal amountSpent;
 
-    @Column(name = "limit")
-    private BigDecimal limit;
+    @Column(name = "max_limit")
+    private BigDecimal maxLimit;
 
     @ManyToOne
     @JoinColumn(name = "interval_id")

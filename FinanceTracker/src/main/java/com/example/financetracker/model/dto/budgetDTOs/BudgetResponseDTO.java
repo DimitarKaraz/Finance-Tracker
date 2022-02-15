@@ -21,7 +21,7 @@ public class BudgetResponseDTO {
 
     private BigDecimal amountSpent;
 
-    private BigDecimal limit;
+    private BigDecimal maxLimit;
 
     private int intervalId;
 
