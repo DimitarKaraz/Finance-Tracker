@@ -15,6 +15,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -35,7 +36,7 @@ public class CategoryService {
         return categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(id);
     }
 
-//    @Transactional
+    @Transactional
     public CategoryResponseDTO createCategory(CategoryCreateRequestDTO requestDTO){
         if (!userRepository.existsById(requestDTO.getUserId())){
             //TODO: SECURITY -> LOG USER OUT and return OK:
