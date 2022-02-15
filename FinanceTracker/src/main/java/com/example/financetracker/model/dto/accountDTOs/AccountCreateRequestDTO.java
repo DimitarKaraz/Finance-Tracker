@@ -1,14 +1,11 @@
 package com.example.financetracker.model.dto.accountDTOs;
 
 
-import com.example.financetracker.model.pojo.AccountType;
-import com.example.financetracker.model.pojo.Currency;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -27,13 +24,11 @@ public class AccountCreateRequestDTO {
     @NotBlank(message = "Invalid name.")
     private String name;
 
-    @NotNull(message = "Invalid currency.")
-    @Valid
-    private Currency currency;
+    @Min(value = 1, message = "Invalid currency id.")
+    private int currencyId;
 
-    @NotNull(message = "Invalid account type.")
-    @Valid
-    private AccountType accountType;
+    @Min(value = 1, message = "Invalid account type id.")
+    private int accountTypeId;
 
     @NotNull(message = "Invalid balance.")
     @Min(value = 0, message = "Invalid balance.")

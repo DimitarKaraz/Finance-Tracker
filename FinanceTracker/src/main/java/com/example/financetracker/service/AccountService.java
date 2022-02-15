@@ -8,6 +8,8 @@ import com.example.financetracker.model.dto.accountDTOs.AccountEditRequestDTO;
 import com.example.financetracker.model.dto.accountDTOs.AccountResponseDTO;
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.repositories.AccountRepository;
+import com.example.financetracker.model.repositories.AccountTypeRepository;
+import com.example.financetracker.model.repositories.CurrencyRepository;
 import com.example.financetracker.model.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -26,17 +28,21 @@ public class AccountService {
     private ModelMapper modelMapper;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AccountTypeRepository accountTypeRepository;
+    @Autowired
+    private CurrencyRepository currencyRepository;
 
     public AccountResponseDTO createAccount(AccountCreateRequestDTO requestDTO){
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
         if (accountRepository.findAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName()) != null){
             throw new BadRequestException("An account with that name already exists.");
         }
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Account account = modelMapper.map(requestDTO, Account.class);
         account.setUser(userRepository.findByUserId(requestDTO.getUserId()));
+        account.setAccountType(accountTypeRepository.findById(requestDTO.getAccountTypeId()).orElse(null));
+        account.setCurrency(currencyRepository.findById(requestDTO.getCurrencyId()).orElse(null));
         accountRepository.save(account);
-
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
         return modelMapper.map(account, AccountResponseDTO.class);
     }
@@ -57,14 +63,23 @@ public class AccountService {
 
 
     public AccountResponseDTO editAccount(AccountEditRequestDTO requestDTO){
-        if (accountRepository.findAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName()) != null){
-            throw new BadRequestException("An account with that name already exists.");
+        //TODO: SECURITY -> only for users with same id
+
+        if (!accountRepository.existsById(requestDTO.getAccountId())) {
+            throw new BadRequestException("Invalid account id.");
+        }
+        if (accountRepository.findById(requestDTO.getAccountId()).get().getUser().getUserId() != requestDTO.getUserId()) {
+            throw new BadRequestException("Invalid user id.");
         }
         Account account = modelMapper.map(requestDTO, Account.class);
-        account.setAccountId(requestDTO.getAccountId());
-        account.setAccountType(requestDTO.getAccountType());
+        if (!account.getName().equals(requestDTO.getName())) {
+            if (accountRepository.findAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName()) != null) {
+                throw new BadRequestException("An account with that name already exists.");
+            }
+        }
+        account.setAccountType(accountTypeRepository.findById(requestDTO.getAccountTypeId()).orElse(null));
         account.setBalance(requestDTO.getBalance());
-        account.setCurrency(requestDTO.getCurrency());  //TODO: recalculate absolute value
+        account.setCurrency(currencyRepository.findById(requestDTO.getCurrencyId()).orElse(null));  //TODO: recalculate absolute value
         account.setName(requestDTO.getName());
         account.setUser(userRepository.findByUserId(requestDTO.getUserId()));
         accountRepository.save(account);

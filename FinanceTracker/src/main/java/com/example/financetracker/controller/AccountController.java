@@ -15,10 +15,8 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/users/{user_id}")
+@RequestMapping("/users")
 public class AccountController {
-    //TODO: make url above "/users/{user_id}/accounts" and fix the ones below
-    //TODO: move {account_id} to request body?
 
     @Autowired
     private AccountService accountService;
@@ -29,14 +27,14 @@ public class AccountController {
         return ResponseWrapper.wrap("Account created.", accountService.createAccount(requestDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping("/accounts")
+    @GetMapping("/{user_id}/accounts")
     public ResponseEntity<ResponseWrapper<List<AccountResponseDTO>>> getAccountsByUserId(@PathVariable("user_id") int id) {
         //TODO: SECURITY -> only for user with same id
         return ResponseWrapper.wrap("User " + id + " accounts retrieved.",
                 accountService.getAllAccountsByUserId(id), HttpStatus.OK);
     }
 
-    @GetMapping("/accounts/{account_id}")
+    @GetMapping("/{user_id}/accounts/{account_id}")
     public ResponseEntity<ResponseWrapper<AccountResponseDTO>> getAccountById(@PathVariable("user_id") int userId,
                                                                               @PathVariable("account_id") int accountId) {
         //TODO: SECURITY -> only for user with same id
