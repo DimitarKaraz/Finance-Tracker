@@ -7,10 +7,7 @@ import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetCreateRequestDTO;
 import com.example.financetracker.model.pojo.Budget;
-import com.example.financetracker.model.repositories.AccountRepository;
-import com.example.financetracker.model.repositories.BudgetRepository;
-import com.example.financetracker.model.repositories.IntervalRepository;
-import com.example.financetracker.model.repositories.UserRepository;
+import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +31,8 @@ public class BudgetService {
     private ModelMapper modelMapper;
     @Autowired
     private IntervalRepository intervalRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Transactional
     public BudgetResponseDTO createBudget(BudgetCreateRequestDTO requestDTO){
@@ -50,7 +49,12 @@ public class BudgetService {
         Budget budget = modelMapper.map(requestDTO, Budget.class);
         budget.setInterval(intervalRepository.findById(requestDTO.getIntervalId()).orElse(null));
         budget.setAccount(accountRepository.findById(requestDTO.getAccountId()).orElse(null));
+        budget.setLimit(requestDTO.getLimit());
         budget.setAmountSpent(new BigDecimal(0));
+        //TODO: DAO
+        budget.setCategories(requestDTO.getCategoryIds().stream()
+                .map(integer -> categoryRepository.findById(integer).orElse(null))
+                .collect(Collectors.toSet()));
         budgetRepository.save(budget);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
         return modelMapper.map(budget, BudgetResponseDTO.class);

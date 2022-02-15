@@ -31,5 +31,5 @@ public class BudgetResponseDTO {
 
     private String note;
 
-    private Set<Integer> categoriesId;
+    private Set<Integer> categoryIds;
 }

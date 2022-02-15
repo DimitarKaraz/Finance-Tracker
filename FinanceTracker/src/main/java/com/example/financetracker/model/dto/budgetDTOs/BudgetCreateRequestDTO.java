@@ -1,6 +1,5 @@
 package com.example.financetracker.model.dto.budgetDTOs;
 
-import com.example.financetracker.model.pojo.Category;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,6 +38,6 @@ public class BudgetCreateRequestDTO {
     private String note;
 
     @NotEmpty
-    private Set<Category> categories;
+    private Set<Integer> categoryIds;
 
 }
