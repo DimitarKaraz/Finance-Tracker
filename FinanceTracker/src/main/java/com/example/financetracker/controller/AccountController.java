@@ -1,15 +1,17 @@
 package com.example.financetracker.controller;
 
+import com.example.financetracker.model.dto.ResponseWrapper;
+import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
 import com.example.financetracker.model.dto.accountDTOs.AccountEditRequestDTO;
 import com.example.financetracker.model.dto.accountDTOs.AccountResponseDTO;
 import com.example.financetracker.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 @RestController
@@ -22,29 +24,36 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/create_account")
-    public AccountResponseDTO createAccount(@Valid @RequestBody AccountCreateRequestDTO requestDTO){
-        return accountService.createAccount(requestDTO);
+    public ResponseEntity<ResponseWrapper<AccountResponseDTO>> createAccount(@Valid @RequestBody AccountCreateRequestDTO requestDTO){
+        //TODO: SECURITY -> only for user with same id
+        return ResponseWrapper.wrap("Account created.", accountService.createAccount(requestDTO), HttpStatus.CREATED);
     }
 
     @GetMapping("/accounts")
-    public List<AccountResponseDTO> getAccountsByUserId(@PathVariable("user_id") int id) {
-        return accountService.getAllAccountsByUserId(id);
+    public ResponseEntity<ResponseWrapper<List<AccountResponseDTO>>> getAccountsByUserId(@PathVariable("user_id") int id) {
+        //TODO: SECURITY -> only for user with same id
+        return ResponseWrapper.wrap("User " + id + " accounts retrieved.",
+                accountService.getAllAccountsByUserId(id), HttpStatus.OK);
     }
 
     @GetMapping("/accounts/{account_id}")
-    public AccountResponseDTO getAccountById(@PathVariable("user_id") int userId, @PathVariable("account_id") int accountId) {
-        return accountService.getAccountById(userId, accountId);
+    public ResponseEntity<ResponseWrapper<AccountResponseDTO>> getAccountById(@PathVariable("user_id") int userId,
+                                                                              @PathVariable("account_id") int accountId) {
+        //TODO: SECURITY -> only for user with same id
+        return ResponseWrapper.wrap("Account " + accountId + " retrieved.",
+                accountService.getAccountById(userId, accountId), HttpStatus.OK);
     }
 
-    @PutMapping("/accounts/{account_id}/edit_account")
-    public AccountResponseDTO editAccount(@Valid @RequestBody AccountEditRequestDTO requestDTO){
+    @PutMapping("/accounts/edit_account")
+    public ResponseEntity<ResponseWrapper<AccountResponseDTO>> editAccount(@Valid @RequestBody AccountEditRequestDTO requestDTO){
         //TODO: check if request is valid with Interceptor (valid session, valid id input)
-        return accountService.editAccount(requestDTO);
+        return ResponseWrapper.wrap("Account edited.", accountService.editAccount(requestDTO), HttpStatus.OK);
     }
 
     @DeleteMapping("/accounts/delete")
-    public ResponseEntity<String> deleteAccount(@RequestParam("account_id") int accountId) {
-        accountService.deleteAccount(accountId);
+    public ResponseEntity<String> deleteAccount(@Valid @RequestBody AccountEditRequestDTO requestDTO) {
+        //TODO: SECURITY -> only for user with same id
+        accountService.deleteAccount(requestDTO);
         return ResponseEntity.ok().body("Account deleted successfully.");
     }
 

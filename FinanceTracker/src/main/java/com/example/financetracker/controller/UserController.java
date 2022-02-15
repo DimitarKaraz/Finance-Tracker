@@ -7,9 +7,11 @@ import com.example.financetracker.model.dto.userDTOs.UserLoginRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
 import com.example.financetracker.model.dto.userDTOs.UserRegisterRequestDTO;
 import com.example.financetracker.service.UserService;
+import com.example.financetracker.utilities.javax_validation.EditUserRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -37,14 +39,14 @@ public class UserController {
         return ResponseWrapper.wrap("User was registered.", response, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/edit_profile")
-    public ResponseEntity<ResponseWrapper<UserProfileDTO>> editProfile(@RequestBody UserProfileDTO requestDTO) {
+    @PutMapping("/edit_profile")
+    public ResponseEntity<ResponseWrapper<UserProfileDTO>> editProfile(@Validated(EditUserRequest.class) @RequestBody UserProfileDTO requestDTO) {
         //TODO: SECURITY
         return ResponseWrapper.wrap("Profile was edited.", userService.editProfile(requestDTO), HttpStatus.OK);
     }
 
 
-    @PutMapping("/{id}/change_password")
+    @PutMapping("/change_password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestDTO requestDTO){
         //TODO: SECURITY -> LOG USER OUT and return OK:
         //SecurityContextLogoutHandler sss = new SecurityContextLogoutHandler();
@@ -55,13 +57,13 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseWrapper<UserProfileDTO>> getUserById(@PathVariable int id) {
-        //TODO: SECURITY
+        //TODO: SECURITY (-> Only for users with the same id??)
         return ResponseWrapper.wrap("User retrieved.", userService.getUser(id), HttpStatus.OK);
     }
 
     @GetMapping()
     public ResponseEntity<ResponseWrapper<List<UserProfileDTO>>> getAllUsers() {
-        //TODO: SECURITY
+        //TODO: SECURITY -> Only for ROLE_ADMIN
         return ResponseWrapper.wrap("All users retrieved.", userService.getAllUsers(), HttpStatus.OK);
     }
 

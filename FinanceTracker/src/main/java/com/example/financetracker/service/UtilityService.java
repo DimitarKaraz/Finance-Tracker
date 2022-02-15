@@ -8,7 +8,6 @@ import com.example.financetracker.model.repositories.AccountTypeRepository;
 import com.example.financetracker.model.repositories.CategoryIconRepository;
 import com.example.financetracker.model.repositories.CurrencyRepository;
 import com.example.financetracker.model.repositories.TransactionTypeRepository;
-import lombok.experimental.Accessors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +27,7 @@ public class UtilityService {
     public List<Currency> getAllCurrencies() {
         return currencyRepository.findAll();
     }
+
     public List<AccountType> getAllAccountTypes() {
         return accountTypeRepository.findAll();
     }
@@ -39,4 +39,5 @@ public class UtilityService {
     public List<CategoryIcon> getAllCategoryIcons(){
         return categoryIconRepository.findAll();
     }
+
 }

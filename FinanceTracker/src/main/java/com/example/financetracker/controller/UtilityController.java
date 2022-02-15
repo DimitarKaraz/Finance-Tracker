@@ -1,12 +1,14 @@
 package com.example.financetracker.controller;
 
+import com.example.financetracker.model.dto.ResponseWrapper;
 import com.example.financetracker.model.pojo.AccountType;
 import com.example.financetracker.model.pojo.CategoryIcon;
 import com.example.financetracker.model.pojo.Currency;
 import com.example.financetracker.model.pojo.TransactionType;
 import com.example.financetracker.service.UtilityService;
-import jdk.jfr.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,25 +20,23 @@ public class UtilityController {
     @Autowired
     private UtilityService utilityService;
 
-    //todo Return ResponseEntity everywhere!
-
     @GetMapping("/currencies")
-    public List<Currency> getAllCurrencies(){
-        return utilityService.getAllCurrencies();
+    public ResponseEntity<ResponseWrapper<List<Currency>>> getAllCurrencies(){
+        return ResponseWrapper.wrap("All currencies retrieved.", utilityService.getAllCurrencies(), HttpStatus.OK);
     }
 
     @GetMapping("/account_types")
-    public List<AccountType> getAllAccountTypes(){
-        return utilityService.getAllAccountTypes();
+    public ResponseEntity<ResponseWrapper<List<AccountType>>> getAllAccountTypes(){
+        return ResponseWrapper.wrap("All account types retrieved.", utilityService.getAllAccountTypes(), HttpStatus.OK);
     }
 
     @GetMapping("/transaction_types")
-    public List<TransactionType> getAllTransactionTypes(){
-        return utilityService.getAllTransactionTypes();
+    public ResponseEntity<ResponseWrapper<List<TransactionType>>> getAllTransactionTypes(){
+        return ResponseWrapper.wrap("All currencies retrieved.", utilityService.getAllTransactionTypes(), HttpStatus.OK);
     }
 
     @GetMapping("/category_icons")
-    public List<CategoryIcon> getAllCategoryIcons(){
-        return utilityService.getAllCategoryIcons();
+    public ResponseEntity<ResponseWrapper<List<CategoryIcon>>> getAllCategoryIcons(){
+        return ResponseWrapper.wrap("All currencies retrieved.", utilityService.getAllCategoryIcons(), HttpStatus.OK);
     }
 }

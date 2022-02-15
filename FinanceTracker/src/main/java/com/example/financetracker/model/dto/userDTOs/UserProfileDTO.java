@@ -1,6 +1,7 @@
 package com.example.financetracker.model.dto.userDTOs;
 
 import com.example.financetracker.model.pojo.User;
+import com.example.financetracker.utilities.javax_validation.EditUserRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class UserProfileDTO {
 
-    @Min(value = 1, message = "Invalid user id.")
+    @Min(value = 1, message = "Invalid user id.", groups = EditUserRequest.class)
     private int userId;
 
     @NotBlank(message = "Invalid first name.")
@@ -31,10 +32,10 @@ public class UserProfileDTO {
     //todo somehow validate date
     private LocalDate dateOfBirth;
 
-    @NotBlank(message = "Invalid email.")
+    @NotBlank(message = "Invalid email.", groups = EditUserRequest.class)
     private String email;
 
-    //no validation needed?
+    //no validation needed
     private String profileImageUrl;
 
 

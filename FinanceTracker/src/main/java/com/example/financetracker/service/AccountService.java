@@ -3,19 +3,17 @@ package com.example.financetracker.service;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.exceptions.UnauthorizedException;
+import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
 import com.example.financetracker.model.dto.accountDTOs.AccountEditRequestDTO;
 import com.example.financetracker.model.dto.accountDTOs.AccountResponseDTO;
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.repositories.AccountRepository;
-import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
 import com.example.financetracker.model.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,15 +71,15 @@ public class AccountService {
         return modelMapper.map(account, AccountResponseDTO.class);
     }
 
-    public void deleteAccount(int accountId) {
-        if (!accountRepository.existsById(accountId)) {
+    public void deleteAccount(AccountEditRequestDTO requestDTO) {
+        if (!accountRepository.existsById(requestDTO.getAccountId())) {
             throw new NotFoundException("Account does not exist.");
         }
 //        if (accountRepository.getById(accountId).isDefault()) {
 //            throw new BadRequestException("This account cannot be deleted.");
 //        }
-        accountRepository.deleteById(accountId);
-        if (accountRepository.existsById(accountId)) {
+        accountRepository.deleteById(requestDTO.getAccountId());
+        if (accountRepository.existsById(requestDTO.getAccountId())) {
             throw new NotFoundException("Failed to delete account.");
         }
     }
