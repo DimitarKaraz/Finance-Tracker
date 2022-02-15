@@ -26,6 +26,7 @@ public class BudgetEditRequestDTO {
     @Min(value = 1, message = "Invalid account id.")
     private int accountId;
 
+    @NotNull(message = "Invalid note.")
     private String note;
 
     @NotEmpty
