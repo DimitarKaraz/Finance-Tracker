@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
-@Table(name = "accounts")
+@Table(name = "budgets")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,22 +20,27 @@ public class Budget {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int budgetId;
 
+    @Column(name = "name")
     private String name;
 
+    @Column(name = "amount_spent")
     private BigDecimal amountSpent;
 
+    @Column(name = "limit")
     private BigDecimal limit;
 
     @ManyToOne
     @JoinColumn(name = "interval_id")
     private Interval interval;
 
+    @Column(name = "start_date")
     private LocalDate startDate;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
+    @Column(name = "note")
     private String note;
 
     @ManyToMany
