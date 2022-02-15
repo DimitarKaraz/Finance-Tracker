@@ -53,10 +53,7 @@ public class BudgetService {
         budget.setAccount(accountRepository.findById(requestDTO.getAccountId()).orElse(null));
         budget.setMaxLimit(requestDTO.getMaxLimit());
         budget.setAmountSpent(new BigDecimal(0));
-        //TODO: DAO
-        budget.setCategories(requestDTO.getCategoryIds().stream()
-                .map(integer -> categoryRepository.findById(integer).orElse(null))
-                .collect(Collectors.toSet()));
+        budget.setCategories(categoryRepository.findCategoriesByCategoryIdIn(requestDTO.getCategoryIds()));
         budgetRepository.save(budget);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
         return convertToDTO(budget);
@@ -107,10 +104,7 @@ public class BudgetService {
         budget.setName(requestDTO.getName());
         budget.setMaxLimit(requestDTO.getMaxLimit());
         budget.setNote(requestDTO.getNote());
-        //TODO: DAO
-        budget.setCategories(requestDTO.getCategoryIds().stream()
-                .map(integer -> categoryRepository.findById(integer).orElse(null))
-                .collect(Collectors.toSet()));
+        budget.setCategories(categoryRepository.findCategoriesByCategoryIdIn(requestDTO.getCategoryIds()));
         budgetRepository.save(budget);
         return convertToDTO(budget);
     }
