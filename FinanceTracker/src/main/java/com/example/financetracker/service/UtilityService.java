@@ -1,13 +1,7 @@
 package com.example.financetracker.service;
 
-import com.example.financetracker.model.pojo.AccountType;
-import com.example.financetracker.model.pojo.CategoryIcon;
-import com.example.financetracker.model.pojo.Currency;
-import com.example.financetracker.model.pojo.TransactionType;
-import com.example.financetracker.model.repositories.AccountTypeRepository;
-import com.example.financetracker.model.repositories.CategoryIconRepository;
-import com.example.financetracker.model.repositories.CurrencyRepository;
-import com.example.financetracker.model.repositories.TransactionTypeRepository;
+import com.example.financetracker.model.pojo.*;
+import com.example.financetracker.model.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +17,8 @@ public class UtilityService {
     private TransactionTypeRepository transactionTypeRepository;
     @Autowired
     private CategoryIconRepository categoryIconRepository;
+    @Autowired
+    private IntervalRepository intervalRepository;
 
     public List<Currency> getAllCurrencies() {
         return currencyRepository.findAll();
@@ -40,4 +36,7 @@ public class UtilityService {
         return categoryIconRepository.findAll();
     }
 
+    public List<Interval> getAllIntervals(){
+        return intervalRepository.findAll();
+    }
 }

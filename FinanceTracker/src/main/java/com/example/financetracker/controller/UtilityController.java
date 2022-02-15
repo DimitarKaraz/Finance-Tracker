@@ -1,10 +1,7 @@
 package com.example.financetracker.controller;
 
 import com.example.financetracker.model.dto.ResponseWrapper;
-import com.example.financetracker.model.pojo.AccountType;
-import com.example.financetracker.model.pojo.CategoryIcon;
-import com.example.financetracker.model.pojo.Currency;
-import com.example.financetracker.model.pojo.TransactionType;
+import com.example.financetracker.model.pojo.*;
 import com.example.financetracker.service.UtilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,5 +35,10 @@ public class UtilityController {
     @GetMapping("/category_icons")
     public ResponseEntity<ResponseWrapper<List<CategoryIcon>>> getAllCategoryIcons(){
         return ResponseWrapper.wrap("All currencies retrieved.", utilityService.getAllCategoryIcons(), HttpStatus.OK);
+    }
+
+    @GetMapping("intervals")
+    public ResponseEntity<ResponseWrapper<List<Interval>>> getAllIntervals(){
+        return ResponseWrapper.wrap("All intervals retrieved.", utilityService.getAllIntervals(), HttpStatus.OK);
     }
 }
