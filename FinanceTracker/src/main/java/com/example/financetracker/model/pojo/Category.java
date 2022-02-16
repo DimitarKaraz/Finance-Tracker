@@ -1,5 +1,7 @@
 package com.example.financetracker.model.pojo;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,13 +14,16 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private int categoryId;
 
     @Column(name = "name")
+    @EqualsAndHashCode.Include
     private String name;
 
     @ManyToOne
@@ -34,6 +39,7 @@ public class Category {
     private User user;
 
     @ManyToMany(mappedBy = "categories")
+    @JsonBackReference
     private List<Budget> budgets;
 
 }

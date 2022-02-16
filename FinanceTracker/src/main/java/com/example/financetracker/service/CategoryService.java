@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
@@ -33,8 +34,10 @@ public class CategoryService {
     @Autowired
     private TransactionTypeRepository transactionTypeRepository;
 
-    public List<Category> getAllCategoriesByUserId(int id){
-        return categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(id);
+    public List<CategoryResponseDTO> getAllCategoriesByUserId(int id){
+        return categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(id).stream()
+                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Transactional

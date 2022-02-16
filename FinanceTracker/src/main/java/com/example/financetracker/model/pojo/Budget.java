@@ -1,9 +1,7 @@
 package com.example.financetracker.model.pojo;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -16,13 +14,16 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @ToString
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Budget {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private int budgetId;
 
     @Column(name = "name")
+    @EqualsAndHashCode.Include
     private String name;
 
     @Column(name = "amount_spent")
@@ -40,6 +41,7 @@ public class Budget {
 
     @ManyToOne
     @JoinColumn(name = "account_id")
+    @EqualsAndHashCode.Include
     private Account account;
 
     @Column(name = "note")
@@ -50,6 +52,7 @@ public class Budget {
             name = "budgets_have_categories",
             joinColumns = @JoinColumn(name = "budget_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @JsonManagedReference
     private Set<Category> categories;
 
 }
