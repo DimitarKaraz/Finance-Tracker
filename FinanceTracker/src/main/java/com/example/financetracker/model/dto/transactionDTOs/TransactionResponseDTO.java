@@ -1,6 +1,10 @@
 package com.example.financetracker.model.dto.transactionDTOs;
 
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
+<<<<<<< HEAD
+=======
+import com.example.financetracker.model.pojo.Category;
+>>>>>>> 682b97e95bbaf6b4743a661deb59f91684a0ba42
 import com.example.financetracker.model.pojo.Currency;
 import com.example.financetracker.model.pojo.PaymentMethod;
 import com.example.financetracker.model.pojo.TransactionType;

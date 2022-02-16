@@ -3,6 +3,7 @@ package com.example.financetracker.service;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.exceptions.UnauthorizedException;
+import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionCreateRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionEditRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
@@ -11,11 +12,14 @@ import com.example.financetracker.model.pojo.Budget;
 import com.example.financetracker.model.pojo.Category;
 import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.repositories.*;
+import com.example.financetracker.model.repositories.BudgetRepository;
+import com.example.financetracker.model.repositories.CategoryRepository;
+import com.example.financetracker.model.repositories.TransactionRepository;
+import com.example.financetracker.model.repositories.TransactionTypeRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -59,11 +63,11 @@ public class TransactionService {
     @Transactional
     public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO){
         //todo validations
+        //todo security
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Transaction transaction = modelMapper.map(requestDTO, Transaction.class);
         transaction.setDateTime(LocalDateTime.now());
         Set<Budget> affectedBudgets = budgetRepository.findAllBudgetsByCategoryAndAccount(requestDTO.getAccountId(), requestDTO.getCategoryId());
-
         updateAffectedBudgets(new BigDecimal(0), transaction.getAmount(), affectedBudgets);
 
 //        System.out.println("\n************** "  + transaction);
@@ -71,11 +75,19 @@ public class TransactionService {
 
         transaction.setTransactionId(0);
 //        System.out.println("\n************** "  + transaction);
+        transaction.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId()).orElseThrow(() -> {throw new BadRequestException("Invalid transaction type.");} ));
+        transaction.setAccount(accountRepository.findById(requestDTO.getAccountId()).orElseThrow(() -> {throw new BadRequestException("Invalid account id.");}));
+        transaction.setCategory(categoryRepository.findById(requestDTO.getCategoryId()).orElseThrow(() -> {throw new BadRequestException("Invalid category id,");}));
+        transaction.setPaymentMethod(paymentMethodRepository.findById(requestDTO.getPaymentMethodId()).orElseThrow(() -> {throw new BadRequestException("Invalid payment method id.");}));
+        if (transaction.getTransactionType().getTransactionTypeId() != transaction.getCategory().getTransactionType().getTransactionTypeId()){
+            throw new BadRequestException("Category - transaction type mismatch.");
+        }
         transactionRepository.save(transaction);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
         return convertToResponseDTO(transaction);
     }
 
-    private void updateAffectedBudgets(BigDecimal oldTransactionAmount, BigDecimal newTransactionAmount, Set<Budget> affectedBudgets) {
+    public void updateAffectedBudgets(BigDecimal oldTransactionAmount, BigDecimal newTransactionAmount, Set<Budget> affectedBudgets) {
         for (Budget budget : affectedBudgets){
             budget.setAmountSpent(budget.getAmountSpent().subtract(oldTransactionAmount));
             budget.setAmountSpent(budget.getAmountSpent().add(newTransactionAmount));
@@ -85,7 +97,9 @@ public class TransactionService {
     }
 
     private TransactionResponseDTO convertToResponseDTO(Transaction transaction) {
+        CategoryResponseDTO categoryResponseDTO = modelMapper.map(transaction.getCategory(), CategoryResponseDTO.class);
         TransactionResponseDTO responseDTO = modelMapper.map(transaction, TransactionResponseDTO.class);
+        responseDTO.setCategoryResponseDTO(categoryResponseDTO);
         responseDTO.setCurrency(transaction.getAccount().getCurrency());
         return responseDTO;
     }
@@ -126,6 +140,5 @@ public class TransactionService {
         }
         return subtractFromAffectedBudgets;
     }
-
 
 }
