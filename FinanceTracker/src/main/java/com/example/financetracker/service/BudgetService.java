@@ -6,9 +6,9 @@ import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetCreateRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetEditRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
+import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.pojo.Budget;
-import com.example.financetracker.model.pojo.Category;
 import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -56,7 +56,7 @@ public class BudgetService {
         budget.setCategories(categoryRepository.findCategoriesByCategoryIdIn(requestDTO.getCategoryIds()));
         budgetRepository.save(budget);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
-        return convertToDTO(budget);
+        return convertToResponseDTO(budget);
     }
 
     public List<BudgetResponseDTO> getAllBudgetsByUserId(int userId){
@@ -64,7 +64,7 @@ public class BudgetService {
             throw new NotFoundException("Invalid user id.");
         }
         List<Budget> budgets = budgetRepository.findAllByAccount_User_UserId(userId);
-        return budgets.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return budgets.stream().map(this::convertToResponseDTO).collect(Collectors.toList());
     }
 
     public BudgetResponseDTO getBudgetById(int budgetId){
@@ -76,7 +76,7 @@ public class BudgetService {
 //        if (budget.getAccount().getUser().getUserId() != <user session id>) {
 //            throw new UnauthorizedException("You must be logged in.");
 //        }
-        return convertToDTO(budget);
+        return convertToResponseDTO(budget);
     }
 
     public BudgetResponseDTO editBudget(BudgetEditRequestDTO requestDTO) {
@@ -106,7 +106,7 @@ public class BudgetService {
         budget.setNote(requestDTO.getNote());
         budget.setCategories(categoryRepository.findCategoriesByCategoryIdIn(requestDTO.getCategoryIds()));
         budgetRepository.save(budget);
-        return convertToDTO(budget);
+        return convertToResponseDTO(budget);
     }
 
     public void deleteBudget(int id) {
@@ -116,9 +116,12 @@ public class BudgetService {
         budgetRepository.deleteById(id);
     }
 
-    private BudgetResponseDTO convertToDTO(Budget budget) {
+    private BudgetResponseDTO convertToResponseDTO(Budget budget) {
         BudgetResponseDTO responseDTO = modelMapper.map(budget, BudgetResponseDTO.class);
-        responseDTO.setCategoryIds(budget.getCategories().stream().map(Category::getCategoryId).collect(Collectors.toSet()));
+        responseDTO.setCategoryResponseDTOs(budget.getCategories().stream()
+                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
+                .collect(Collectors.toSet()));
+        responseDTO.setCurrency(budget.getAccount().getCurrency());
         return responseDTO;
     }
 

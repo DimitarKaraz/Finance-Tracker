@@ -1,6 +1,6 @@
 package com.example.financetracker.model.dto.budgetDTOs;
 
-import com.example.financetracker.model.pojo.Category;
+import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.pojo.Currency;
 import com.example.financetracker.model.pojo.Interval;
 import lombok.Getter;
@@ -36,5 +36,5 @@ public class BudgetResponseDTO {
 
     private String note;
 
-    private Set<Category> categories;
+    private Set<CategoryResponseDTO> categoryResponseDTOs;
 }
