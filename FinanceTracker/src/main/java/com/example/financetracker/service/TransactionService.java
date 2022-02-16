@@ -12,6 +12,7 @@ import com.example.financetracker.model.pojo.Category;
 import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,12 +59,18 @@ public class TransactionService {
     @Transactional
     public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO){
         //todo validations
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Transaction transaction = modelMapper.map(requestDTO, Transaction.class);
         transaction.setDateTime(LocalDateTime.now());
         Set<Budget> affectedBudgets = budgetRepository.findAllBudgetsByCategoryAndAccount(requestDTO.getAccountId(), requestDTO.getCategoryId());
 
         updateAffectedBudgets(new BigDecimal(0), transaction.getAmount(), affectedBudgets);
 
+//        System.out.println("\n************** "  + transaction);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
+
+        transaction.setTransactionId(0);
+//        System.out.println("\n************** "  + transaction);
         transactionRepository.save(transaction);
         return convertToResponseDTO(transaction);
     }
