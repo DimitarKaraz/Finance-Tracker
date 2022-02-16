@@ -79,7 +79,10 @@ public class TransactionService {
         transaction = modelMapper.map(requestDTO, Transaction.class);
         transactionRepository.save(transaction);
 
-        List<Budget> budgets = transaction.
+//        Set<Budget> affectedBudgets = budgetRepository.findAllBudgetsByCategoryAndAccount(requestDTO.getAccountId(), requestDTO.getCategoryId());
+//        affectedBudgets.forEach(budget -> {
+//            budget.setBudgetId()
+//        });
     }
 
     @Transactional
@@ -96,6 +99,8 @@ public class TransactionService {
         transactionRepository.save(transaction);
         return modelMapper.map(transaction, TransactionResponseDTO.class);
     }
+
+
 
 
 }
