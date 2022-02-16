@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -44,6 +43,19 @@ public class TransactionController {
         return ResponseEntity.ok().body("Budget deleted successfully.");
     }
 
+    @GetMapping("/transactions/{transaction_id}")
+    public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> getById(@PathVariable("transaction_id") int transactionId){
+        return ResponseWrapper.wrap("Retrieved transaction.", transactionService.getById(transactionId), HttpStatus.OK);
+    }
 
+    @GetMapping("/transactions/{user_id}")
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllForUser(@PathVariable("user_id") int userId){
+        return ResponseWrapper.wrap("Retrieved transactions for user.", transactionService.getAllByUserId(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/transactions/{account_id}")
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllForAccount(@PathVariable("account_id") int accountId){
+        return ResponseWrapper.wrap("Retrieved transactions for user.", transactionService.getAllByAccountId(accountId), HttpStatus.OK);
+    }
 
 }

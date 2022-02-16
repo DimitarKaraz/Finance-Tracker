@@ -45,6 +45,34 @@ public class TransactionService {
     @Autowired
     private ModelMapper modelMapper;
 
+    public TransactionResponseDTO getById(int transactionId){
+        //todo security
+        return convertToResponseDTO((transactionRepository.findById(transactionId)
+                .orElseThrow(() -> {throw new NotFoundException("No transaction with this id.");})));
+    }
+
+    public List<TransactionResponseDTO> getAllByUserId(int userId){
+        //todo security
+        return transactionRepository.findAllByAccount_User_UserId(userId).stream()
+                .map(this::convertToResponseDTO).collect(Collectors.toList());
+    }
+
+    public List<TransactionResponseDTO> getAllByAccountId(int accountId){
+        //todo security
+        return transactionRepository.findAllByAccount_AccountId(accountId).stream()
+                .map(this::convertToResponseDTO).collect(Collectors.toList());
+    }
+    
+    public List<TransactionResponseDTO> getAllByBudgetId(int id) {
+        //todo securty
+
+        return categoryRepository.findAllByBudgetId(id).stream()
+                .map(category -> transactionRepository.findAllByCategoryCategoryId(category.getCategoryId()))
+                .flatMap(Collection::stream)
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO){
         //todo validations
@@ -116,13 +144,6 @@ public class TransactionService {
     }
 
 
-    public List<TransactionResponseDTO> getAllByBudgetId(int id) {
-        return categoryRepository.findAllByBudgetId(id).stream()
-                .map(category -> transactionRepository.findAllByCategoryCategoryId(category.getCategoryId()))
-                .flatMap(Collection::stream)
-                .map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
-    }
 
 
     public void deleteTransaction(int id) {
@@ -149,6 +170,7 @@ public class TransactionService {
         responseDTO.setCurrency(transaction.getAccount().getCurrency());
         return responseDTO;
     }
+
 
 
 
