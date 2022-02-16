@@ -10,12 +10,18 @@ import com.example.financetracker.model.pojo.Budget;
 import com.example.financetracker.model.pojo.Category;
 import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.repositories.*;
+import com.example.financetracker.model.dto.transactionDTOs.TransactionCreateRequestDTO;
+import com.example.financetracker.model.repositories.BudgetRepository;
+import com.example.financetracker.model.repositories.CategoryRepository;
+import com.example.financetracker.model.repositories.TransactionRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.transaction.Transactional;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Set;
+
 
 @Service
 public class TransactionService {
@@ -31,6 +37,8 @@ public class TransactionService {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
+    private BudgetRepository budgetRepository;
+    @Autowired
     private PaymentMethodRepository paymentMethodRepository;
     @Autowired
     private ModelMapper modelMapper;
@@ -38,10 +46,14 @@ public class TransactionService {
     @Transactional
     public TransactionResponseDTO editTransaction(TransactionEditRequestDTO requestDTO) {
         Transaction transaction = transactionRepository.findById((requestDTO.getTransactionId()))
-                .orElseThrow(() -> {throw new NotFoundException("Invalid transaction id.");});
+                .orElseThrow(() -> {
+                    throw new NotFoundException("Invalid transaction id.");
+                });
 
         Account account = accountRepository.findById(requestDTO.getAccountId())
-                .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
+                .orElseThrow(() -> {
+                    throw new NotFoundException("Invalid account id.");
+                });
 
         //TODO: SECURITY -> only for users with same id
         if (!userRepository.existsById(account.getUser().getUserId())) {
@@ -55,7 +67,9 @@ public class TransactionService {
             throw new NotFoundException("Invalid transaction type id.");
         }
         Category category = categoryRepository.findById(requestDTO.getCategoryId())
-                .orElseThrow(() -> {throw new NotFoundException("Invalid category id.");});
+                .orElseThrow(() -> {
+                    throw new NotFoundException("Invalid category id.");
+                });
         if (category.getTransactionType().getTransactionTypeId() != (requestDTO.getTransactionTypeId())) {
             throw new BadRequestException("Category - transaction type mismatch.");
         }
@@ -66,6 +80,21 @@ public class TransactionService {
         transactionRepository.save(transaction);
 
         List<Budget> budgets = transaction.
+    }
+
+    @Transactional
+    public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO){
+        //todo validations
+        Transaction transaction = modelMapper.map(requestDTO, Transaction.class);
+        transaction.setDateTime(LocalDateTime.now());
+        Set<Budget> affectedBudgets = budgetRepository.findAllBudgetsByCategoryAndAccount(requestDTO.getAccountId(), requestDTO.getCategoryId());
+        for (Budget budget : affectedBudgets){
+            budget.setAmountSpent(budget.getAmountSpent().add(transaction.getAmount()));
+            //todo if budget is 75% spent or 100% spent send notifications/warnings to user
+            budgetRepository.save(budget);
+        }
+        transactionRepository.save(transaction);
+        return modelMapper.map(transaction, TransactionResponseDTO.class);
     }
 
 
