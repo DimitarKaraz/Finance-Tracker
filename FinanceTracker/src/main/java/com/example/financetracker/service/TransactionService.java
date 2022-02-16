@@ -19,7 +19,10 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -41,6 +44,39 @@ public class TransactionService {
     private PaymentMethodRepository paymentMethodRepository;
     @Autowired
     private ModelMapper modelMapper;
+
+    @Transactional
+    public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO){
+        //todo validations
+        //todo security
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Transaction transaction = modelMapper.map(requestDTO, Transaction.class);
+
+        Account account = accountRepository.findById(requestDTO.getAccountId())
+                .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
+
+        //TODO: SECURITY -> only for users with same id
+        if (!userRepository.existsById(account.getUser().getUserId())) {
+            throw new UnauthorizedException("You don't have permission to edit this budget.");
+            //TODO: Security -> LOG OUT
+        }
+
+        transaction.setAccount(account);
+        transaction.setDateTime(LocalDateTime.now());
+        transaction.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId()).orElseThrow(() -> {throw new BadRequestException("Invalid transaction type.");} ));
+        transaction.setCategory(categoryRepository.findById(requestDTO.getCategoryId()).orElseThrow(() -> {throw new BadRequestException("Invalid category id,");}));
+        transaction.setPaymentMethod(paymentMethodRepository.findById(requestDTO.getPaymentMethodId()).orElseThrow(() -> {throw new BadRequestException("Invalid payment method id.");}));
+        if (transaction.getTransactionType().getTransactionTypeId() != transaction.getCategory().getTransactionType().getTransactionTypeId()){
+            throw new BadRequestException("Category - transaction type mismatch.");
+        }
+        transactionRepository.save(transaction);
+
+        Set<Budget> affectedBudgets = budgetRepository.findAllBudgetsByCategoryAndAccount(requestDTO.getAccountId(), requestDTO.getCategoryId());
+        updateAffectedBudgets(new BigDecimal(0), transaction.getAmount(), affectedBudgets);
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
+        return convertToResponseDTO(transaction);
+    }
 
     @Transactional
     public TransactionResponseDTO editTransaction(TransactionEditRequestDTO requestDTO) {
@@ -79,40 +115,25 @@ public class TransactionService {
         return convertToResponseDTO(transaction);
     }
 
-    @Transactional
-    public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO){
-        //todo validations
-        //todo security
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Transaction transaction = modelMapper.map(requestDTO, Transaction.class);
 
-        Account account = accountRepository.findById(requestDTO.getAccountId())
-                .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
-
-        //TODO: SECURITY -> only for users with same id
-        if (!userRepository.existsById(account.getUser().getUserId())) {
-            throw new UnauthorizedException("You don't have permission to edit this budget.");
-            //TODO: Security -> LOG OUT
-        }
-
-        transaction.setAccount(account);
-        transaction.setDateTime(LocalDateTime.now());
-        transaction.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId()).orElseThrow(() -> {throw new BadRequestException("Invalid transaction type.");} ));
-        transaction.setCategory(categoryRepository.findById(requestDTO.getCategoryId()).orElseThrow(() -> {throw new BadRequestException("Invalid category id,");}));
-        transaction.setPaymentMethod(paymentMethodRepository.findById(requestDTO.getPaymentMethodId()).orElseThrow(() -> {throw new BadRequestException("Invalid payment method id.");}));
-        if (transaction.getTransactionType().getTransactionTypeId() != transaction.getCategory().getTransactionType().getTransactionTypeId()){
-            throw new BadRequestException("Category - transaction type mismatch.");
-        }
-        transactionRepository.save(transaction);
-
-        Set<Budget> affectedBudgets = budgetRepository.findAllBudgetsByCategoryAndAccount(requestDTO.getAccountId(), requestDTO.getCategoryId());
-        updateAffectedBudgets(new BigDecimal(0), transaction.getAmount(), affectedBudgets);
-
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
-        return convertToResponseDTO(transaction);
+    public List<TransactionResponseDTO> getAllByBudgetId(int id) {
+        return categoryRepository.findAllByBudgetId(id).stream()
+                .map(category -> transactionRepository.findAllByCategoryCategoryId(category.getCategoryId()))
+                .flatMap(Collection::stream)
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
     }
 
-    public void updateAffectedBudgets(BigDecimal oldTransactionAmount, BigDecimal newTransactionAmount, Set<Budget> affectedBudgets) {
+
+    public void deleteTransaction(int id) {
+        if (!transactionRepository.existsById(id)) {
+            throw new NotFoundException("Transaction does not exist.");
+        }
+        transactionRepository.deleteById(id);
+    }
+
+
+    private void updateAffectedBudgets(BigDecimal oldTransactionAmount, BigDecimal newTransactionAmount, Set<Budget> affectedBudgets) {
         for (Budget budget : affectedBudgets){
             budget.setAmountSpent(budget.getAmountSpent().subtract(oldTransactionAmount));
             budget.setAmountSpent(budget.getAmountSpent().add(newTransactionAmount));
@@ -128,5 +149,7 @@ public class TransactionService {
         responseDTO.setCurrency(transaction.getAccount().getCurrency());
         return responseDTO;
     }
+
+
 
 }
