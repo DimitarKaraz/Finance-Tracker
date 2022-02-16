@@ -23,7 +23,7 @@ public class RecurrentTransactionController {
         return ResponseWrapper.wrap("Retrieved recurrent transaction.", recurrentTransactionService.getById(transactionId), HttpStatus.OK);
     }
 
-    @GetMapping("/recurrent_transactions/{user_id}")
+    @GetMapping("users/{user_id}/recurrent_transactions")
     public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getAllByUserId(@PathVariable("user_id") int userId){
         return ResponseWrapper.wrap("Retrieved recurrent transactions for user.",recurrentTransactionService.getAllByUserId(userId), HttpStatus.OK);
     }

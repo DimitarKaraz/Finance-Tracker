@@ -34,8 +34,6 @@ public class RecurrentTransactionService {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
-    private BudgetRepository budgetRepository;
-    @Autowired
     private PaymentMethodRepository paymentMethodRepository;
     @Autowired
     private IntervalRepository intervalRepository;
@@ -50,6 +48,7 @@ public class RecurrentTransactionService {
     }
 
     public List<RecurrentTransactionResponseDTO> getAllByUserId(int userId) {
+        userRepository.findById(userId).orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
         return recurrentTransactionRepository.findAllByAccount_User_UserId(userId).stream()
                 .map(this::convertToResponseDTO).collect(Collectors.toList());
     }
@@ -78,6 +77,10 @@ public class RecurrentTransactionService {
                 recurrentTransaction.getCategory().getTransactionType().getTransactionTypeId()){
             throw new BadRequestException("Category - transaction type mismatch.");
         }
+        if (recurrentTransaction.getCategory().getUser() != null &&
+                recurrentTransaction.getCategory().getUser().getUserId() != account.getUser().getUserId()) {
+            throw new BadRequestException("You cannot access this category.");
+        }
         if (requestDTO.getEndDate() != null && requestDTO.getRemainingPayments() != null ||
                 requestDTO.getEndDate() == null && requestDTO.getRemainingPayments() == null) {
             throw new BadRequestException("You must select either end date or remaining payment count.");
@@ -90,7 +93,9 @@ public class RecurrentTransactionService {
                 .orElseThrow(() -> {throw new BadRequestException("Invalid interval id.");}));
 //        recurrentTransaction.setIntervalCount(requestDTO.getIntervalCount());
         recurrentTransaction.setEndDate(requestDTO.getEndDate());
-//        recurrentTransaction.setRemainingPayments(requestDTO.getRemainingPayments());
+//        if (requestDTO.getRemainingPayments() == null) {
+//        recurrentTransaction.setRemainingPayments(null);
+//        }
         recurrentTransactionRepository.save(recurrentTransaction);
 
         //TO DO cron job method
@@ -101,7 +106,7 @@ public class RecurrentTransactionService {
 
     @Transactional
     public RecurrentTransactionResponseDTO editRecurrentTransaction(RecurrentTransactionEditRequestDTO requestDTO){
-        RecurrentTransaction recurrentTransaction = recurrentTransactionRepository.findById(requestDTO.getRecurrentTransactionTypeId())
+        RecurrentTransaction recurrentTransaction = recurrentTransactionRepository.findById(requestDTO.getRecurrentTransactionId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid recurrent transaction id.");
                 });
         recurrentTransaction.setName(requestDTO.getName());
@@ -119,6 +124,10 @@ public class RecurrentTransactionService {
         if (recurrentTransaction.getTransactionType().getTransactionTypeId() !=
                 recurrentTransaction.getCategory().getTransactionType().getTransactionTypeId()){
             throw new BadRequestException("Category - transaction type mismatch.");
+        }
+        if (recurrentTransaction.getCategory().getUser() != null &&
+                recurrentTransaction.getCategory().getUser().getUserId() != recurrentTransaction.getAccount().getUser().getUserId()) {
+            throw new BadRequestException("You cannot access this category.");
         }
         if (requestDTO.getEndDate() != null && requestDTO.getRemainingPayments() != null ||
                 requestDTO.getEndDate() == null && requestDTO.getRemainingPayments() == null) {

@@ -35,6 +35,7 @@ public class CategoryService {
     private TransactionTypeRepository transactionTypeRepository;
 
     public List<CategoryResponseDTO> getAllCategoriesByUserId(int id){
+        userRepository.findById(id).orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
         return categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(id).stream()
                 .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
                 .collect(Collectors.toList());

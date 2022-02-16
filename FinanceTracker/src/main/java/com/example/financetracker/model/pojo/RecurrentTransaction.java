@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 @Entity
-@Table(name = "transactions")
+@Table(name = "recurrent_transactions")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -56,6 +56,6 @@ public class RecurrentTransaction {
     private LocalDate endDate;
 
     @Column(name = "remaining_payments")
-    private int remainingPayments;
+    private Integer remainingPayments;
 
 }

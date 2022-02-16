@@ -43,6 +43,6 @@ public class RecurrentTransactionResponseDTO {
 
     private LocalDate endDate;
 
-    private int remainingPayments;
+    private Integer remainingPayments;
 
 }

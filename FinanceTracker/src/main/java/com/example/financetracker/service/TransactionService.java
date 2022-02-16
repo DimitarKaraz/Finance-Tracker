@@ -53,6 +53,7 @@ public class TransactionService {
 
     public List<TransactionResponseDTO> getAllByUserId(int userId){
         //todo security
+        userRepository.findById(userId).orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
         return transactionRepository.findAllByAccount_User_UserId(userId).stream()
                 .map(this::convertToResponseDTO).collect(Collectors.toList());
     }

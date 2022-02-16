@@ -16,7 +16,7 @@ import java.time.LocalDate;
 public class RecurrentTransactionEditRequestDTO {
 
     @Min(value = 1, message = "Invalid id.")
-    private int recurrentTransactionTypeId;
+    private int recurrentTransactionId;
 
     @Min(value = 1, message = "Invalid transaction type id.")
     private int transactionTypeId;
@@ -41,7 +41,6 @@ public class RecurrentTransactionEditRequestDTO {
     @FutureOrPresent(message = "Invalid end date.")
     private LocalDate endDate;
 
-    //TODO: NULL or >= 1 .... TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @Min(value = 1, message = "Invalid remaining payments.")
     @Max(value = 999, message = "Invalid remaining payments.")
     private Integer remainingPayments;
