@@ -55,7 +55,7 @@ public class TransactionController {
     public ResponseEntity<String> deleteTransaction(@PathVariable("tr_id") int id) {
         //TODO: SECURITY -> only for user with same id
         transactionService.deleteTransaction(id);
-        return ResponseEntity.ok().body("Budget deleted successfully.");
+        return ResponseEntity.ok().body("Transaction deleted successfully.");
     }
 
 }
