@@ -28,7 +28,7 @@ public class BudgetCreateRequestDTO {
     private int intervalId;
 
     @NotNull(message = "Invalid start date.")
-    @FutureOrPresent
+    @FutureOrPresent(message = "Invalid start date.")
     private LocalDate startDate;
 
     @Min(value = 1, message = "Invalid account id.")
