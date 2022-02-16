@@ -53,5 +53,4 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionDTO> handleNotImplementedException(NotImplementedException e){
         return ResponseEntity.status(501).body(new ExceptionDTO(HttpStatus.NOT_IMPLEMENTED, e.getMessage(), LocalDateTime.now()));
     }
-
 }
