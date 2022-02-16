@@ -43,6 +43,7 @@ public class RecurrentTransactionCreateRequestDTO {
     private int intervalId;
 
     @Min(value = 1, message = "Invalid interval count id.")
+    @Max(value = 99, message = "Invalid interval count id.")
     private int intervalCount;
 
     @FutureOrPresent(message = "Invalid end date.")
@@ -50,6 +51,7 @@ public class RecurrentTransactionCreateRequestDTO {
 
     //TODO: NULL or >= 1 .... TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @Min(value = 1, message = "Invalid remaining payments.")
+    @Max(value = 999, message = "Invalid remaining payments.")
     private Integer remainingPayments;
 
 }

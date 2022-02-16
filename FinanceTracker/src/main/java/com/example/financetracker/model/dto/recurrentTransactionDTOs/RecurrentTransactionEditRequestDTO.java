@@ -43,5 +43,6 @@ public class RecurrentTransactionEditRequestDTO {
 
     //TODO: NULL or >= 1 .... TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @Min(value = 1, message = "Invalid remaining payments.")
+    @Max(value = 999, message = "Invalid remaining payments.")
     private Integer remainingPayments;
 }

@@ -75,8 +75,6 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO){
-        //todo validations
-        //todo security
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Transaction transaction = modelMapper.map(requestDTO, Transaction.class);
 
