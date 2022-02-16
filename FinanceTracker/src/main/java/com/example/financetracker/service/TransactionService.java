@@ -8,6 +8,7 @@ import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.repositories.BudgetRepository;
 import com.example.financetracker.model.repositories.CategoryRepository;
 import com.example.financetracker.model.repositories.TransactionRepository;
+import com.example.financetracker.model.repositories.TransactionTypeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,8 @@ public class TransactionService {
     private BudgetRepository budgetRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private TransactionTypeRepository transactionTypeRepository;
 
     @Transactional
     public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO){
@@ -42,6 +45,7 @@ public class TransactionService {
             //todo if budget is 75% spent or 100% spent send notifications/warnings to user
             budgetRepository.save(budget);
         }
+        transaction.setTransactionType();
         transactionRepository.save(transaction);
         return modelMapper.map(transaction, TransactionResponseDTO.class);
     }
