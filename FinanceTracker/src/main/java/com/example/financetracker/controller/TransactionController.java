@@ -8,12 +8,10 @@ import com.example.financetracker.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 public class TransactionController {
@@ -22,7 +20,7 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @PostMapping("/transactions/create")
-    private ResponseEntity<ResponseWrapper<TransactionResponseDTO>> createTransaction(@Valid @RequestBody TransactionCreateRequestDTO requestDTO){
+    public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> createTransaction(@Valid @RequestBody TransactionCreateRequestDTO requestDTO){
         return ResponseWrapper.wrap("Transaction created.", transactionService.createTransaction(requestDTO), HttpStatus.CREATED);
     }
 
@@ -33,6 +31,19 @@ public class TransactionController {
         return ResponseWrapper.wrap("Transaction edited.", transactionService.editTransaction(requestDTO), HttpStatus.OK);
     }
 
+    @GetMapping("/transactions/{transaction_id}")
+    public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> getById(@PathVariable("transaction_id") int transactionId){
+        return ResponseWrapper.wrap("Retrieved transaction.", transactionService.getById(transactionId), HttpStatus.OK);
+    }
 
+    @GetMapping("/transactions/{user_id}")
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllForUser(@PathVariable("user_id") int userId){
+        return ResponseWrapper.wrap("Retrieved transactions for user.", transactionService.getAllByUserId(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/transactions/{account_id}")
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllForAccount(@PathVariable("account_id") int accountId){
+        return ResponseWrapper.wrap("Retrieved transactions for user.", transactionService.getAllByAccountId(accountId), HttpStatus.OK);
+    }
 
 }

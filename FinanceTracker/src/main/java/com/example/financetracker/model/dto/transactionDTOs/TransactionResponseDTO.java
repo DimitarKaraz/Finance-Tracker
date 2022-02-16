@@ -29,7 +29,7 @@ public class TransactionResponseDTO {
 
     private Currency currency;
 
-    private CategoryResponseDTO category;
+    private CategoryResponseDTO categoryResponseDTO;
 
     private PaymentMethod paymentMethod;
 

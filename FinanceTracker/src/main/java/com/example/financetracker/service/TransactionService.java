@@ -23,7 +23,9 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -45,6 +47,22 @@ public class TransactionService {
     private PaymentMethodRepository paymentMethodRepository;
     @Autowired
     private ModelMapper modelMapper;
+
+    public TransactionResponseDTO getById(int transactionId){
+        //todo security
+        return modelMapper.map(transactionRepository.findById(transactionId).orElseThrow(() -> {throw new NotFoundException("No transaction with this id.");}),
+                TransactionResponseDTO.class);
+    }
+
+    public List<TransactionResponseDTO> getAllByUserId(int userId){
+        //todo security
+        return transactionRepository.findAllByAccount_User_UserId(userId).stream().map(this::convertToResponseDTO).collect(Collectors.toList());
+    }
+
+    public List<TransactionResponseDTO> getAllByAccountId(int accountId){
+        //todo security
+        return transactionRepository.findAllByAccount_AccountId(accountId).stream().map(this::convertToResponseDTO).collect(Collectors.toList());
+    }
 
     @Transactional
     public TransactionResponseDTO editTransaction(TransactionEditRequestDTO requestDTO) {
@@ -80,7 +98,7 @@ public class TransactionService {
         return convertToResponseDTO(transaction);
     }
 
-    public void updateAffectedBudgets(BigDecimal oldTransactionAmount, BigDecimal newTransactionAmount, Set<Budget> affectedBudgets) {
+    private void updateAffectedBudgets(BigDecimal oldTransactionAmount, BigDecimal newTransactionAmount, Set<Budget> affectedBudgets) {
         for (Budget budget : affectedBudgets){
             budget.setAmountSpent(budget.getAmountSpent().subtract(oldTransactionAmount));
             budget.setAmountSpent(budget.getAmountSpent().add(newTransactionAmount));
@@ -92,7 +110,7 @@ public class TransactionService {
     private TransactionResponseDTO convertToResponseDTO(Transaction transaction) {
         CategoryResponseDTO categoryResponseDTO = modelMapper.map(transaction.getCategory(), CategoryResponseDTO.class);
         TransactionResponseDTO responseDTO = modelMapper.map(transaction, TransactionResponseDTO.class);
-        responseDTO.setCategory(categoryResponseDTO);
+        responseDTO.setCategoryResponseDTO(categoryResponseDTO);
         responseDTO.setCurrency(transaction.getAccount().getCurrency());
         return responseDTO;
     }
@@ -133,5 +151,6 @@ public class TransactionService {
         }
         return subtractFromAffectedBudgets;
     }
+
 
 }
