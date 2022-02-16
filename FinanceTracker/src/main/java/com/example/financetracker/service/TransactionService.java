@@ -19,7 +19,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
-import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -85,7 +84,6 @@ public class TransactionService {
 //            budget.setBudgetId()
 //        });
     }
->>>>>>> 03d7601bb4a39b72059d0c2237a4fd94b9cce4ee
 
     @Transactional
     public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO){
