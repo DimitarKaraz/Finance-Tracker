@@ -1,5 +1,8 @@
 package com.example.financetracker.model.dto.budgetDTOs;
 
+import com.example.financetracker.model.pojo.Category;
+import com.example.financetracker.model.pojo.Currency;
+import com.example.financetracker.model.pojo.Interval;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,13 +26,15 @@ public class BudgetResponseDTO {
 
     private BigDecimal maxLimit;
 
-    private int intervalId;
+    private Interval interval;
 
     private LocalDate startDate;
 
-    private int accountId;
+    private String accountName;
+
+    private Currency currency;
 
     private String note;
 
-    private Set<Integer> categoryIds;
+    private Set<Category> categories;
 }
