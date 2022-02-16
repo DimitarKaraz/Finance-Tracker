@@ -62,7 +62,7 @@ public class TransactionService {
         return transactionRepository.findAllByAccount_AccountId(accountId).stream()
                 .map(this::convertToResponseDTO).collect(Collectors.toList());
     }
-    
+
     public List<TransactionResponseDTO> getAllByBudgetId(int id) {
         //todo securty
 
@@ -143,16 +143,12 @@ public class TransactionService {
         return convertToResponseDTO(transaction);
     }
 
-
-
-
     public void deleteTransaction(int id) {
         if (!transactionRepository.existsById(id)) {
             throw new NotFoundException("Transaction does not exist.");
         }
         transactionRepository.deleteById(id);
     }
-
 
     private void updateAffectedBudgets(BigDecimal oldTransactionAmount, BigDecimal newTransactionAmount, Set<Budget> affectedBudgets) {
         for (Budget budget : affectedBudgets){
@@ -170,8 +166,5 @@ public class TransactionService {
         responseDTO.setCurrency(transaction.getAccount().getCurrency());
         return responseDTO;
     }
-
-
-
-
+    
 }
