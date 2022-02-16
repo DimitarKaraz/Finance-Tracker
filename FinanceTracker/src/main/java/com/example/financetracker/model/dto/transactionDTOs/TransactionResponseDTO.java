@@ -1,5 +1,6 @@
 package com.example.financetracker.model.dto.transactionDTOs;
 
+import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.pojo.Category;
 import com.example.financetracker.model.pojo.Currency;
 import com.example.financetracker.model.pojo.PaymentMethod;
@@ -28,7 +29,7 @@ public class TransactionResponseDTO {
 
     private Currency currency;
 
-    private Category category;
+    private CategoryResponseDTO category;
 
     private PaymentMethod paymentMethod;
 
