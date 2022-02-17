@@ -17,9 +17,16 @@ public interface BudgetRepository extends JpaRepository<Budget, Integer> {
     List<Budget> findAllByAccount_User_UserId(int userId);
 
     @Modifying
-    @Query(value = "SELECT budgets.budget_id, name, amount_spent, max_limit, interval_id, start_date, account_id, note FROM budgets\n" +
+    @Query(value = "SELECT budgets.budget_id, name, amount_spent, max_limit, interval_id, start_date, account_id, note, end_date FROM budgets\n" +
             "JOIN budgets_have_categories\n" +
             "ON (budgets.budget_id = budgets_have_categories.budget_id)\n" +
             "WHERE account_id = ? AND category_id = ?;", nativeQuery = true)
-    Set<Budget> findAllBudgetsByCategoryAndAccount(int accountId, int categoryId);
+    Set<Budget> findAllByCategoryIdAndAccountId(int accountId, int categoryId);
+
+    @Modifying
+    @Query(value = "SELECT budgets.budget_id, name, amount_spent, max_limit, interval_id, start_date, account_id, note, end_date FROM budgets\n" +
+            "JOIN budgets_have_categories\n" +
+            "ON (budgets.budget_id = budgets_have_categories.budget_id)\n" +
+            "WHERE category_id = ?;", nativeQuery = true)
+    Set<Budget> findAllByCategoryId(int categoryId);
 }

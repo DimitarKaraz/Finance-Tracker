@@ -98,7 +98,7 @@ public class TransactionService {
         }
         transactionRepository.save(transaction);
 
-        Set<Budget> affectedBudgets = budgetRepository.findAllBudgetsByCategoryAndAccount(requestDTO.getAccountId(), requestDTO.getCategoryId());
+        Set<Budget> affectedBudgets = budgetRepository.findAllByCategoryIdAndAccountId(requestDTO.getAccountId(), requestDTO.getCategoryId());
         updateAffectedBudgets(new BigDecimal(0), transaction.getAmount(), affectedBudgets);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
@@ -136,7 +136,7 @@ public class TransactionService {
         }
         transactionRepository.save(transaction);
 
-        Set<Budget> affectedBudgets = budgetRepository.findAllBudgetsByCategoryAndAccount(requestDTO.getAccountId(), requestDTO.getCategoryId());
+        Set<Budget> affectedBudgets = budgetRepository.findAllByCategoryIdAndAccountId(requestDTO.getAccountId(), requestDTO.getCategoryId());
         updateAffectedBudgets(subtractFromAffectedBudgets, transaction.getAmount(), affectedBudgets);
 
         return convertToResponseDTO(transaction);

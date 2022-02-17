@@ -20,7 +20,15 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/users/{user_id}/categories")
+
+    @GetMapping("/{category_id}")
+    public ResponseEntity<ResponseWrapper<CategoryResponseDTO>> getCategoryById(@PathVariable("category_id") int id){
+        //TODO: SECURITY -> only for user with the same id
+        return ResponseWrapper.wrap("Category " + id + " retrieved.",
+                categoryService.getCategoryById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/{user_id}")
     public ResponseEntity<ResponseWrapper<List<CategoryResponseDTO>>> getAllCategoriesByUserId(@PathVariable("user_id") int id){
         //TODO: SECURITY -> only for user with the same id
         return ResponseWrapper.wrap("Categories for user " + id + " retrieved.",
@@ -38,12 +46,12 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{cat_id}/delete_category")
-    public ResponseEntity<String> deleteCategory(@PathVariable("cat_id") int id){
+    public ResponseEntity<String> deleteCategoryById(@PathVariable("cat_id") int id){
         //TODO: SECURITY -> only for user with the same id; otherwise LOG USER OUT and return OK:
         //SecurityContextLogoutHandler sss = new SecurityContextLogoutHandler();
         //sss.logout(...);
-        categoryService.deleteCategory(id);
-        return ResponseEntity.ok().body("Category deleted.");
+        categoryService.deleteCategoryById(id);
+        return ResponseEntity.ok().body("Category deleted successfully.");
     }
 
 }

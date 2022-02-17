@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface RecurrentTransactionRepository extends JpaRepository<RecurrentTransaction, Integer> {
 
-
     List<RecurrentTransaction> findAllByAccount_User_UserId(int userId);
+
+    List<RecurrentTransaction> findAllByCategoryCategoryId(int categoryId);
 }

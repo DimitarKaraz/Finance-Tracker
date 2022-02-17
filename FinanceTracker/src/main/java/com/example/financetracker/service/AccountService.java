@@ -1,6 +1,7 @@
 package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.BadRequestException;
+import com.example.financetracker.exceptions.ForbiddenException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
@@ -74,9 +75,8 @@ public class AccountService {
         //TODO: SECURITY -> only for users with same id
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
-        //todo create forbidden exception
         if (account.getUser().getUserId() != requestDTO.getUserId()) {
-            throw new UnauthorizedException("You do not have permission to edit this account.");
+            throw new ForbiddenException("You do not have permission to edit this account.");
         }
         if (!account.getName().equals(requestDTO.getName())) {
             if (accountRepository.existsAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName())) {
