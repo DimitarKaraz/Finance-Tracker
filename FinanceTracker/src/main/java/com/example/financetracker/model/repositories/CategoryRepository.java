@@ -11,19 +11,8 @@ import java.util.Set;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
-
-
     List<Category> findAllByUser_UserIdOrUser_UserIdIsNull(int userId);
 
-    //Category findByUser_UserIdAndNameOrUser_UserIdIsNullAndName(int userId, String name);
-
-    Category findByUser_UserIdAndName(int userId, String name);
-    Category findByNameAndUser_UserIdIsNull(String name);
-
-    Category findByCategoryId(int categoryId);
-
-
-//    @Query(value = "SELECT u FROM User u")
     Set<Category> findCategoriesByCategoryIdIn(Set<Integer> categoryIds);
 
     @Modifying
@@ -32,6 +21,5 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
                     "JOIN budgets_have_categories AS bhc ON c.category_id = bhc.category_id\n" +
                     "WHERE bhc.budget_id = ?;", nativeQuery = true)
     Set<Category> findAllByBudgetId(int budgetId);
-
 
 }

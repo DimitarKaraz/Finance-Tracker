@@ -1,9 +1,6 @@
 package com.example.financetracker.controller;
 
-import com.example.financetracker.exceptions.BadRequestException;
-import com.example.financetracker.exceptions.NotFoundException;
-import com.example.financetracker.exceptions.NotImplementedException;
-import com.example.financetracker.exceptions.UnauthorizedException;
+import com.example.financetracker.exceptions.*;
 import com.example.financetracker.model.dto.ExceptionDTO;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
@@ -42,10 +39,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(401).body(new ExceptionDTO(HttpStatus.UNAUTHORIZED, e.getMessage(), LocalDateTime.now()));
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<ExceptionDTO> handleForbiddenException(ForbiddenException e){
+        return ResponseEntity.status(403).body(new ExceptionDTO(HttpStatus.FORBIDDEN, e.getMessage(), LocalDateTime.now()));
+    }
+
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ExceptionDTO> handleNotFoundException(NotFoundException e){
         return ResponseEntity.status(404).body(new ExceptionDTO(HttpStatus.NOT_FOUND, e.getMessage(), LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(MethodNotAllowed.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    public ResponseEntity<ExceptionDTO> handleMethodNotAlloweException(MethodNotAllowed e){
+        return ResponseEntity.status(405).body(new ExceptionDTO(HttpStatus.METHOD_NOT_ALLOWED, e.getMessage(), LocalDateTime.now()));
     }
 
     @ExceptionHandler(NotImplementedException.class)
