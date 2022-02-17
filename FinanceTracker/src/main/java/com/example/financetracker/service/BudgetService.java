@@ -63,6 +63,7 @@ public class BudgetService {
                 throw new BadRequestException("Start date cannot be past end date.");
             }
         }
+        //TODO: security -> check if account.findById(requestDTO.getAccountId).getUser.getUserId == session user_id
         budget.setAccount(accountRepository.findById(requestDTO.getAccountId()).orElse(null));
         budget.setEndDate(requestDTO.getEndDate());
         budget.setMaxLimit(requestDTO.getMaxLimit());

@@ -60,6 +60,7 @@ public class RecurrentTransactionService {
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
 
+        //TODO: security -> check if account.findById(requestDTO.getAccountId).getUser.getUserId == session user_id
         //TODO: SECURITY -> only for users with same id
         if (!userRepository.existsById(account.getUser().getUserId())) {
             throw new UnauthorizedException("You don't have permission to edit this budget.");

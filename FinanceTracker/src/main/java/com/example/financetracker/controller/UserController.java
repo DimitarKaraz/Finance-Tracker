@@ -7,14 +7,11 @@ import com.example.financetracker.model.dto.userDTOs.UserLoginRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
 import com.example.financetracker.model.dto.userDTOs.UserRegisterRequestDTO;
 import com.example.financetracker.service.UserService;
-import com.example.financetracker.utilities.javax_validation.EditUserRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,19 +25,19 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<ResponseWrapper<UserProfileDTO>> register(@Valid @RequestBody UserRegisterRequestDTO requestDTO) {
-        return ResponseWrapper.wrap("User was registered.", userService.addUser(requestDTO), HttpStatus.CREATED);
+                //TODO: security
+        return ResponseWrapper.wrap("User was registered.", userService.register(requestDTO), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseWrapper<UserProfileDTO>> login(@Valid @RequestBody UserLoginRequestDTO requestDTO, HttpSession session) {
+    public ResponseEntity<ResponseWrapper<UserProfileDTO>> login(@Valid @RequestBody UserLoginRequestDTO requestDTO) {
+        //TODO: security
         UserProfileDTO response = userService.login(requestDTO);
-        session.setAttribute("LoggedUser", response.getUserId());
-        session.setMaxInactiveInterval(60 * 30);
-        return ResponseWrapper.wrap("User was registered.", response, HttpStatus.OK);
+        return ResponseWrapper.wrap("User logged in.", response, HttpStatus.OK);
     }
 
     @PutMapping("/edit_profile")
-    public ResponseEntity<ResponseWrapper<UserProfileDTO>> editProfile(@Validated(EditUserRequest.class) @RequestBody UserProfileDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<UserProfileDTO>> editProfile(@Valid @RequestBody UserProfileDTO requestDTO) {
         //TODO: SECURITY
         return ResponseWrapper.wrap("Profile was edited.", userService.editProfile(requestDTO), HttpStatus.OK);
     }
@@ -58,21 +55,21 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseWrapper<UserProfileDTO>> getUserById(@PathVariable int id) {
         //TODO: SECURITY (-> Only for users with the same id??)
-        return ResponseWrapper.wrap("User retrieved.", userService.getUser(id), HttpStatus.OK);
+        return ResponseWrapper.wrap("User retrieved.", userService.getUserById(id), HttpStatus.OK);
     }
 
-    @GetMapping()
+    @GetMapping("/all_users")
     public ResponseEntity<ResponseWrapper<List<UserProfileDTO>>> getAllUsers() {
         //TODO: SECURITY -> Only for ROLE_ADMIN
         return ResponseWrapper.wrap("All users retrieved.", userService.getAllUsers(), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}/delete_user")
     public ResponseEntity<String> deleteUserById(@PathVariable int id) {
         //TODO: SECURITY -> LOG USER OUT:
         //SecurityContextLogoutHandler sss = new SecurityContextLogoutHandler();
         //sss.logout(...);
-        userService.deleteUser(id);
+        userService.deleteUserById(id);
         return ResponseEntity.ok().body("\"message\": \"Your profile was deleted. We will miss you!\"\n" + "\"timestamp\": " + LocalDateTime.now());
     }
 
