@@ -34,66 +34,70 @@ public class AccountService {
     private CurrencyRepository currencyRepository;
 
     public AccountResponseDTO createAccount(AccountCreateRequestDTO requestDTO){
-        if (accountRepository.findAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName()) != null){
+        if (accountRepository.existsAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName())){
             throw new BadRequestException("An account with that name already exists.");
         }
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Account account = modelMapper.map(requestDTO, Account.class);
-        account.setUser(userRepository.findByUserId(requestDTO.getUserId()));
-        account.setAccountType(accountTypeRepository.findById(requestDTO.getAccountTypeId()).orElse(null));
-        account.setCurrency(currencyRepository.findById(requestDTO.getCurrencyId()).orElse(null));
+
+        account.setUser(userRepository.findById(requestDTO.getUserId())
+                .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");}));
+        account.setAccountType(accountTypeRepository.findById(requestDTO.getAccountTypeId())
+                .orElseThrow(() -> {throw new NotFoundException("Invalid account type id.");}));
+        account.setCurrency(currencyRepository.findById(requestDTO.getCurrencyId())
+                .orElseThrow(() -> {throw new NotFoundException("Invalid currency id.");}));
+
         accountRepository.save(account);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
         return modelMapper.map(account, AccountResponseDTO.class);
     }
 
     public List<AccountResponseDTO> getAllAccountsByUserId(int id) {
-        userRepository.findById(id).orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
+        userRepository.findById(id)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
         List<Account> accounts = accountRepository.findAccountsByUser_UserId(id);
         return accounts.stream().map(account -> modelMapper.map(account, AccountResponseDTO.class))
                 .collect(Collectors.toList());
     }
 
     public AccountResponseDTO getAccountById(int userId, int accountId) {
-        Account acc = accountRepository.findAccountsByAccountId(accountId);
-        if (acc.getUser().getUserId() != userId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
+        if (account.getUser().getUserId() != userId) {
             throw new UnauthorizedException("You do not have access to this user's accounts.");
         }
-        return modelMapper.map(acc, AccountResponseDTO.class);
+        return modelMapper.map(account, AccountResponseDTO.class);
     }
 
 
     public AccountResponseDTO editAccount(AccountEditRequestDTO requestDTO){
         //TODO: SECURITY -> only for users with same id
-
-        if (!accountRepository.existsById(requestDTO.getAccountId())) {
-            throw new BadRequestException("Invalid account id.");
+        Account account = accountRepository.findById(requestDTO.getAccountId())
+                .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
+        //todo create forbidden exception
+        if (account.getUser().getUserId() != requestDTO.getUserId()) {
+            throw new UnauthorizedException("You do not have permission to edit this account.");
         }
-        if (accountRepository.findById(requestDTO.getAccountId()).get().getUser().getUserId() != requestDTO.getUserId()) {
-            throw new BadRequestException("Invalid user id.");
-        }
-        Account account = modelMapper.map(requestDTO, Account.class);
         if (!account.getName().equals(requestDTO.getName())) {
-            if (accountRepository.findAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName()) != null) {
+            if (accountRepository.existsAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName())) {
                 throw new BadRequestException("An account with that name already exists.");
             }
         }
-        account.setAccountType(accountTypeRepository.findById(requestDTO.getAccountTypeId()).orElse(null));
+        account.setAccountType(accountTypeRepository.findById(requestDTO.getAccountTypeId())
+                .orElseThrow(() -> {throw new NotFoundException("Invalid account type id.");}));
+        account.setCurrency(currencyRepository.findById(requestDTO.getCurrencyId())
+                .orElseThrow(() -> {throw new NotFoundException("Invalid currency id.");}));
+        //TODO: recalculate absolute value
         account.setBalance(requestDTO.getBalance());
-        account.setCurrency(currencyRepository.findById(requestDTO.getCurrencyId()).orElse(null));  //TODO: recalculate absolute value
         account.setName(requestDTO.getName());
-        account.setUser(userRepository.findByUserId(requestDTO.getUserId()));
         accountRepository.save(account);
         return modelMapper.map(account, AccountResponseDTO.class);
     }
 
-    public void deleteAccount(int id) {
+    public void deleteAccountById(int id) {
         if (!accountRepository.existsById(id)) {
             throw new NotFoundException("Account does not exist.");
         }
-//        if (accountRepository.getById(accountId).isDefault()) {
-//            throw new BadRequestException("This account cannot be deleted.");
-//        }
         accountRepository.deleteById(id);
     }
 }
