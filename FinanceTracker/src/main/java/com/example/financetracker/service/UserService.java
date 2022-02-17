@@ -60,6 +60,7 @@ public class UserService {
         //TODO: check is userId == session.userId
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         User userAfter = modelMapper.map(requestDTO, User.class);
+        userAfter.setGender(requestDTO.getGender().toLowerCase());
         userAfter.setPassword(userBefore.getPassword());
         userRepository.save(userAfter);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
@@ -82,14 +83,14 @@ public class UserService {
 
     public void changePassword(ChangePasswordRequestDTO requestDTO){
         //TODO: user must be logged in
-        if (!requestDTO.getNewPassword().equals(requestDTO.getConfirmNewPassword())){
-            throw new BadRequestException("Passwords do not match.");
-        }
         User user =  userRepository.findById(requestDTO.getUserId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
         //TODO: password strength
         if (!encoder.matches(requestDTO.getOldPassword(), user.getPassword())){
             throw new BadRequestException(("Wrong password."));
+        }
+        if (!requestDTO.getNewPassword().equals(requestDTO.getConfirmNewPassword())){
+            throw new BadRequestException("Passwords do not match.");
         }
         user.setPassword(encoder.encode(requestDTO.getNewPassword()));
         userRepository.save(user);

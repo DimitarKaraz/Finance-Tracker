@@ -42,14 +42,5 @@ public class User {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    public enum Gender{
-        @JsonProperty("male")
-        MALE,
-        @JsonProperty("female")
-        FEMALE,
-        @JsonProperty("other")
-        OTHER
-    }
-
 
 }

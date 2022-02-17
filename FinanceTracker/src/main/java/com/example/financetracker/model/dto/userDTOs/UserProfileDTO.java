@@ -6,10 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Component
@@ -27,8 +24,9 @@ public class UserProfileDTO {
     @NotNull(message = "Invalid last name.")
     private String lastName;
 
-    //Validated by @JsonProperty
-    private User.Gender gender;
+    @NotNull(message = "Invalid gender.")
+    @Pattern(regexp = "(?i)(male|female|other)", message = "Invalid gender.")
+    private String gender;
 
     @PastOrPresent
     private LocalDate dateOfBirth;
