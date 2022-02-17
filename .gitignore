@@ -46,3 +46,6 @@ build/
 #Some other stuff
 *.ini
 *.bak
+
+scprit_copy.txt
+
