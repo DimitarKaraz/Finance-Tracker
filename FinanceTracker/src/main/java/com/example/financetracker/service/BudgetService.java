@@ -41,9 +41,7 @@ public class BudgetService {
         if (budgetRepository.existsByAccount_AccountIdAndName(requestDTO.getAccountId(), requestDTO.getName())){
             throw new BadRequestException("Budget with that name already exists for this account.");
         }
-        if (!intervalRepository.existsById(requestDTO.getIntervalId())){
-            throw new BadRequestException("Invalid interval.");
-        }
+
         if (!accountRepository.existsById(requestDTO.getAccountId())){
             throw new BadRequestException("Invalid account.");
         }
@@ -51,12 +49,20 @@ public class BudgetService {
                 requestDTO.getEndDate() == null && requestDTO.getIntervalId() == null) {
             throw new BadRequestException("You must select either end date or interval.");
         }
-        if (requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
-            throw new BadRequestException("Start date cannot be past end date.");
-        }
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Budget budget = modelMapper.map(requestDTO, Budget.class);
-        budget.setInterval(intervalRepository.findById(requestDTO.getIntervalId()).orElse(null));
+
+        if (requestDTO.getIntervalId() != null) {
+            if (!intervalRepository.existsById(requestDTO.getIntervalId())){
+                throw new BadRequestException("Invalid interval.");
+            }
+            budget.setInterval(intervalRepository.findById(requestDTO.getIntervalId()).orElse(null));
+        } else {
+            if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
+                throw new BadRequestException("Start date cannot be past end date.");
+            }
+        }
         budget.setAccount(accountRepository.findById(requestDTO.getAccountId()).orElse(null));
         budget.setEndDate(requestDTO.getEndDate());
         budget.setMaxLimit(requestDTO.getMaxLimit());
@@ -115,7 +121,7 @@ public class BudgetService {
         if (requestDTO.getEndDate() == null && budget.getInterval() == null) {
             throw new BadRequestException("You cannot have a budget with no end date and no interval.");
         }
-        if (budget.getStartDate().isAfter(requestDTO.getEndDate())) {
+        if (requestDTO.getEndDate() != null && budget.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
         budget.setName(requestDTO.getName());

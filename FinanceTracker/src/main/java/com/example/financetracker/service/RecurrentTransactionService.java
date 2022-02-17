@@ -85,7 +85,7 @@ public class RecurrentTransactionService {
                 requestDTO.getEndDate() == null && requestDTO.getRemainingPayments() == null) {
             throw new BadRequestException("You must select either end date or remaining payment count.");
         }
-        if (requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
+        if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
         recurrentTransaction.setStartDate(requestDTO.getStartDate());
@@ -133,7 +133,7 @@ public class RecurrentTransactionService {
                 requestDTO.getEndDate() == null && requestDTO.getRemainingPayments() == null) {
             throw new BadRequestException("You must select either end date or remaining payment count.");
         }
-        if (recurrentTransaction.getStartDate().isAfter(requestDTO.getEndDate())) {
+        if (requestDTO.getEndDate() != null && recurrentTransaction.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
         recurrentTransaction.setEndDate(requestDTO.getEndDate());
