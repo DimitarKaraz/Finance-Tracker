@@ -54,8 +54,9 @@ public class AccountService {
     }
 
     public List<AccountResponseDTO> getAllAccountsByUserId(int id) {
-        userRepository.findById(id)
-                .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
+        if (!userRepository.existsById(id)){
+            throw new NotFoundException("Invalid user id.");
+        }
         List<Account> accounts = accountRepository.findAccountsByUser_UserId(id);
         return accounts.stream().map(account -> modelMapper.map(account, AccountResponseDTO.class))
                 .collect(Collectors.toList());

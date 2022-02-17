@@ -145,7 +145,6 @@ public class CategoryService {
                     recurrentTransaction.setCategory(otherCategory);
                     recurrentTransactionRepository.save(recurrentTransaction);
                 });
-
         //TODO: same check for closedBudgets
 
         categoryRepository.deleteById(categoryId);
