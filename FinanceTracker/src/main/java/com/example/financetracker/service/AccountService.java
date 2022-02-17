@@ -53,10 +53,10 @@ public class AccountService {
         return modelMapper.map(account, AccountResponseDTO.class);
     }
 
-    public List<AccountResponseDTO> getAllAccountsByUserId(int id) {
-        userRepository.findById(id)
+    public List<AccountResponseDTO> getAllAccountsByUserId(int userId) {
+        userRepository.findById(userId)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
-        List<Account> accounts = accountRepository.findAccountsByUser_UserId(id);
+        List<Account> accounts = accountRepository.findAccountsByUser_UserId(userId);
         return accounts.stream().map(account -> modelMapper.map(account, AccountResponseDTO.class))
                 .collect(Collectors.toList());
     }
