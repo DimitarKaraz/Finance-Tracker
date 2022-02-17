@@ -23,16 +23,19 @@ public class BudgetController {
 
     @PostMapping("/create")
     public ResponseEntity<ResponseWrapper<BudgetResponseDTO>> createBudget(@Valid @RequestBody BudgetCreateRequestDTO requestDTO){
+        //TODO: SECURITY -> only for user with same id
         return ResponseWrapper.wrap("Budget created successfully.", budgetService.createBudget(requestDTO), HttpStatus.CREATED);
     }
 
     @GetMapping("{user_id}/all")
-    public ResponseEntity<ResponseWrapper<List<BudgetResponseDTO>>> getAllForUser(@PathVariable("user_id") int id){
+    public ResponseEntity<ResponseWrapper<List<BudgetResponseDTO>>> getAllBudgetsByUserId(@PathVariable("user_id") int id){
+        //TODO: SECURITY -> only for user with same id
         return ResponseWrapper.wrap("Budgets retrieved.", budgetService.getAllBudgetsByUserId(id), HttpStatus.OK);
     }
 
     @GetMapping("/{budget_id}")
     public ResponseEntity<ResponseWrapper<BudgetResponseDTO>> getBudgetById(@PathVariable("budget_id") int budgetId){
+        //TODO: SECURITY -> only for user with same id
         return ResponseWrapper.wrap("Budget retrieved.", budgetService.getBudgetById(budgetId), HttpStatus.OK);
     }
 
@@ -43,9 +46,11 @@ public class BudgetController {
     }
 
     @DeleteMapping("/{budget_id}/delete_budget")
-    public ResponseEntity<String> deleteBudget(@PathVariable("budget_id") int id) {
+    public ResponseEntity<String> deleteBudgetById(@PathVariable("budget_id") int id) {
         //TODO: SECURITY -> only for user with same id
         budgetService.deleteBudget(id);
         return ResponseEntity.ok().body("Budget deleted successfully.");
     }
+
+
 }

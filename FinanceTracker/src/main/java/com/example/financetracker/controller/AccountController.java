@@ -28,7 +28,7 @@ public class AccountController {
     }
 
     @GetMapping("/{user_id}")
-    public ResponseEntity<ResponseWrapper<List<AccountResponseDTO>>> getAccountsByUserId(@PathVariable("user_id") int id) {
+    public ResponseEntity<ResponseWrapper<List<AccountResponseDTO>>> getAllAccountsByUserId(@PathVariable("user_id") int id) {
         //TODO: SECURITY -> only for user with same id
         return ResponseWrapper.wrap("User " + id + " accounts retrieved.",
                 accountService.getAllAccountsByUserId(id), HttpStatus.OK);
