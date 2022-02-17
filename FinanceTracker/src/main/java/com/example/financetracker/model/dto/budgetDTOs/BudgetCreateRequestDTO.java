@@ -25,7 +25,7 @@ public class BudgetCreateRequestDTO {
     private BigDecimal maxLimit;
 
     @Min(value = 1, message = "Invalid interval id.")
-    private int intervalId;
+    private Integer intervalId;
 
     @NotNull(message = "Invalid start date.")
     @FutureOrPresent(message = "Invalid start date.")
@@ -39,5 +39,8 @@ public class BudgetCreateRequestDTO {
 
     @NotEmpty
     private Set<Integer> categoryIds;
+
+    @FutureOrPresent(message = "Invalid end date.")
+    private LocalDate endDate;
 
 }

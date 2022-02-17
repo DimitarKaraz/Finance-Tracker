@@ -133,6 +133,9 @@ public class RecurrentTransactionService {
                 requestDTO.getEndDate() == null && requestDTO.getRemainingPayments() == null) {
             throw new BadRequestException("You must select either end date or remaining payment count.");
         }
+        if (recurrentTransaction.getStartDate().isAfter(requestDTO.getEndDate())) {
+            throw new BadRequestException("Start date cannot be past end date.");
+        }
         recurrentTransaction.setEndDate(requestDTO.getEndDate());
         recurrentTransaction.setRemainingPayments(requestDTO.getRemainingPayments());
         recurrentTransactionRepository.save(recurrentTransaction);

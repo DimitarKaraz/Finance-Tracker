@@ -32,10 +32,6 @@ public class Budget {
     @Column(name = "max_limit")
     private BigDecimal maxLimit;
 
-    @ManyToOne
-    @JoinColumn(name = "interval_id")
-    private Interval interval;
-
     @Column(name = "start_date")
     private LocalDate startDate;
 
@@ -54,5 +50,12 @@ public class Budget {
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     @JsonManagedReference
     private Set<Category> categories;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @ManyToOne
+    @JoinColumn(name = "interval_id")
+    private Interval interval;
 
 }

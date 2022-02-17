@@ -47,10 +47,18 @@ public class BudgetService {
         if (!accountRepository.existsById(requestDTO.getAccountId())){
             throw new BadRequestException("Invalid account.");
         }
+        if (requestDTO.getEndDate() != null && requestDTO.getIntervalId() != null ||
+                requestDTO.getEndDate() == null && requestDTO.getIntervalId() == null) {
+            throw new BadRequestException("You must select either end date or interval.");
+        }
+        if (requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
+            throw new BadRequestException("Start date cannot be past end date.");
+        }
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Budget budget = modelMapper.map(requestDTO, Budget.class);
         budget.setInterval(intervalRepository.findById(requestDTO.getIntervalId()).orElse(null));
         budget.setAccount(accountRepository.findById(requestDTO.getAccountId()).orElse(null));
+        budget.setEndDate(requestDTO.getEndDate());
         budget.setMaxLimit(requestDTO.getMaxLimit());
         budget.setAmountSpent(new BigDecimal(0));
         budget.setCategories(categoryRepository.findCategoriesByCategoryIdIn(requestDTO.getCategoryIds()));
@@ -101,9 +109,19 @@ public class BudgetService {
                 throw new BadRequestException("A budget with that name already exists.");
             }
         }
+        if (budget.getInterval() != null  && requestDTO.getEndDate() != null) {
+            throw new BadRequestException("You can't select an end date for non-one-time budgets.");
+        }
+        if (requestDTO.getEndDate() == null && budget.getInterval() == null) {
+            throw new BadRequestException("You cannot have a budget with no end date and no interval.");
+        }
+        if (budget.getStartDate().isAfter(requestDTO.getEndDate())) {
+            throw new BadRequestException("Start date cannot be past end date.");
+        }
         budget.setName(requestDTO.getName());
         budget.setMaxLimit(requestDTO.getMaxLimit());
         budget.setNote(requestDTO.getNote());
+        budget.setEndDate(requestDTO.getEndDate());
         budget.setCategories(categoryRepository.findCategoriesByCategoryIdIn(requestDTO.getCategoryIds()));
         budgetRepository.save(budget);
         return convertToResponseDTO(budget);

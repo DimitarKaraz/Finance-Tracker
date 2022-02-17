@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Set;
 @Component
 @Getter
@@ -33,4 +34,7 @@ public class BudgetEditRequestDTO {
 
     @NotEmpty
     private Set<Integer> categoryIds;
+
+    @FutureOrPresent(message = "Invalid end date.")
+    private LocalDate endDate;
 }

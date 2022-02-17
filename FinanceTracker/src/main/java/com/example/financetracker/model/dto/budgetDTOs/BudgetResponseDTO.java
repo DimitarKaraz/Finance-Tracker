@@ -37,4 +37,6 @@ public class BudgetResponseDTO {
     private String note;
 
     private Set<CategoryResponseDTO> categoryResponseDTOs;
+
+    private LocalDate endDate;
 }
