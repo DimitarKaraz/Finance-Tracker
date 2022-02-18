@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
-    //todo set date_time to now() when creating
     @Autowired
     private TransactionRepository transactionRepository;
     @Autowired
@@ -45,34 +43,51 @@ public class TransactionService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public TransactionResponseDTO getById(int transactionId){
+    public TransactionResponseDTO getTransactionsById(int transactionId){
         //todo security
         return convertToResponseDTO((transactionRepository.findById(transactionId)
-                .orElseThrow(() -> {throw new NotFoundException("No transaction with this id.");})));
+                .orElseThrow(() -> {throw new NotFoundException("Invalid transaction id.");})));
     }
 
-    public List<TransactionResponseDTO> getAllByUserId(int userId){
+    public List<TransactionResponseDTO> getAllTransactionsByUserId(int userId){
         //todo security
-        userRepository.findById(userId).orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("Invalid user id.");
+        }
         return transactionRepository.findAllByAccount_User_UserId(userId).stream()
                 .map(this::convertToResponseDTO).collect(Collectors.toList());
     }
 
-    public List<TransactionResponseDTO> getAllByAccountId(int accountId){
+    public List<TransactionResponseDTO> getAllTransactionsByAccountId(int accountId){
         //todo security
         return transactionRepository.findAllByAccount_AccountId(accountId).stream()
                 .map(this::convertToResponseDTO).collect(Collectors.toList());
     }
 
-    public List<TransactionResponseDTO> getAllByBudgetId(int id) {
-        //todo securty
 
-        return categoryRepository.findAllByBudgetId(id).stream()
-                .map(category -> transactionRepository.findAllByCategoryCategoryId(category.getCategoryId()))
-                .flatMap(Collection::stream)
-                .map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
-    }
+    //TODO remove this shit
+//    public List<TransactionResponseDTO> getAllTransactionsByBudgetId(int budgetId) {
+//        //todo securty
+//        Set<Category> categories = categoryRepository.findAllByBudgetId(budgetId);
+//        Budget budget = budgetRepository.findById(budgetId)
+//                .orElseThrow(() -> {throw new NotFoundException("Invalid budget id.");});
+//        List<Transaction> transactionsByCategoryIds = transactionRepository
+//                .findTransactionsByCategoryIsInAndAccountUserUserId(categories, budget.getAccount().getUser().getUserId());
+//        List<Transaction> transactionsByStartDate = transactionRepository
+//                .findTransactionsByDateTimeAfter(LocalDateTime.of(budget.getStartDate(), LocalTime.now()));
+//
+//        transactionsByCategoryIds.retainAll(transactionsByStartDate);
+//
+//        return transactionsByCategoryIds.stream()
+//                .map(transaction -> convertToResponseDTO(transaction))
+//                .collect(Collectors.toList());
+//
+////        return categoryRepository.findAllByBudgetId(budgetId).stream()
+////                .map(category -> transactionRepository.findAllByCategoryCategoryId(category.getCategoryId()))
+////                .flatMap(Collection::stream)
+////                .map(this::convertToResponseDTO)
+////                .collect(Collectors.toList());
+//    }
 
     @Transactional
     public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO){

@@ -13,48 +13,52 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@RequestMapping("/transactions")
 public class TransactionController {
 
     @Autowired
     private TransactionService transactionService;
 
-    @GetMapping("/transactions/{transaction_id}")
-    public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> getById(@PathVariable("transaction_id") int transactionId){
-        return ResponseWrapper.wrap("Retrieved transaction.", transactionService.getById(transactionId), HttpStatus.OK);
-    }
-
-    @GetMapping("/transactions/{user_id}")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllForUser(@PathVariable("user_id") int userId){
-        return ResponseWrapper.wrap("Retrieved transactions for user.", transactionService.getAllByUserId(userId), HttpStatus.OK);
-    }
-
-    @GetMapping("/transactions/{account_id}")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllForAccount(@PathVariable("account_id") int accountId){
-        return ResponseWrapper.wrap("Retrieved transactions for user.", transactionService.getAllByAccountId(accountId), HttpStatus.OK);
-    }
-
-    @GetMapping("budgets/{bud_id}/transactions/")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByBudgetId(@PathVariable("bud_id") int id) {
+    @GetMapping("/{transaction_id}")
+    public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> getTransactionById(@PathVariable("transaction_id") int transactionId){
         //TODO: SECURITY
-        return ResponseWrapper.wrap("Transactions for budget " + id + " retrieved.", transactionService.getAllByBudgetId(id), HttpStatus.OK);
+        return ResponseWrapper.wrap("Retrieved transaction.", transactionService.getTransactionsById(transactionId), HttpStatus.OK);
     }
 
-    @PostMapping("/transactions/create")
+    @GetMapping("/user/{user_id}")
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByUserId(@PathVariable("user_id") int userId){
+        //TODO: SECURITY
+        return ResponseWrapper.wrap("Retrieved transactions for user.", transactionService.getAllTransactionsByUserId(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/account/{account_id}")
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByAccountId(@PathVariable("account_id") int accountId){
+        //TODO: SECURITY
+        return ResponseWrapper.wrap("Retrieved transactions for user.", transactionService.getAllTransactionsByAccountId(accountId), HttpStatus.OK);
+    }
+
+    @GetMapping("/budgets/{budget_id}")
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByBudgetId(@PathVariable("budget_id") int budgetId) {
+        //TODO: SECURITY
+        return ResponseWrapper.wrap("Transactions for budget " + budgetId + " retrieved.", transactionService.getAllTransactionsByBudgetId(budgetId), HttpStatus.OK);
+    }
+
+    @PostMapping("/create_transaction")
     public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> createTransaction(@Valid @RequestBody TransactionCreateRequestDTO requestDTO){
+        //TODO: SECURITY
         return ResponseWrapper.wrap("Transaction created.", transactionService.createTransaction(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/transactions/edit")
-    public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> editTransaction
-                                            (@Valid @RequestBody TransactionEditRequestDTO requestDTO) {
+    @PutMapping("/transactions/edit_transaction")
+    public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> editTransaction(@Valid @RequestBody TransactionEditRequestDTO requestDTO) {
         //TODO: SECURITY -> only for users with the same id
         return ResponseWrapper.wrap("Transaction edited.", transactionService.editTransaction(requestDTO), HttpStatus.OK);
     }
 
-    @DeleteMapping("/transactions/{tr_id}/delete")
-    public ResponseEntity<String> deleteTransaction(@PathVariable("tr_id") int id) {
+    @DeleteMapping("/{trans_id}/delete_transaction")
+    public ResponseEntity<String> deleteTransaction(@PathVariable("trans_id") int transactionId) {
         //TODO: SECURITY -> only for user with same id
-        transactionService.deleteTransaction(id);
+        transactionService.deleteTransaction(transactionId);
         return ResponseEntity.ok().body("Transaction deleted successfully.");
     }
 
