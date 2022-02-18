@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 public class ClosedBudgetService {
 
     @Autowired
-    private BudgetService budgetService;
-    @Autowired
     private BudgetRepository budgetRepository;
     @Autowired
     private ClosedBudgetRepository closedBudgetRepository;
@@ -37,19 +35,18 @@ public class ClosedBudgetService {
         ClosedBudget closedBudget = closedBudgetRepository.findById(closedBudgetId)
                         .orElseThrow(() -> {throw new NotFoundException("Invalid closed budget id.");});
         Budget budget = modelMapper.map(closedBudget, Budget.class);
-
+        budget.setBudgetId(0);
+        budget.setCategories(closedBudget.getClosedBudgetCategories());
         closedBudgetRepository.deleteById(closedBudgetId);
         budgetRepository.save(budget);
-        return budgetService.convertToResponseDTO(budget);
+        return convertToBudgetResponseDTO(budget);
     }
 
-
-
     public void deleteClosedBudget(int closedBudgetId) {
-        if (!budgetRepository.existsById(closedBudgetId)) {
+        if (!closedBudgetRepository.existsById(closedBudgetId)) {
             throw new NotFoundException("Closed budget does not exist.");
         }
-        budgetRepository.deleteById(closedBudgetId);
+        closedBudgetRepository.deleteById(closedBudgetId);
     }
 
     public List<ClosedBudgetResponseDTO> getAllClosedBudgetsByUserId(int userId){
@@ -57,7 +54,7 @@ public class ClosedBudgetService {
             throw new NotFoundException("Invalid user id.");
         }
         List<ClosedBudget> closedBudgets = closedBudgetRepository.findAllByAccount_User_UserId(userId);
-        return closedBudgets.stream().map(this::convertToResponseDTO).collect(Collectors.toList());
+        return closedBudgets.stream().map(this::convertToClosedBudgetResponseDTO).collect(Collectors.toList());
     }
 
     public ClosedBudgetResponseDTO getClosedBudgetById(int closedBudgetId){
@@ -67,15 +64,24 @@ public class ClosedBudgetService {
 //        if (budget.getAccount().getUser().getUserId() != <user session id>) {
 //            throw new UnauthorizedException("You must be logged in.");
 //        }
-        return convertToResponseDTO(closedBudget);
+        return convertToClosedBudgetResponseDTO(closedBudget);
     }
 
-    public ClosedBudgetResponseDTO convertToResponseDTO(ClosedBudget closedBudget) {
+    public ClosedBudgetResponseDTO convertToClosedBudgetResponseDTO(ClosedBudget closedBudget) {
         ClosedBudgetResponseDTO responseDTO = modelMapper.map(closedBudget, ClosedBudgetResponseDTO.class);
         responseDTO.setCategoryResponseDTOs(closedBudget.getClosedBudgetCategories().stream()
                 .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
                 .collect(Collectors.toSet()));
         responseDTO.setCurrency(closedBudget.getAccount().getCurrency());
+        return responseDTO;
+    }
+
+    public BudgetResponseDTO convertToBudgetResponseDTO(Budget budget) {
+        BudgetResponseDTO responseDTO = modelMapper.map(budget, BudgetResponseDTO.class);
+        responseDTO.setCategoryResponseDTOs(budget.getCategories().stream()
+                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
+                .collect(Collectors.toSet()));
+        responseDTO.setCurrency(budget.getAccount().getCurrency());
         return responseDTO;
     }
 

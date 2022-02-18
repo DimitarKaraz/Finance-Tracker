@@ -18,6 +18,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
@@ -26,8 +27,6 @@ import java.util.stream.Collectors;
 @Service
 public class BudgetService {
 
-    @Autowired
-    private ClosedBudgetService closedBudgetService;
     @Autowired
     private ClosedBudgetRepository closedBudgetRepository;
     @Autowired
@@ -72,7 +71,7 @@ public class BudgetService {
         budget.setAmountSpent(new BigDecimal(0));
         budgetRepository.save(budget);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
-        return convertToResponseDTO(budget);
+        return convertToBudgetResponseDTO(budget);
     }
 
     public List<BudgetResponseDTO> getAllBudgetsByUserId(int userId){
@@ -80,7 +79,7 @@ public class BudgetService {
             throw new NotFoundException("Invalid user id.");
         }
         List<Budget> budgets = budgetRepository.findAllByAccount_User_UserId(userId);
-        return budgets.stream().map(this::convertToResponseDTO).collect(Collectors.toList());
+        return budgets.stream().map(this::convertToBudgetResponseDTO).collect(Collectors.toList());
     }
 
     public BudgetResponseDTO getBudgetById(int budgetId){
@@ -90,7 +89,7 @@ public class BudgetService {
 //        if (budget.getAccount().getUser().getUserId() != <user session id>) {
 //            throw new UnauthorizedException("You must be logged in.");
 //        }
-        return convertToResponseDTO(budget);
+        return convertToBudgetResponseDTO(budget);
     }
 
     public BudgetResponseDTO editBudget(BudgetEditRequestDTO requestDTO) {
@@ -127,7 +126,7 @@ public class BudgetService {
         Set<Category> chosenCategories = categoryRepository.findCategoriesByCategoryIdIn(requestDTO.getCategoryIds());
         validateAndAssignCategories(budget, chosenCategories);
         budgetRepository.save(budget);
-        return convertToResponseDTO(budget);
+        return convertToBudgetResponseDTO(budget);
     }
 
     public void deleteBudget(int id) {
@@ -137,13 +136,16 @@ public class BudgetService {
         budgetRepository.deleteById(id);
     }
 
-    public BudgetResponseDTO convertToResponseDTO(Budget budget) {
-        BudgetResponseDTO responseDTO = modelMapper.map(budget, BudgetResponseDTO.class);
-        responseDTO.setCategoryResponseDTOs(budget.getCategories().stream()
-                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
-                .collect(Collectors.toSet()));
-        responseDTO.setCurrency(budget.getAccount().getCurrency());
-        return responseDTO;
+    @Transactional
+    public ClosedBudgetResponseDTO closeBudgetById(int budgetId) {
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid budget id.");});
+        ClosedBudget closedBudget = modelMapper.map(budget, ClosedBudget.class);
+        closedBudget.setClosedBudgetId(0);
+        closedBudget.setClosedBudgetCategories(budget.getCategories());
+        budgetRepository.deleteById(budgetId);
+        closedBudgetRepository.save(closedBudget);
+        return convertToClosedBudgetResponseDTO(closedBudget);
     }
 
     private void validateAndAssignCategories(Budget budget, Set<Category> categories){
@@ -162,13 +164,22 @@ public class BudgetService {
         });
     }
 
-    public ClosedBudgetResponseDTO closeBudgetById(int budgetId) {
-        Budget budget = budgetRepository.findById(budgetId)
-                .orElseThrow(() -> {throw new NotFoundException("Invalid closed budget id.");});
-        ClosedBudget closedBudget = modelMapper.map(budget, ClosedBudget.class);
 
-        budgetRepository.deleteById(budgetId);
-        closedBudgetRepository.save(closedBudget);
-        return closedBudgetService.convertToResponseDTO(closedBudget);
+    public ClosedBudgetResponseDTO convertToClosedBudgetResponseDTO(ClosedBudget closedBudget) {
+        ClosedBudgetResponseDTO responseDTO = modelMapper.map(closedBudget, ClosedBudgetResponseDTO.class);
+        responseDTO.setCategoryResponseDTOs(closedBudget.getClosedBudgetCategories().stream()
+                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
+                .collect(Collectors.toSet()));
+        responseDTO.setCurrency(closedBudget.getAccount().getCurrency());
+        return responseDTO;
+    }
+
+    public BudgetResponseDTO convertToBudgetResponseDTO(Budget budget) {
+        BudgetResponseDTO responseDTO = modelMapper.map(budget, BudgetResponseDTO.class);
+        responseDTO.setCategoryResponseDTOs(budget.getCategories().stream()
+                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
+                .collect(Collectors.toSet()));
+        responseDTO.setCurrency(budget.getAccount().getCurrency());
+        return responseDTO;
     }
 }
