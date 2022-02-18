@@ -33,7 +33,7 @@ public interface BudgetRepository extends JpaRepository<Budget, Integer> {
             "FROM budgets AS b\n" +
             "LEFT JOIN intervals AS i ON b.interval_id = i.interval_id\n" +
             "WHERE b.end_date = CURDATE() OR DATE_ADD(b.start_date, INTERVAL i.days DAY) = CURDATE();", nativeQuery = true)
-    List<Budget> findAllCategoriesReadyForCronJob();
+    List<Budget> findAllBudgetsReadyForCronJob();
 
 
 }
