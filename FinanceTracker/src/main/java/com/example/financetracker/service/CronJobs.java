@@ -28,8 +28,13 @@ public class CronJobs {
     private BudgetService budgetService;
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void RecurrentCronJob(){
+    public void recurrentCronJob(){
         List<RecurrentTransaction> allRecurrentTransactions = recurrentTransactionRepository.findAllThatExpireOrNeedPaymentToday();
+        executeAllRecurrentTransactions(allRecurrentTransactions);
+    }
+
+    @Transactional
+    public void executeAllRecurrentTransactions(List<RecurrentTransaction> allRecurrentTransactions){
         for (RecurrentTransaction recurrentTransaction : allRecurrentTransactions){
             int totalDays = recurrentTransaction.getInterval().getDays()*recurrentTransaction.getIntervalCount();
             if (recurrentTransaction.getStartDate().plusDays(totalDays).equals(LocalDate.now())){
@@ -45,12 +50,11 @@ public class CronJobs {
                 if (recurrentTransaction.getEndDate() == null && recurrentTransaction.getRemainingPayments() == 0){
                     recurrentTransactionRepository.delete(recurrentTransaction);
                 }
-                    recurrentTransaction.setStartDate(LocalDate.now());
-                    recurrentTransactionRepository.save(recurrentTransaction);
+                recurrentTransaction.setStartDate(LocalDate.now());
+                recurrentTransactionRepository.save(recurrentTransaction);
             }
         }
     }
-
 
     @Scheduled(cron = "0 0 0 * * *") // every day at midnight
     public void budgetCronJob() {
