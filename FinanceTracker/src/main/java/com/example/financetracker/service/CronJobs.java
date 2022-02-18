@@ -6,6 +6,7 @@ import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.repositories.BudgetRepository;
 import com.example.financetracker.model.repositories.RecurrentTransactionRepository;
 import com.example.financetracker.model.repositories.TransactionRepository;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
@@ -14,16 +15,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.io.File;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.SQLException;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
-import javax.transaction.Transactional;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -90,13 +89,20 @@ public class CronJobs {
         });
     }
 
- /*   //todo implement recovery method
+    //todo implement recovery method
     @Recover
+    @SneakyThrows
     void logger(Exception e){
-        String str = "C:"+File.separator+"Users"+File.separator+"Ray"+File.separator+"Desktop"+File.separator+
-                "Git"+File.separator+"Finance-Tracker"+File.separator+"FinanceTracker"+File.separator+"logs";
-        String fileName = "cronJob_fail_log_"+LocalDateTime.now().toString()+".txt";
-        Files.write(Path.of(str).)
-    }*/
+        File folder = new File("logs");
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        String fileName = folder.getName() + File.separator + "cronJob_fail_log_"+ LocalDateTime.now() +".txt";
+        String text = "Message: " + e.getMessage() +
+                "\nStack trace: " + Arrays.toString(e.getStackTrace());
+        Files.write(Path.of(fileName), text.getBytes(), StandardOpenOption.CREATE);
+    }
+
+
     //todo make cronjob for emails to inactive users
 }
