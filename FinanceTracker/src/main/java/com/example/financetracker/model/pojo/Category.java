@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "categories")
@@ -41,5 +42,10 @@ public class Category {
     @ManyToMany(mappedBy = "categories")
     @JsonBackReference
     private List<Budget> budgets;
+
+    @ManyToMany(mappedBy = "closedBudgetCategories")
+    @JsonBackReference
+    private List<ClosedBudget> closedBudgets;
+
 
 }
