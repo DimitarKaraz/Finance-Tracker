@@ -29,4 +29,6 @@ public interface BudgetRepository extends JpaRepository<Budget, Integer> {
             "ON (budgets.budget_id = budgets_have_categories.budget_id)\n" +
             "WHERE category_id = ?;", nativeQuery = true)
     Set<Budget> findAllByCategoryId(int categoryId);
+
+
 }

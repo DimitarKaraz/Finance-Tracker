@@ -47,4 +47,13 @@ public class Transaction {
         this.account = transaction.getAccount();
     }
 
+    public Transaction(RecurrentTransaction recurrentTransaction){
+        this.account = recurrentTransaction.getAccount();
+        this.amount = recurrentTransaction.getAmount();
+        this.category = recurrentTransaction.getCategory();
+        this.paymentMethod = recurrentTransaction.getPaymentMethod();
+        this.transactionType = recurrentTransaction.getTransactionType();
+        this.dateTime = LocalDateTime.now();
+    }
+
 }
