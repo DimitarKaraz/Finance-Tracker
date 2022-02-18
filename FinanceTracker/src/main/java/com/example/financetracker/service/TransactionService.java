@@ -1,6 +1,7 @@
 package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.BadRequestException;
+import com.example.financetracker.exceptions.ForbiddenException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
@@ -90,24 +91,25 @@ public class TransactionService {
 //    }
 
     @Transactional
-    public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO){
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Transaction transaction = modelMapper.map(requestDTO, Transaction.class);
-
+    public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO) {
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
 
         //TODO: SECURITY -> only for users with same id
         if (!userRepository.existsById(account.getUser().getUserId())) {
-            throw new UnauthorizedException("You don't have permission to edit this budget.");
+            throw new ForbiddenException("You don't have permission to edit this budget.");
             //TODO: Security -> LOG OUT
         }
-
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Transaction transaction = modelMapper.map(requestDTO, Transaction.class);
         transaction.setAccount(account);
         transaction.setDateTime(LocalDateTime.now());
-        transaction.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId()).orElseThrow(() -> {throw new BadRequestException("Invalid transaction type.");} ));
-        transaction.setCategory(categoryRepository.findById(requestDTO.getCategoryId()).orElseThrow(() -> {throw new BadRequestException("Invalid category id,");}));
-        transaction.setPaymentMethod(paymentMethodRepository.findById(requestDTO.getPaymentMethodId()).orElseThrow(() -> {throw new BadRequestException("Invalid payment method id.");}));
+        transaction.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId())
+                .orElseThrow(() -> {throw new BadRequestException("Invalid transaction type.");} ));
+        transaction.setCategory(categoryRepository.findById(requestDTO.getCategoryId())
+                .orElseThrow(() -> {throw new BadRequestException("Invalid category id,");}));
+        transaction.setPaymentMethod(paymentMethodRepository.findById(requestDTO.getPaymentMethodId())
+                .orElseThrow(() -> {throw new BadRequestException("Invalid payment method id.");}));
         if (transaction.getTransactionType().getTransactionTypeId() != transaction.getCategory().getTransactionType().getTransactionTypeId()){
             throw new BadRequestException("Category - transaction type mismatch.");
         }
@@ -123,9 +125,7 @@ public class TransactionService {
     @Transactional
     public TransactionResponseDTO editTransaction(TransactionEditRequestDTO requestDTO) {
         Transaction transaction = transactionRepository.findById((requestDTO.getTransactionId()))
-                .orElseThrow(() -> {
-                    throw new NotFoundException("Invalid transaction id.");
-                });
+                .orElseThrow(() -> {throw new NotFoundException("Invalid transaction id.");});
         BigDecimal subtractFromAffectedBudgets = transaction.getAmount();
 
         Account account = accountRepository.findById(requestDTO.getAccountId())
@@ -140,12 +140,15 @@ public class TransactionService {
             throw new BadRequestException("Account id cannot be changed.");
         }
 
-        transaction.setAccount(account);
+//        transaction.setAccount(account);
         transaction.setAmount(requestDTO.getAmount());
         transaction.setDateTime(requestDTO.getDateTime());
-        transaction.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId()).orElseThrow(() -> {throw new BadRequestException("Invalid transaction type.");} ));
-        transaction.setCategory(categoryRepository.findById(requestDTO.getCategoryId()).orElseThrow(() -> {throw new BadRequestException("Invalid category id,");}));
-        transaction.setPaymentMethod(paymentMethodRepository.findById(requestDTO.getPaymentMethodId()).orElseThrow(() -> {throw new BadRequestException("Invalid payment method id.");}));
+        transaction.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId())
+                .orElseThrow(() -> {throw new BadRequestException("Invalid transaction type.");} ));
+        transaction.setCategory(categoryRepository.findById(requestDTO.getCategoryId())
+                .orElseThrow(() -> {throw new BadRequestException("Invalid category id,");}));
+        transaction.setPaymentMethod(paymentMethodRepository.findById(requestDTO.getPaymentMethodId())
+                .orElseThrow(() -> {throw new BadRequestException("Invalid payment method id.");}));
         if (transaction.getTransactionType().getTransactionTypeId() != transaction.getCategory().getTransactionType().getTransactionTypeId()){
             throw new BadRequestException("Category - transaction type mismatch.");
         }

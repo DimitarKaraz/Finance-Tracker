@@ -25,7 +25,7 @@ public class TransactionEditRequestDTO {
     private int transactionTypeId;
 
     @NotNull(message = "Invalid amount.")
-    @Min(value = 0, message = "Invalid amount.")
+    @Min(value = 1, message = "Invalid amount.")
     @Digits(integer = 13, fraction = 2, message = "Invalid amount.")
     private BigDecimal amount;
 
