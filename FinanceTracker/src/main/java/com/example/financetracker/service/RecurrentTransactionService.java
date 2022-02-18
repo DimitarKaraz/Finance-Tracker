@@ -11,6 +11,7 @@ import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTr
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.pojo.RecurrentTransaction;
+import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,8 @@ public class RecurrentTransactionService {
     private IntervalRepository intervalRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private TransactionRepository transactionRepository;
 
 
     public RecurrentTransactionResponseDTO getRecurrentTransactionById(int recurrentTransactionId) {
@@ -56,6 +60,7 @@ public class RecurrentTransactionService {
                 .map(this::convertToResponseDTO).collect(Collectors.toList());
     }
 
+    @Transactional
     public RecurrentTransactionResponseDTO createRecurrentTransaction(RecurrentTransactionCreateRequestDTO requestDTO) {
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
@@ -64,14 +69,10 @@ public class RecurrentTransactionService {
             throw new UnauthorizedException("You don't have permission to edit this budget.");
             //TODO: Security -> LOG OUT
         }
-
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         RecurrentTransaction recurrentTransaction = modelMapper.map(requestDTO, RecurrentTransaction.class);
         if (requestDTO.getEndDate() != null && requestDTO.getRemainingPayments() != null) {
-            throw new BadRequestException("You must select either end date or remaining payment count.");
-        }
-        if (requestDTO.getEndDate() == null && requestDTO.getRemainingPayments() == null) {
-            throw new BadRequestException("You must select either end date or remaining payment count.");
+            throw new BadRequestException("You must select end date, remaining payment count or forever.");
         }
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
@@ -94,6 +95,10 @@ public class RecurrentTransactionService {
             //TODO: LOGOUT hacker
             throw new ForbiddenException("You cannot access this category.");
         }
+        if (recurrentTransaction.getStartDate().equals(LocalDate.now())){
+            Transaction transaction = new Transaction(recurrentTransaction);
+            transactionRepository.save(transaction);
+        }
 
         recurrentTransactionRepository.save(recurrentTransaction);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
@@ -114,10 +119,7 @@ public class RecurrentTransactionService {
             //TODO: Security -> LOG OUT
         }
         if (requestDTO.getEndDate() != null && requestDTO.getRemainingPayments() != null) {
-            throw new BadRequestException("You must select either end date or remaining payment count.");
-        }
-        if (requestDTO.getEndDate() == null && requestDTO.getRemainingPayments() == null) {
-            throw new BadRequestException("You must select either end date or remaining payment count.");
+            throw new BadRequestException("You must select end date, remaining payment count or forever.");
         }
         if (requestDTO.getEndDate() != null && recurrentTransaction.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
