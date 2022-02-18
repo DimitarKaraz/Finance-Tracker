@@ -1,18 +1,18 @@
 package com.example.financetracker.service;
 
+import com.example.financetracker.model.pojo.Budget;
 import com.example.financetracker.model.pojo.RecurrentTransaction;
 import com.example.financetracker.model.pojo.Transaction;
+import com.example.financetracker.model.repositories.BudgetRepository;
 import com.example.financetracker.model.repositories.RecurrentTransactionRepository;
 import com.example.financetracker.model.repositories.TransactionRepository;
-import com.example.financetracker.model.pojo.Budget;
-import com.example.financetracker.model.repositories.BudgetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -28,7 +28,7 @@ public class CronJobs {
     private BudgetService budgetService;
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void RecurrentCronJob(){
+    public void recurrentCronJob(){
         List<RecurrentTransaction> allRecurrentTransactions = recurrentTransactionRepository.findAllThatExpireOrNeedPaymentToday();
         for (RecurrentTransaction recurrentTransaction : allRecurrentTransactions){
             int totalDays = recurrentTransaction.getInterval().getDays()*recurrentTransaction.getIntervalCount();
