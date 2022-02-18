@@ -29,13 +29,11 @@ public interface BudgetRepository extends JpaRepository<Budget, Integer> {
             "WHERE category_id = ?;", nativeQuery = true)
     Set<Budget> findAllByCategoryId(int categoryId);
 
-<<<<<<< HEAD
-=======
     @Query(value = "SELECT b.*\n" +
             "FROM budgets AS b\n" +
             "LEFT JOIN intervals AS i ON b.interval_id = i.interval_id\n" +
             "WHERE b.end_date = CURDATE() OR DATE_ADD(b.start_date, INTERVAL i.days DAY) = CURDATE();", nativeQuery = true)
     List<Budget> findAllCategoriesReadyForCronJob();
->>>>>>> 53b64b14295f3677fd1c59e3880126729043786f
+
 
 }
