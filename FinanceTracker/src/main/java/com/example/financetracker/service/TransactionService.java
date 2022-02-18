@@ -10,6 +10,7 @@ import com.example.financetracker.model.dto.transactionDTOs.TransactionEditReque
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.pojo.Budget;
+import com.example.financetracker.model.pojo.Category;
 import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,30 +67,26 @@ public class TransactionService {
                 .map(this::convertToResponseDTO).collect(Collectors.toList());
     }
 
-
     //TODO remove this shit
-//    public List<TransactionResponseDTO> getAllTransactionsByBudgetId(int budgetId) {
-//        //todo securty
-//        Set<Category> categories = categoryRepository.findAllByBudgetId(budgetId);
-//        Budget budget = budgetRepository.findById(budgetId)
-//                .orElseThrow(() -> {throw new NotFoundException("Invalid budget id.");});
-//        List<Transaction> transactionsByCategoryIds = transactionRepository
-//                .findTransactionsByCategoryIsInAndAccountUserUserId(categories, budget.getAccount().getUser().getUserId());
-//        List<Transaction> transactionsByStartDate = transactionRepository
-//                .findTransactionsByDateTimeAfter(LocalDateTime.of(budget.getStartDate(), LocalTime.now()));
-//
-//        transactionsByCategoryIds.retainAll(transactionsByStartDate);
-//
-//        return transactionsByCategoryIds.stream()
-//                .map(transaction -> convertToResponseDTO(transaction))
-//                .collect(Collectors.toList());
-//
-////        return categoryRepository.findAllByBudgetId(budgetId).stream()
-////                .map(category -> transactionRepository.findAllByCategoryCategoryId(category.getCategoryId()))
-////                .flatMap(Collection::stream)
-////                .map(this::convertToResponseDTO)
-////                .collect(Collectors.toList());
-//    }
+    public List<TransactionResponseDTO> getAllTransactionsByBudgetId(int budgetId) {
+        //todo security
+        Set<Category> categories = categoryRepository.findAllByBudgetId(budgetId);
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid budget id.");});
+        List<Transaction> transactionsByCategoryIds = transactionRepository
+                .findTransactionsByCategoryIsInAndAccountUserUserId(categories, budget.getAccount().getUser().getUserId());
+        List<Transaction> transactionsByStartDate = transactionRepository
+                .findTransactionsByDateTimeAfter(LocalDateTime.of(budget.getStartDate(), LocalTime.now()));
+        List<Transaction> transactionsByUserId = transactionRepository
+                .findAllByAccount_User_UserId(budget.getAccount().getUser().getUserId());
+
+        transactionsByCategoryIds.retainAll(transactionsByStartDate);
+        transactionsByCategoryIds.retainAll(transactionsByUserId);
+
+        return transactionsByCategoryIds.stream()
+                .map(transaction -> convertToResponseDTO(transaction))
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO) {
@@ -115,18 +113,22 @@ public class TransactionService {
         }
         transactionRepository.save(transaction);
 
-        Set<Budget> affectedBudgets = budgetRepository.findAllByCategoryIdAndAccountId(requestDTO.getAccountId(), requestDTO.getCategoryId());
-        updateAffectedBudgets(new BigDecimal(0), transaction.getAmount(), affectedBudgets);
+        if (transaction.getTransactionType().getName().equalsIgnoreCase("expense")) {
+            updateAffectedBudgets(new BigDecimal(0), transaction.getAmount(), requestDTO.getAccountId(), requestDTO.getCategoryId());
+        }
+        updateAccountBalance(null, transaction);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
         return convertToResponseDTO(transaction);
     }
 
+
     @Transactional
     public TransactionResponseDTO editTransaction(TransactionEditRequestDTO requestDTO) {
         Transaction transaction = transactionRepository.findById((requestDTO.getTransactionId()))
                 .orElseThrow(() -> {throw new NotFoundException("Invalid transaction id.");});
-        BigDecimal subtractFromAffectedBudgets = transaction.getAmount();
+
+        Transaction oldTransaction = new Transaction(transaction);
 
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
@@ -140,7 +142,6 @@ public class TransactionService {
             throw new BadRequestException("Account id cannot be changed.");
         }
 
-//        transaction.setAccount(account);
         transaction.setAmount(requestDTO.getAmount());
         transaction.setDateTime(requestDTO.getDateTime());
         transaction.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId())
@@ -154,25 +155,60 @@ public class TransactionService {
         }
         transactionRepository.save(transaction);
 
-        Set<Budget> affectedBudgets = budgetRepository.findAllByCategoryIdAndAccountId(requestDTO.getAccountId(), requestDTO.getCategoryId());
-        updateAffectedBudgets(subtractFromAffectedBudgets, transaction.getAmount(), affectedBudgets);
+        if (transaction.getTransactionType().getName().equalsIgnoreCase("expense")) {
+            if (!oldTransaction.getCategory().equals(transaction.getCategory())) {
+                //Old budgets:
+                updateAffectedBudgets(oldTransaction.getAmount(), new BigDecimal(0),
+                        requestDTO.getAccountId(), oldTransaction.getCategory().getCategoryId());
+                //New budgets:
+                updateAffectedBudgets(new BigDecimal(0), transaction.getAmount(),
+                        requestDTO.getAccountId(), transaction.getCategory().getCategoryId());
+            } else {
+                updateAffectedBudgets(oldTransaction.getAmount(), transaction.getAmount(),
+                        requestDTO.getAccountId(), transaction.getCategory().getCategoryId());
+            }
+        }
+        updateAccountBalance(oldTransaction, transaction);
 
         return convertToResponseDTO(transaction);
     }
 
-    public void deleteTransaction(int id) {
-        if (!transactionRepository.existsById(id)) {
-            throw new NotFoundException("Transaction does not exist.");
+    @Transactional
+    public void deleteTransaction(int transactionId) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> {throw new NotFoundException("Transaction does not exist.");});
+        if (transaction.getTransactionType().getName().equalsIgnoreCase("expense")) {
+            updateAffectedBudgets(transaction.getAmount(), new BigDecimal(0),
+                    transaction.getAccount().getAccountId(), transaction.getCategory().getCategoryId());
         }
-        transactionRepository.deleteById(id);
+        updateAccountBalance(transaction, null);
+        transactionRepository.deleteById(transactionId);
     }
 
-    private void updateAffectedBudgets(BigDecimal oldTransactionAmount, BigDecimal newTransactionAmount, Set<Budget> affectedBudgets) {
+    private void updateAffectedBudgets(BigDecimal oldTransactionAmount, BigDecimal newTransactionAmount, int accountId, int categoryId) {
+        Set<Budget> affectedBudgets = budgetRepository.findAllByCategoryIdAndAccountId(accountId, categoryId);
         for (Budget budget : affectedBudgets){
             budget.setAmountSpent(budget.getAmountSpent().subtract(oldTransactionAmount));
             budget.setAmountSpent(budget.getAmountSpent().add(newTransactionAmount));
             //todo if budget is 75% spent or 100% spent send notifications/warnings to user
             budgetRepository.save(budget);
+        }
+    }
+
+    private void updateAccountBalance(Transaction oldTransaction, Transaction newTransaction) {
+        if (newTransaction != null) {
+            BigDecimal newAmount = newTransaction.getAmount();
+            if (newTransaction.getTransactionType().getName().equalsIgnoreCase("expense")) {
+                newAmount = newAmount.negate();
+            }
+            newTransaction.getAccount().setBalance(newTransaction.getAccount().getBalance().add(newAmount));
+        }
+        if (oldTransaction != null) {
+            BigDecimal oldAmount = oldTransaction.getAmount();
+            if (oldTransaction.getTransactionType().getName().equalsIgnoreCase("expense")) {
+                oldAmount = oldAmount.negate();
+            }
+            oldTransaction.getAccount().setBalance(oldTransaction.getAccount().getBalance().subtract(oldAmount));
         }
     }
 

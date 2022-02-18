@@ -1,9 +1,6 @@
 package com.example.financetracker.model.pojo;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -14,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
 public class Transaction {
 
@@ -42,5 +40,12 @@ public class Transaction {
 
     @Column(name = "date_time")
     private LocalDateTime dateTime;
+
+    public Transaction(Transaction transaction) {
+        this.transactionType = transaction.getTransactionType();
+        this.amount = transaction.getAmount();
+        this.category = transaction.getCategory();
+        this.account = transaction.getAccount();
+    }
 
 }

@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodNotAllowed.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public ResponseEntity<ExceptionDTO> handleMethodNotAlloweException(MethodNotAllowed e){
+    public ResponseEntity<ExceptionDTO> handleMethodNotAllowedException(MethodNotAllowed e){
         return ResponseEntity.status(405).body(new ExceptionDTO(HttpStatus.METHOD_NOT_ALLOWED, e.getMessage(), LocalDateTime.now()));
     }
 

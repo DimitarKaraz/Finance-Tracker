@@ -3,7 +3,6 @@ package com.example.financetracker.service;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.ForbiddenException;
 import com.example.financetracker.exceptions.NotFoundException;
-import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetCreateRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetEditRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
@@ -150,6 +149,9 @@ public class BudgetService {
             if (category.getUser() != null && budget.getAccount().getUser().getUserId() != category.getUser().getUserId()) {
                 //todo LOG OUT hacker
                 throw new ForbiddenException("You don't have access to this category.");
+            }
+            if (category.getTransactionType().getName().equalsIgnoreCase("income")) {
+                throw new BadRequestException("You cannot add income categories to budgets.");
             }
         });
     }
