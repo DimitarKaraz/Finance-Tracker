@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,7 @@ public class ClosedBudgetService {
                         .orElseThrow(() -> {throw new NotFoundException("Invalid closed budget id.");});
         Budget budget = modelMapper.map(closedBudget, Budget.class);
         budget.setBudgetId(0);
+        budget.setStartDate(LocalDate.now());
         budget.setCategories(closedBudget.getClosedBudgetCategories());
         closedBudgetRepository.deleteById(closedBudgetId);
         budgetRepository.save(budget);
