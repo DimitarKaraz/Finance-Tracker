@@ -32,20 +32,20 @@ public class ClosedBudgetController {
     @GetMapping("{user_id}/all")
     public ResponseEntity<ResponseWrapper<List<ClosedBudgetResponseDTO>>> getAllClosedBudgetsByUserId(@PathVariable("user_id") int id){
         //TODO: SECURITY -> only for user with same id
-        return ResponseWrapper.wrap("ClosedBudgets retrieved.", ClosedBudgetService.getAllClosedBudgetsByUserId(id), HttpStatus.OK);
+        return ResponseWrapper.wrap("ClosedBudgets retrieved.", closedBudgetService.getAllClosedBudgetsByUserId(id), HttpStatus.OK);
     }
 
     @GetMapping("/{ClosedBudget_id}")
     public ResponseEntity<ResponseWrapper<ClosedBudgetResponseDTO>> getClosedBudgetById(@PathVariable("ClosedBudget_id") int ClosedBudgetId){
         //TODO: SECURITY -> only for user with same id
-        return ResponseWrapper.wrap("ClosedBudget retrieved.", ClosedBudgetService.getClosedBudgetById(ClosedBudgetId), HttpStatus.OK);
+        return ResponseWrapper.wrap("ClosedBudget retrieved.", closedBudgetService.getClosedBudgetById(ClosedBudgetId), HttpStatus.OK);
     }
 
 
     @DeleteMapping("/{ClosedBudget_id}/delete_ClosedBudget")
     public ResponseEntity<String> deleteClosedBudgetById(@PathVariable("ClosedBudget_id") int id) {
         //TODO: SECURITY -> only for user with same id
-        ClosedBudgetService.deleteClosedBudget(id);
+        closedBudgetService.deleteClosedBudget(id);
         return ResponseEntity.ok().body("ClosedBudget deleted successfully.");
     }
 
