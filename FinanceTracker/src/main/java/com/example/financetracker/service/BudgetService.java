@@ -169,6 +169,6 @@ public class BudgetService {
 
         budgetRepository.deleteById(budgetId);
         closedBudgetRepository.save(closedBudget);
-        return closedBudgetService.convertToResponseDTO(budget);
+        return closedBudgetService.convertToResponseDTO(closedBudget);
     }
 }
