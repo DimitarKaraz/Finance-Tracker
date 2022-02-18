@@ -49,7 +49,7 @@ public class TransactionController {
         return ResponseWrapper.wrap("Transaction created.", transactionService.createTransaction(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/transactions/edit_transaction")
+    @PutMapping("/edit_transaction")
     public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> editTransaction(@Valid @RequestBody TransactionEditRequestDTO requestDTO) {
         //TODO: SECURITY -> only for users with the same id
         return ResponseWrapper.wrap("Transaction edited.", transactionService.editTransaction(requestDTO), HttpStatus.OK);

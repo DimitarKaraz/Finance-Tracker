@@ -30,5 +30,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     List<Transaction> findTransactionsByDateTimeAfter(LocalDateTime localDateTime);
 
+    List<Transaction> findTransactionsByAccountUserUserId(int userId);
+
+    //todo: (:myArray) OR ? -> String..of..(int[] myArray);
+
 
 }
