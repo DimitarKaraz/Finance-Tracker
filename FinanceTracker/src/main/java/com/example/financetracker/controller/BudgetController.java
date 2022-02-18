@@ -4,6 +4,7 @@ import com.example.financetracker.model.dto.ResponseWrapper;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetCreateRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetEditRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
+import com.example.financetracker.model.dto.closedBudgetDTOs.ClosedBudgetResponseDTO;
 import com.example.financetracker.service.BudgetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -50,6 +51,12 @@ public class BudgetController {
         //TODO: SECURITY -> only for user with same id
         budgetService.deleteBudget(id);
         return ResponseEntity.ok().body("Budget deleted successfully.");
+    }
+
+    @PostMapping("/{budget_id}/close_budget")
+    public ResponseEntity<ResponseWrapper<ClosedBudgetResponseDTO>> closeBudgetById(@PathVariable("budget_id") int id) {
+        //TODO: SECURITY -> only for user with same id
+        return ResponseWrapper.wrap("Budget was close successfully.", budgetService.closeBudgetById(id), HttpStatus.OK);
     }
 
 

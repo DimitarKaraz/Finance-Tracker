@@ -7,9 +7,11 @@ import com.example.financetracker.model.dto.budgetDTOs.BudgetCreateRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetEditRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
+import com.example.financetracker.model.dto.closedBudgetDTOs.ClosedBudgetResponseDTO;
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.pojo.Budget;
 import com.example.financetracker.model.pojo.Category;
+import com.example.financetracker.model.pojo.ClosedBudget;
 import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -24,6 +26,10 @@ import java.util.stream.Collectors;
 @Service
 public class BudgetService {
 
+    @Autowired
+    private ClosedBudgetService closedBudgetService;
+    @Autowired
+    private ClosedBudgetRepository closedBudgetRepository;
     @Autowired
     private BudgetRepository budgetRepository;
     @Autowired
@@ -131,7 +137,7 @@ public class BudgetService {
         budgetRepository.deleteById(id);
     }
 
-    private BudgetResponseDTO convertToResponseDTO(Budget budget) {
+    public BudgetResponseDTO convertToResponseDTO(Budget budget) {
         BudgetResponseDTO responseDTO = modelMapper.map(budget, BudgetResponseDTO.class);
         responseDTO.setCategoryResponseDTOs(budget.getCategories().stream()
                 .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
@@ -156,4 +162,13 @@ public class BudgetService {
         });
     }
 
+    public ClosedBudgetResponseDTO closeBudgetById(int budgetId) {
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid closed budget id.");});
+        ClosedBudget closedBudget = modelMapper.map(budget, ClosedBudget.class);
+
+        budgetRepository.deleteById(budgetId);
+        closedBudgetRepository.save(closedBudget);
+        return closedBudgetService.convertToResponseDTO(budget);
+    }
 }
