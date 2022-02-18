@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -19,8 +20,8 @@ public interface BudgetRepository extends JpaRepository<Budget, Integer> {
             "FROM budgets\n" +
             "JOIN budgets_have_categories\n" +
             "ON (budgets.budget_id = budgets_have_categories.budget_id)\n" +
-            "WHERE account_id = ? AND category_id = ?;", nativeQuery = true)
-    Set<Budget> findAllByCategoryIdAndAccountId(int accountId, int categoryId);
+            "WHERE account_id = ? AND category_id = ? AND start_date <= ?;", nativeQuery = true)
+    Set<Budget> findAllByCategoryIdAndAccountIdAndStartDate(int accountId, int categoryId, LocalDate date);
 
     @Query(value = "SELECT budgets.* " +
             "FROM budgets\n" +

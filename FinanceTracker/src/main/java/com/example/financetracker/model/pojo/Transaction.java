@@ -45,6 +45,7 @@ public class Transaction {
         this.amount = transaction.getAmount();
         this.category = transaction.getCategory();
         this.account = transaction.getAccount();
+        this.dateTime = transaction.getDateTime();
     }
 
     public Transaction(RecurrentTransaction recurrentTransaction){
