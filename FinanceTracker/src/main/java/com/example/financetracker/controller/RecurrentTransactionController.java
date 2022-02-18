@@ -48,7 +48,7 @@ public class RecurrentTransactionController {
     }
 
     @DeleteMapping("/{recurrent_transaction_id}/delete_recurrent_transaction")
-    public ResponseEntity<String> deleteRecurrentTransaction(@PathVariable("recurrent_transaction_id") int id) {
+    public ResponseEntity<String> deleteRecurrentTransactionById(@PathVariable("recurrent_transaction_id") int id) {
         //TODO: SECURITY -> only for user with same id
         recurrentTransactionService.deleteRecurrentTransaction(id);
         return ResponseEntity.ok().body("Recurrent transaction deleted successfully.");

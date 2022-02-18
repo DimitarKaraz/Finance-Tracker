@@ -59,18 +59,28 @@ public class RecurrentTransactionService {
     public RecurrentTransactionResponseDTO createRecurrentTransaction(RecurrentTransactionCreateRequestDTO requestDTO) {
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
-
         //TODO: security -> check if account.findById(requestDTO.getAccountId).getUser.getUserId == session user_id
         if (!userRepository.existsById(account.getUser().getUserId())) {
             throw new UnauthorizedException("You don't have permission to edit this budget.");
             //TODO: Security -> LOG OUT
         }
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         RecurrentTransaction recurrentTransaction = modelMapper.map(requestDTO, RecurrentTransaction.class);
-
+        if (requestDTO.getEndDate() != null && requestDTO.getRemainingPayments() != null) {
+            throw new BadRequestException("You must select either end date or remaining payment count.");
+        }
+        if (requestDTO.getEndDate() == null && requestDTO.getRemainingPayments() == null) {
+            throw new BadRequestException("You must select either end date or remaining payment count.");
+        }
+        if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
+            throw new BadRequestException("Start date cannot be past end date.");
+        }
         recurrentTransaction.setAccount(account);
+        recurrentTransaction.setInterval(intervalRepository.findById(requestDTO.getIntervalId())
+                .orElseThrow(() -> {throw new BadRequestException("Invalid interval id.");}));
         recurrentTransaction.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId())
-                .orElseThrow(() -> {throw new BadRequestException("Invalid transaction type.");} ));
+                .orElseThrow(() -> {throw new BadRequestException("Invalid transaction type id.");} ));
         recurrentTransaction.setCategory(categoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(() -> {throw new BadRequestException("Invalid category id,");}));
         recurrentTransaction.setPaymentMethod(paymentMethodRepository.findById(requestDTO.getPaymentMethodId())
@@ -84,28 +94,10 @@ public class RecurrentTransactionService {
             //TODO: LOGOUT hacker
             throw new ForbiddenException("You cannot access this category.");
         }
-        if (requestDTO.getEndDate() != null && requestDTO.getRemainingPayments() != null) {
-            throw new BadRequestException("You must select either end date or remaining payment count.");
-        }
-        if (requestDTO.getEndDate() == null && requestDTO.getRemainingPayments() == null) {
-            throw new BadRequestException("You must select either end date or remaining payment count.");
-        }
-        if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
-            throw new BadRequestException("Start date cannot be past end date.");
-        }
-        recurrentTransaction.setStartDate(requestDTO.getStartDate());
-        recurrentTransaction.setInterval(intervalRepository.findById(requestDTO.getIntervalId())
-                .orElseThrow(() -> {throw new BadRequestException("Invalid interval id.");}));
-//        recurrentTransaction.setIntervalCount(requestDTO.getIntervalCount());
-//        recurrentTransaction.setEndDate(requestDTO.getEndDate());
-//        if (requestDTO.getRemainingPayments() == null) {
-//        recurrentTransaction.setRemainingPayments(null);
-//        }
+
         recurrentTransactionRepository.save(recurrentTransaction);
-
-        //TODO: cron job method
-
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
+        //TODO: cron job method
         return convertToResponseDTO(recurrentTransaction);
     }
 
@@ -114,8 +106,21 @@ public class RecurrentTransactionService {
         RecurrentTransaction recurrentTransaction = recurrentTransactionRepository.findById(requestDTO.getRecurrentTransactionId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid recurrent transaction id.");});
         //todo security for account_id
-        if (!accountRepository.existsById(requestDTO.getAccountId())){
-            throw new NotFoundException("Invalid account id.");
+        Account account = accountRepository.findById(requestDTO.getAccountId())
+                .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
+        //TODO: security -> check if account.findById(requestDTO.getAccountId).getUser.getUserId == session user_id
+        if (!userRepository.existsById(account.getUser().getUserId())) {
+            throw new UnauthorizedException("You don't have permission to edit this budget.");
+            //TODO: Security -> LOG OUT
+        }
+        if (requestDTO.getEndDate() != null && requestDTO.getRemainingPayments() != null) {
+            throw new BadRequestException("You must select either end date or remaining payment count.");
+        }
+        if (requestDTO.getEndDate() == null && requestDTO.getRemainingPayments() == null) {
+            throw new BadRequestException("You must select either end date or remaining payment count.");
+        }
+        if (requestDTO.getEndDate() != null && recurrentTransaction.getStartDate().isAfter(requestDTO.getEndDate())) {
+            throw new BadRequestException("Start date cannot be past end date.");
         }
         recurrentTransaction.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid transaction type id.");}));
@@ -131,15 +136,7 @@ public class RecurrentTransactionService {
                 recurrentTransaction.getCategory().getUser().getUserId() != recurrentTransaction.getAccount().getUser().getUserId()) {
             throw new BadRequestException("You cannot access this category.");
         }
-        if (requestDTO.getEndDate() != null && requestDTO.getRemainingPayments() != null) {
-            throw new BadRequestException("You must select either end date or remaining payment count.");
-        }
-        if (requestDTO.getEndDate() == null && requestDTO.getRemainingPayments() == null) {
-            throw new BadRequestException("You must select either end date or remaining payment count.");
-        }
-        if (requestDTO.getEndDate() != null && recurrentTransaction.getStartDate().isAfter(requestDTO.getEndDate())) {
-            throw new BadRequestException("Start date cannot be past end date.");
-        }
+
         recurrentTransaction.setName(requestDTO.getName());
         recurrentTransaction.setAmount(requestDTO.getAmount());
         recurrentTransaction.setEndDate(requestDTO.getEndDate());
