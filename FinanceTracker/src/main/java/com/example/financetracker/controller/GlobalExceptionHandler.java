@@ -75,12 +75,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(500).body(new ExceptionDTO(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), LocalDateTime.now()));
     }
 
-/*
-    @ExceptionHandler(HttpClientErrorException.Forbidden.class)
+
+    @ExceptionHandler(FileTransferException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ExceptionDTO> handleBadRequestException(BadRequestException e){
+    public ResponseEntity<ExceptionDTO> handleFileTransferException(FileTransferException e){
         return ResponseEntity.badRequest().body(new ExceptionDTO(HttpStatus.BAD_REQUEST, e.getMessage(), LocalDateTime.now()));
     }
-*/
+
 
 }
