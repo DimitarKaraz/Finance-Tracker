@@ -114,7 +114,9 @@ public class UserService {
     public String uploadFile(MultipartFile file, int userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {throw new NotFoundException("User not found.");});
-
+        String oldImageUrl = user.getProfileImageUrl();
+        File oldFile = new File(FileController.PROFILE_IMAGES_PATH+File.separator+oldImageUrl);
+        oldFile.delete();
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
         //todo implement better random name generation
         String fileName = System.nanoTime() + "." + extension;
