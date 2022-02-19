@@ -9,13 +9,19 @@ import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
 import com.example.financetracker.model.dto.userDTOs.UserRegisterRequestDTO;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
+import lombok.SneakyThrows;
+import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,5 +106,22 @@ public class UserService {
             throw new NotFoundException("User does not exist.");
         }
         userRepository.deleteById(id);
+    }
+
+    @SneakyThrows
+    public String uploadFile(MultipartFile file, int userId) {
+       /*
+       HttpServletRequest request
+       UserController.validateLogin(request.getSession(), request);
+        int loggedUserId = (int) request.getSession().getAttribute(UserController.USER_ID);*/
+        String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+        //todo implement better random name generation
+        String fileName = System.nanoTime() + "." + extension;
+        Files.copy(file.getInputStream(), new File("profileImages" + File.separator + fileName).toPath());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {throw new NotFoundException("User not found.");});
+        user.setProfileImageUrl(fileName);
+        userRepository.save(user);
+        return fileName;
     }
 }
