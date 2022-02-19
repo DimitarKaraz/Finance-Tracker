@@ -21,6 +21,6 @@ public interface RecurrentTransactionRepository extends JpaRepository<RecurrentT
     @Query(value = "SELECT re.*\n" +
             "FROM recurrent_transactions AS re\n" +
             "LEFT JOIN intervals AS i ON re.interval_id = i.interval_id\n" +
-            "WHERE re.end_date = CURDATE() OR DATE_ADD(re.start_date, INTERVAL i.days*re.interval_count DAY) = CURDATE();", nativeQuery = true)
+            "WHERE re.end_date = CURDATE() OR re.start_date = CURDATE() OR DATE_ADD(re.start_date, INTERVAL i.days*re.interval_count DAY) = CURDATE();", nativeQuery = true)
     List<RecurrentTransaction> findAllThatExpireOrNeedPaymentToday();
 }

@@ -3,6 +3,7 @@ package com.example.financetracker.controller;
 import com.example.financetracker.exceptions.FileTransferException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.dao.StatisticsDAO;
+import com.example.financetracker.service.CronJobs;
 import lombok.SneakyThrows;
 import org.aspectj.apache.bcel.util.ClassPath;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,6 @@ import java.nio.file.Files;
 @RestController
 @RequestMapping("/files")
 public class FileController {
-
-
-    @Autowired
-    private StatisticsDAO dao;
 
     public static final String PROFILE_IMAGES_PATH = "profileImages";
 
@@ -59,9 +56,5 @@ public class FileController {
         }
     }
 
-    @GetMapping("/chushki")
-    public void chushki(){
-        dao.method();
-    }
 
 }

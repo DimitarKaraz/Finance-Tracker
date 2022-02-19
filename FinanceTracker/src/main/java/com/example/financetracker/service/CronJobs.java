@@ -3,9 +3,11 @@ package com.example.financetracker.service;
 import com.example.financetracker.model.pojo.Budget;
 import com.example.financetracker.model.pojo.RecurrentTransaction;
 import com.example.financetracker.model.pojo.Transaction;
+import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.BudgetRepository;
 import com.example.financetracker.model.repositories.RecurrentTransactionRepository;
 import com.example.financetracker.model.repositories.TransactionRepository;
+import com.example.financetracker.model.repositories.UserRepository;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
@@ -14,16 +16,21 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.security.Security;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 @Component
 public class CronJobs {
@@ -36,6 +43,8 @@ public class CronJobs {
     private BudgetRepository budgetRepository;
     @Autowired
     private BudgetService budgetService;
+    @Autowired
+    private UserRepository userRepository;
 
     @Scheduled(cron = "0 0 0 * * *")
     @Retryable( value = Exception.class,
@@ -51,6 +60,60 @@ public class CronJobs {
     public void budgetCronJob() {
         List<Budget> budgets = budgetRepository.findAllBudgetsReadyForCronJob();
         resetAllBudgets(budgets);
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    @Retryable( value = Exception.class,
+            maxAttempts = 10, backoff = @Backoff(delay = 60*1000))
+    public void sendEmailToInactiveUsersCronJob(){
+        List<User> inactiveUsers = userRepository.findAllInactiveUsers();
+        sendAllTheEmails(inactiveUsers);
+    }
+
+    @SneakyThrows
+    public void sendAllTheEmails(List<User> inactiveUsers){
+        for (User user : inactiveUsers){
+            sendEmail(user.getEmail());
+        }
+    }
+
+    public void sendEmail(String email){
+        String to = email;
+
+        String from = "plevenskikozi@gmail.com";
+
+        String host = "smtp.gmail.com";
+
+        Properties properties = System.getProperties();
+
+        properties.put("mail.smtp.host", host);
+        properties.put("mail.smtp.port", "465");
+        properties.put("mail.smtp.ssl.enable", "true");
+        properties.put("mail.smtp.auth", "true");
+
+        Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("plevenskikozi@gmail.com", "financetrackerpass");
+            }
+        });
+
+        session.setDebug(true);
+
+        try {
+            MimeMessage message = new MimeMessage(session);
+
+            message.setFrom(new InternetAddress(from));
+
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+
+            message.setSubject("Finance-Tracker Inactivity");
+
+            message.setText("Hey, we see you've been inactive for over a month now, would you like to give us another chance?");
+
+            Transport.send(message);
+        } catch (MessagingException mex) {
+            mex.printStackTrace();
+        }
     }
 
     @Transactional
@@ -105,4 +168,6 @@ public class CronJobs {
 
 
     //todo make cronjob for emails to inactive users
+
+
 }
