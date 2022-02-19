@@ -1,6 +1,8 @@
 package com.example.financetracker.service;
 
+import com.example.financetracker.controller.FileController;
 import com.example.financetracker.exceptions.BadRequestException;
+import com.example.financetracker.exceptions.FileTransferException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.userDTOs.ChangePasswordRequestDTO;
@@ -21,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -108,18 +111,18 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    @SneakyThrows
     public String uploadFile(MultipartFile file, int userId) {
-       /*
-       HttpServletRequest request
-       UserController.validateLogin(request.getSession(), request);
-        int loggedUserId = (int) request.getSession().getAttribute(UserController.USER_ID);*/
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {throw new NotFoundException("User not found.");});
+
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
         //todo implement better random name generation
         String fileName = System.nanoTime() + "." + extension;
-        Files.copy(file.getInputStream(), new File("profileImages" + File.separator + fileName).toPath());
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {throw new NotFoundException("User not found.");});
+        try {
+            Files.copy(file.getInputStream(), new File(FileController.PROFILE_IMAGES_PATH + File.separator + fileName).toPath());
+        } catch (IOException e) {
+            throw new FileTransferException("File upload failed.");
+        }
         user.setProfileImageUrl(fileName);
         userRepository.save(user);
         return fileName;

@@ -85,8 +85,7 @@ public class UserController {
         return ResponseEntity.ok().body("\"message\": \"Your profile was deleted. We will miss you!\"\n" + "\"timestamp\": " + LocalDateTime.now());
     }
 
-    @SneakyThrows
-    @PostMapping("/users/{user_id}/upload_image")
+    @PostMapping("/{user_id}/upload_image")
     public String uploadProfileImageByUserId(@RequestParam(name = "file") MultipartFile file, @PathVariable("user_id") int userId){
         return userService.uploadFile(file, userId);
     }

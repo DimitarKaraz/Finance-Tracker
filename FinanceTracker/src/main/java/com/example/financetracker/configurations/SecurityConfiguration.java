@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.annotation.Resource;
 
-@EnableWebSecurity
+//@EnableWebSecurity
 @EnableGlobalMethodSecurity(
         prePostEnabled = true,
         securedEnabled = true,
