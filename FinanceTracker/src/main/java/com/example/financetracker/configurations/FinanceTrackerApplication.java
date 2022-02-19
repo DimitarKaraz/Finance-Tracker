@@ -1,4 +1,4 @@
-package com.example.financetracker;
+package com.example.financetracker.configurations;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
