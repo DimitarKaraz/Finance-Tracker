@@ -4,6 +4,7 @@ import com.example.financetracker.model.pojo.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.*;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class UserProfileDTO {
 
     @Min(value = 1, message = "Invalid user id.")

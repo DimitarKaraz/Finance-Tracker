@@ -3,23 +3,26 @@ package com.example.financetracker.controller;
 
 import com.example.financetracker.model.dto.ResponseWrapper;
 import com.example.financetracker.model.dto.userDTOs.ChangePasswordRequestDTO;
-import com.example.financetracker.model.dto.userDTOs.UserLoginRequestDTO;
+import com.example.financetracker.model.dto.userDTOs.MyUserDetails;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
-import com.example.financetracker.model.dto.userDTOs.UserRegisterRequestDTO;
 import com.example.financetracker.service.UserService;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -28,25 +31,41 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/user/registration")
-    public String showRegistrationForm(WebRequest request, Model model) {
-        UserRegisterRequestDTO userDto = new UserRegisterRequestDTO();
-        model.addAttribute("user", userDto);
-        return "registration";
+    @GetMapping("/checky")
+    public void checkAuthentication() {
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication auth = context.getAuthentication();
+        String email = auth.getName();
+        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
+        List<SimpleGrantedAuthority> authorities = auth.getAuthorities().stream()
+                .map(grantedAuthority -> new SimpleGrantedAuthority(grantedAuthority.getAuthority()))
+                .collect(Collectors.toList()) ;
+        String credentials = (String) auth.getCredentials();
+        WebAuthenticationDetails details = (WebAuthenticationDetails) auth.getDetails();
+        System.out.println(email);
+        System.out.println(myUserDetails);
+        System.out.println(authorities);
+        System.out.println(credentials);
+        System.out.println(details);
+        System.out.println("Session id: " +details.getSessionId());
+        System.out.println("Remote address: " + details.getRemoteAddress());
+
     }
 
-    @PostMapping("/register_user")
-    public ResponseEntity<ResponseWrapper<UserProfileDTO>> register(@Valid @RequestBody UserRegisterRequestDTO requestDTO) {
-                //TODO: security
-        return ResponseWrapper.wrap("User was registered.", userService.register(requestDTO), HttpStatus.CREATED);
-    }
 
-    @PostMapping("/login")
-    public ResponseEntity<ResponseWrapper<UserProfileDTO>> login(@Valid @RequestBody UserLoginRequestDTO requestDTO) {
-        //TODO: security
-        UserProfileDTO response = userService.login(requestDTO);
-        return ResponseWrapper.wrap("User logged in.", response, HttpStatus.OK);
-    }
+//    @PostMapping("/register_user")
+//    public ResponseEntity<ResponseWrapper<UserProfileDTO>> register(@Valid @RequestBody UserRegisterRequestDTO requestDTO) {
+//                //TODO: security
+//        return ResponseWrapper.wrap("User was registered.", userService.register(requestDTO), HttpStatus.CREATED);
+//    }
+
+//    @PostMapping("/login")
+//    public ResponseEntity<ResponseWrapper<UserProfileDTO>> login(@Valid @RequestBody UserLoginRequestDTO requestDTO) {
+//        //TODO: security
+//        UserProfileDTO response = userService.login(requestDTO);
+//        return ResponseWrapper.wrap("User logged in.", response, HttpStatus.OK);
+//    }
 
     @PutMapping("/edit_profile")
     public ResponseEntity<ResponseWrapper<UserProfileDTO>> editProfile(@Valid @RequestBody UserProfileDTO requestDTO) {
@@ -65,8 +84,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("#id == principal.userId")
     public ResponseEntity<ResponseWrapper<UserProfileDTO>> getUserById(@PathVariable("id") int id) {
-        //TODO: SECURITY (-> Only for users with the same id??)
         return ResponseWrapper.wrap("User retrieved.", userService.getUserById(id), HttpStatus.OK);
     }
 

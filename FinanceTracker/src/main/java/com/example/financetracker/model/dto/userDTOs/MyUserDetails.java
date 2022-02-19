@@ -1,9 +1,10 @@
 package com.example.financetracker.model.dto.userDTOs;
 
-import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -12,14 +13,19 @@ import java.util.List;
 
 @Component
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
+@Getter
 public class MyUserDetails implements UserDetails {
 
+    private int userId;
     private String email;
     private String password;
     private List<GrantedAuthority> authorities;
 
 
-    public MyUserDetails(String email, String password, List<GrantedAuthority> authorities){
+    public MyUserDetails(int userId, String email, String password, List<GrantedAuthority> authorities){
+        this.userId = userId;
         this.email = email;
         this.password = password;
         this.authorities = authorities;

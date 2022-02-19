@@ -2,24 +2,20 @@ package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.NotFoundException;
-import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.userDTOs.ChangePasswordRequestDTO;
-import com.example.financetracker.model.dto.userDTOs.UserLoginRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
-import com.example.financetracker.model.dto.userDTOs.UserRegisterRequestDTO;
+import com.example.financetracker.model.dto.userDTOs.UserRegisterForm;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
@@ -35,27 +31,43 @@ public class UserService {
     @Autowired
     private PasswordEncoder encoder;
 
-    public UserProfileDTO register(UserRegisterRequestDTO requestDTO) {
-        if (userRepository.existsByEmail(requestDTO.getEmail())) {
+    public UserProfileDTO register(UserRegisterForm form) {
+        if (userRepository.existsByEmail(form.getEmail())) {
+            System.out.println("Email already exists");
             throw new BadRequestException("Email already exists.");
         }
-        if (!requestDTO.getConfirmPassword().equals(requestDTO.getPassword())){
+        if (!form.getConfirmPassword().equals(form.getPassword())){
             throw new BadRequestException("Password does not match.");
         }
-        requestDTO.setPassword(encoder.encode(requestDTO.getPassword()));
-        User user = modelMapper.map(requestDTO, User.class);
+        form.setPassword(encoder.encode(form.getPassword()));
+        User user = modelMapper.map(form, User.class);
         user.setAuthorities("ROLE_USER");
         userRepository.save(user);
         return modelMapper.map(user, UserProfileDTO.class);
     }
 
-    public UserProfileDTO login(UserLoginRequestDTO requestDTO){
-        User user = userRepository.findByEmail(requestDTO.getEmail());
-        if (user == null || !(encoder.matches(requestDTO.getPassword(), user.getPassword()))){
-            throw new UnauthorizedException("Wrong email or password.");
-        }
-        return modelMapper.map(user, UserProfileDTO.class);
-    }
+
+//    public UserProfileDTO register(UserRegisterRequestDTO requestDTO) {
+//        if (userRepository.existsByEmail(requestDTO.getEmail())) {
+//            throw new BadRequestException("Email already exists.");
+//        }
+//        if (!requestDTO.getConfirmPassword().equals(requestDTO.getPassword())){
+//            throw new BadRequestException("Password does not match.");
+//        }
+//        requestDTO.setPassword(encoder.encode(requestDTO.getPassword()));
+//        User user = modelMapper.map(requestDTO, User.class);
+//        user.setAuthorities("ROLE_USER");
+//        userRepository.save(user);
+//        return modelMapper.map(user, UserProfileDTO.class);
+//    }
+
+//    public UserProfileDTO login(UserLoginRequestDTO requestDTO){
+//        User user = userRepository.findByEmail(requestDTO.getEmail());
+//        if (user == null || !(encoder.matches(requestDTO.getPassword(), user.getPassword()))){
+//            throw new UnauthorizedException("Wrong email or password.");
+//        }
+//        return modelMapper.map(user, UserProfileDTO.class);
+//    }
 
     public UserProfileDTO editProfile(UserProfileDTO requestDTO){
         User userBefore = userRepository.findById(requestDTO.getUserId())
@@ -72,10 +84,11 @@ public class UserService {
     }
 
     public UserProfileDTO getUserById(int id) {
-        //TODO: check is userId == session.userId
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
-        return modelMapper.map(user, UserProfileDTO.class);
+        UserProfileDTO userProfileDTO = modelMapper.map(user, UserProfileDTO.class);
+        System.out.println(userProfileDTO);
+        return userProfileDTO;
     }
 
     public List<UserProfileDTO> getAllUsers() {
