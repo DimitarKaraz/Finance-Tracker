@@ -10,6 +10,7 @@ import com.example.financetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -23,7 +24,13 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/register")
+    @GetMapping("/register")
+    public String register(final Model model){
+        model.addAttribute("userRegisterRequestDTO", new UserRegisterRequestDTO());
+        return "redirect:/registerform";
+    }
+
+    @PostMapping("/register_user")
     public ResponseEntity<ResponseWrapper<UserProfileDTO>> register(@Valid @RequestBody UserRegisterRequestDTO requestDTO) {
                 //TODO: security
         return ResponseWrapper.wrap("User was registered.", userService.register(requestDTO), HttpStatus.CREATED);

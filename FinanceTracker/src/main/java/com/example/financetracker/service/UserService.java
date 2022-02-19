@@ -9,9 +9,9 @@ import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
 import com.example.financetracker.model.dto.userDTOs.UserRegisterRequestDTO;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
-import com.example.financetracker.utilities.email_validator.EmailValidator;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,10 +30,6 @@ public class UserService {
     private PasswordEncoder encoder;
 
     public UserProfileDTO register(UserRegisterRequestDTO requestDTO) {
-        //TODO: test regex
-        if (!EmailValidator.validateEmail(requestDTO.getEmail())) {
-            throw new BadRequestException("Please enter a valid email!");
-        }
         if (userRepository.existsByEmail(requestDTO.getEmail())) {
             throw new BadRequestException("Email already exists.");
         }
@@ -42,6 +38,7 @@ public class UserService {
         }
         requestDTO.setPassword(encoder.encode(requestDTO.getPassword()));
         User user = modelMapper.map(requestDTO, User.class);
+        user.setAuthorities("ROLE_USER");
         userRepository.save(user);
         return modelMapper.map(user, UserProfileDTO.class);
     }
@@ -62,6 +59,7 @@ public class UserService {
         User userAfter = modelMapper.map(requestDTO, User.class);
         userAfter.setGender(requestDTO.getGender().toLowerCase());
         userAfter.setPassword(userBefore.getPassword());
+        userAfter.setAuthorities(userBefore.getAuthorities());
         userRepository.save(userAfter);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
         return modelMapper.map(userAfter, UserProfileDTO.class);
