@@ -23,10 +23,7 @@ public class FinanceTrackerApplication {
         return new ModelMapper();
     }
 
-    @Bean
-    public PasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
+
 
 
 }
