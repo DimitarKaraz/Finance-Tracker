@@ -1,4 +1,4 @@
-package com.example.financetracker.configurations;
+package com.example.financetracker;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
@@ -23,7 +23,10 @@ public class FinanceTrackerApplication {
         return new ModelMapper();
     }
 
-
+    @Bean
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
 
 
 }

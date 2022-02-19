@@ -13,27 +13,31 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service("myUserDetailsService")
 public class MyUserDetailsService implements UserDetailsService{
 
-   // @Resource
-    @Autowired
+    @Resource
     private UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmailOptional(email)
-                .orElseThrow(() -> {throw new NotFoundException("User does not exist.");});
+        User user = userRepository.findByEmail(email);
+        if (user == null){
+            throw new NotFoundException("User not found");
+        }
+
         List<GrantedAuthority> authorities = Arrays.stream(user.getAuthorities().split(",")).map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-        return MyUserDetails.builder()
-                .password(user.getPassword())
+ /*       return MyUserDetails.builder()
                 .email(user.getEmail())
+                .password(user.getPassword())
                 .authorities(authorities)
-                .build();
+                .build();*/
+        return new MyUserDetails(user.getEmail(), user.getPassword(), authorities);
     }
 
 
