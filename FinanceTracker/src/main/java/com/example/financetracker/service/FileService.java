@@ -1,14 +1,12 @@
 package com.example.financetracker.service;
 
-import com.example.financetracker.exceptions.FileTransferException;
-import com.example.financetracker.exceptions.ForbiddenException;
-import com.example.financetracker.exceptions.NotFoundException;
-import com.example.financetracker.exceptions.UnauthorizedException;
+import com.example.financetracker.exceptions.*;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
 import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
 import lombok.SneakyThrows;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -80,17 +78,13 @@ public class FileService {
 
     public void sendPDFToEmail(TransactionByDateAndFiltersRequestDTO requestDTO){
         List<Transaction> requestedTransactions = transactionService.getRequiredTransactions(requestDTO);
-        String userEmail = requestedTransactions.get(0).getAccount().getUser().getEmail();
-        PDDocument document = convertToPDF(requestedTransactions);
-        File file = new File("Statement.pdf");
-        try {
-            document.save(file);
-            document.close();
-        } catch (IOException e) {
-            throw new FileTransferException("Error occurred when generating pdf statement.");
+        if (requestedTransactions.isEmpty()){
+            throw new BadRequestException("You have no transactions to show!");
         }
-        Properties properties = System.getProperties();
+        String userEmail = requestedTransactions.get(0).getAccount().getUser().getEmail();
+        File file = new File(convertToPDF(requestedTransactions));
 
+        Properties properties = System.getProperties();
         properties.put("mail.smtp.host", CronJobs.HOST);
         properties.put("mail.smtp.port", "465");
         properties.put("mail.smtp.ssl.enable", "true");
@@ -112,50 +106,56 @@ public class FileService {
             MimeBodyPart messageBodyPart = new MimeBodyPart();
             DataSource source = new FileDataSource(file);
             messageBodyPart.setDataHandler(new DataHandler(source));
-            messageBodyPart.setFileName("StatementPDF");
+            messageBodyPart.setFileName("Statement.pdf");
             Multipart multipart = new MimeMultipart();
             multipart.addBodyPart(messageBodyPart);
             message.setContent(multipart);
             Transport.send(message);
         } catch (MessagingException mex) {
-            mex.printStackTrace();
+            //todo maybe create new email failed exception
+            throw new FileTransferException("Sending email failed.");
         }
+        file.delete();
     }
 
-    public PDDocument convertToPDF(List<Transaction> transactions){
-        PDDocument document;
-        try {
+    public String convertToPDF(List<Transaction> transactions){
+        String fileName = "Statement-"+transactions.get(0).getAccount().getUser().getEmail()+System.nanoTime()+".pdf";
+        try(PDDocument document = new PDDocument()) {
             LinkedList<Transaction> transactionsList = new LinkedList<>(transactions);
-            document = new PDDocument();
-            for (int i = 0; i < transactions.size() / 10; i++) {
+            for (int i = 0; i < (transactions.size() / 30) +1; i++) {
                 document.addPage(new PDPage());
             }
             for (int i = 0; i < document.getNumberOfPages(); i++) {
                 PDPage page = document.getPage(i);
                 PDPageContentStream contentStream = new PDPageContentStream(document, page);
+                contentStream.setLeading(20.0f);
                 contentStream.beginText();
                 contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
-                contentStream.newLineAtOffset(25, 500);
-                String text = "";
-                for (int j = 0; j < 10; j++) {
+                contentStream.newLineAtOffset(25, page.getTrimBox().getHeight()-25);
+                String text;
+                for (int j = 0; j < 30; j++) {
+                    contentStream.newLine();
                     if (transactionsList.isEmpty()) {
                         break;
                     }
                     Transaction transaction = transactionsList.removeFirst();
-                    text = "\n " + transaction.getDateTime()
-                            + "Amount: "+transaction.getAmount()
-                            + "Category: "+transaction.getCategory().getName()
-                            + "Paid with:"+transaction.getPaymentMethod().getName()
-                            + " " + transaction.getTransactionType().getName().toUpperCase();
+                    text =  "Date: "+transaction.getDateTime().toLocalDate()+", "
+                            +"Time: "+transaction.getDateTime().toLocalTime()+", "
+                            + "Amount: "+transaction.getAmount()+transaction.getAccount().getCurrency().getName().toUpperCase()+", "
+                            + "Category: "+transaction.getCategory().getName()+", "
+                            + "Paid with: "+transaction.getPaymentMethod().getName()+", "
+                            + "Type: " + transaction.getTransactionType().getName().toUpperCase();
+                    contentStream.showText(text);
                 }
-                contentStream.showText(text);
                 contentStream.endText();
                 contentStream.close();
+                document.save(fileName);
             }
         } catch (IOException e) {
             throw new FileTransferException("Error occurred when generating pdf statement.");
         }
-        return document;
+
+        return fileName;
     }
 
 }

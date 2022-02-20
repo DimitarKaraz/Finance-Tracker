@@ -30,6 +30,12 @@ public class CategoryController {
         return ResponseWrapper.wrap("Categories for user retrieved.",
                 categoryService.getAllCategoriesOfCurrentUser(), HttpStatus.OK);
     }
+    //todo fix url
+    @GetMapping("/categories/{transaction_type_id}")
+    public ResponseEntity<ResponseWrapper<List<CategoryResponseDTO>>> getCategoriesOfCurrentUserByTransactionType(@PathVariable("transaction_type_id") int transactionTypeId){
+        return ResponseWrapper.wrap("Categories for user retrieved.",
+                categoryService.getCategoriesOfCurrentUserByTransactionType(transactionTypeId), HttpStatus.OK);
+    }
 
     @GetMapping("/categories/{category_id}")
     public ResponseEntity<ResponseWrapper<CategoryResponseDTO>> getCategoryById(@PathVariable("category_id") int id){

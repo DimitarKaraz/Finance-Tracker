@@ -33,8 +33,7 @@ public class FileController {
         fileService.downloadCategoryIcon(filename, response);
     }
 
-    //todo fix, doesn't work
-   @GetMapping("/PdfStatement")
+   @PutMapping("/files/PdfStatement")
     public void sendPDFToEmail(@Valid @RequestBody TransactionByDateAndFiltersRequestDTO requestDTO){
         fileService.sendPDFToEmail(requestDTO);
     }
