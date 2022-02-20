@@ -14,13 +14,11 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.math.BigDecimal;
@@ -34,7 +32,7 @@ import java.util.List;
 import java.util.Properties;
 
 @Component
-@PreAuthorize("hasRole('ROLE_ADMIN')")
+//@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class CronJobs {
     public static final String SENDER_MAIL = "plevenskikozi@gmail.com";
     public static final String HOST = "smtp.gmail.com";
@@ -52,6 +50,7 @@ public class CronJobs {
     private UserRepository userRepository;
 
     @Scheduled(cron = "0 0 0 * * *")
+//    @Scheduled(fixedDelay = 1000*60*60*24, initialDelay = 1000)
     @Retryable( value = Exception.class,
             maxAttempts = 10, backoff = @Backoff(delay = 60*1000))
     public void recurrentCronJob(){
@@ -60,18 +59,19 @@ public class CronJobs {
     }
 
     @Scheduled(cron = "0 0 0 * * *") // every day at midnight
+//    @Scheduled(fixedDelay = 1000*60*60*24, initialDelay = 1000)
     @Retryable(value = Exception.class,
             maxAttempts = 10, backoff = @Backoff(delay = 60*1000))
-    public void budgetCronJob() throws Exception {
+    public void budgetCronJob()  {
         List<Budget> budgets = budgetRepository.findAllBudgetsReadyForCronJob();
         resetAllBudgets(budgets);
-
     }
 
     @Scheduled(cron = "0 0 0 * * *")
+//    @Scheduled(fixedDelay = 1000*60*60*24, initialDelay = 1000)
     @Retryable(value = Exception.class,
             maxAttempts = 10, backoff = @Backoff(delay = 60*1000))
-    public void sendEmailToInactiveUsersCronJob(){
+    public void sendEmailToInactiveUsersCronJob() throws Exception {
         List<User> inactiveUsers = userRepository.findAllInactiveUsers();
         sendAllTheEmails(inactiveUsers);
     }
@@ -90,13 +90,13 @@ public class CronJobs {
     }
 
 
-    public void sendAllTheEmails(List<User> inactiveUsers){
+    public void sendAllTheEmails(List<User> inactiveUsers) throws MessagingException {
         for (User user : inactiveUsers){
             sendEmail(user.getEmail());
         }
     }
 
-    public void sendEmail(String recipient){
+    public void sendEmail(String recipient) throws MessagingException {
         Properties properties = System.getProperties();
 
         properties.put("mail.smtp.host", HOST);
@@ -112,22 +112,18 @@ public class CronJobs {
 
         session.setDebug(true);
 
-        try {
-            MimeMessage message = new MimeMessage(session);
+        MimeMessage message = new MimeMessage(session);
 
-            message.setFrom(new InternetAddress(SENDER_MAIL));
+        message.setFrom(new InternetAddress(SENDER_MAIL));
 
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
 
-            message.setSubject("Finance-Tracker Inactivity");
+        message.setSubject("Finance-Tracker Inactivity");
 
-            message.setText("Hey, we see you've been inactive for over a month now, would you like to give us another chance?");
+        message.setText("Hey, we see you've been inactive for over a month now, would you like to give us another chance?");
 
-            Transport.send(message);
+        Transport.send(message);
 
-        } catch (MessagingException mex) {
-            mex.printStackTrace();
-        }
     }
 
     @Transactional

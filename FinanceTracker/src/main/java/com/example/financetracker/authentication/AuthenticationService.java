@@ -1,4 +1,4 @@
-package com.example.financetracker.service;
+package com.example.financetracker.authentication;
 
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
@@ -9,6 +9,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class AuthenticationService {
@@ -29,6 +31,7 @@ public class AuthenticationService {
         }
         form.setPassword(encoder.encode(form.getPassword()));
         User user = modelMapper.map(form, User.class);
+        user.setLastLogin(LocalDateTime.now());
         user.setAuthorities("ROLE_USER");
         userRepository.save(user);
         return modelMapper.map(user, UserProfileDTO.class);

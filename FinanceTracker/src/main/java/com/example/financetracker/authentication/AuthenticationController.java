@@ -1,8 +1,8 @@
-package com.example.financetracker.controller;
+package com.example.financetracker.authentication;
 
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.model.dto.userDTOs.UserRegisterFormDTO;
-import com.example.financetracker.service.AuthenticationService;
+import com.example.financetracker.model.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -18,6 +18,8 @@ import javax.validation.Valid;
 public class AuthenticationController {
     @Autowired
     private AuthenticationService authenticationService;
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private MessageSource messageSource;
 
@@ -44,5 +46,22 @@ public class AuthenticationController {
         return "account/register";
     }
 
+    @GetMapping("/login")
+    public String login(){
+        return "account/login";
+    }
+
+//    @PostMapping("/user/resetPassword")
+//    public ResponseEntity<String> resetPassword(HttpServletRequest request, @RequestParam("email") String userEmail) {
+//        User user = userRepository.findByEmail(userEmail);
+//        if (user == null) {
+//            throw new NotFoundException("User not found.");
+//        }
+//        String token = UUID.randomUUID().toString();
+//        userService.createPasswordResetTokenForUser(user, token);
+//        mailSender.send(constructResetTokenEmail(getAppUrl(request),
+//                request.getLocale(), token, user));
+//        return ResponseEntity.status(418).body(messageSource.getMessage("message.resetPasswordEmail", null, request.getLocale()));
+//    }
 
 }

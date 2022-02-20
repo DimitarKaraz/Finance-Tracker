@@ -1,6 +1,5 @@
 package com.example.financetracker.model.pojo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,6 +7,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -41,6 +41,9 @@ public class User {
 
     @Column(name = "profile_image_url")
     private String profileImageUrl;
+
+    @Column(name = "last_login")
+    private LocalDateTime lastLogin;
 
     @Column(name = "authorities")
     private String authorities;

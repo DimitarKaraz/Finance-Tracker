@@ -27,7 +27,7 @@ public class MyUserDetailsService implements UserDetailsService{
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
         if (user == null){
-            throw new NotFoundException("User not found.");
+            throw new NotFoundException("Invalid credentials.");
         }
 
         List<GrantedAuthority> authorities = Arrays.stream(user.getAuthorities().split(","))

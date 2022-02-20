@@ -1,6 +1,7 @@
 package com.example.financetracker.configurations;
 
 
+import com.example.financetracker.authentication.LoginSuccessHandler;
 import com.example.financetracker.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +25,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private LoginSuccessHandler loginSuccessHandler;
     @Resource
     private MyUserDetailsService myUserDetailsService;
 
@@ -42,15 +45,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/all_users").hasAuthority("ROLE_ADMIN")
             .and()
             .formLogin(form -> form
+                .loginPage("/login")
                 .defaultSuccessUrl("/profile")
+                .successHandler(loginSuccessHandler)
                 .failureUrl("/login?error=true"))
             .logout(logout -> logout
-                    .logoutUrl("/logout")
-                    .logoutSuccessUrl("/login")
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login")
 //                        .logoutSuccessHandler(logoutSuccessHandler)
-                    .invalidateHttpSession(true)
+                .invalidateHttpSession(true)
 //                        .addLogoutHandler(logoutHandler)
-                    .deleteCookies("JSESSIONID"))
+                .deleteCookies("JSESSIONID"))
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .invalidSessionUrl("/login")
@@ -67,7 +72,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         authenticationProvider.setUserDetailsService(myUserDetailsService);
         return authenticationProvider;
     }
-
 
 
 }
