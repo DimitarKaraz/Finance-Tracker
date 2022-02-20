@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -89,6 +91,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionDTO> handleFileTransferException(FileTransferException e){
         return ResponseEntity.badRequest().body(new ExceptionDTO(HttpStatus.BAD_REQUEST, e.getMessage(), LocalDateTime.now()));
     }
+
+    @ExceptionHandler({HttpRequestMethodNotSupportedException.class,
+                        MethodArgumentTypeMismatchException.class,
+                        PageNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ExceptionDTO> handleNoHandlerFoundException() {
+        return ResponseEntity.status(404).body(new ExceptionDTO(HttpStatus.NOT_FOUND,
+                "PAGE NOT FOUND. (See if you are using appropriate HTTP request method and url.)", LocalDateTime.now()));
+    }
+
 
 
 }

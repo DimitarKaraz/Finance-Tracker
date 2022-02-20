@@ -230,6 +230,7 @@ public class TransactionService {
                 newAmount = newAmount.negate();
             }
             newTransaction.getAccount().setBalance(newTransaction.getAccount().getBalance().add(newAmount));
+            accountRepository.save(newTransaction.getAccount());
         }
         if (oldTransaction != null) {
             BigDecimal oldAmount = oldTransaction.getAmount();
@@ -237,6 +238,7 @@ public class TransactionService {
                 oldAmount = oldAmount.negate();
             }
             oldTransaction.getAccount().setBalance(oldTransaction.getAccount().getBalance().subtract(oldAmount));
+            accountRepository.save(oldTransaction.getAccount());
         }
     }
 

@@ -42,6 +42,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .antMatchers("/all_users").hasAuthority("ROLE_ADMIN")
                 .and()
                 .formLogin(form -> form
+                    .defaultSuccessUrl("/profile")
                     .failureUrl("/login?error=true"))
                 .logout(logout -> logout
                         .logoutUrl("/logout")
