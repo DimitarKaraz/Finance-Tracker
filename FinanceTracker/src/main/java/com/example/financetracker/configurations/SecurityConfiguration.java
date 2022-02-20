@@ -36,26 +36,26 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests()
-                    .antMatchers("/login", "/register").permitAll()
-                    .antMatchers("/**").permitAll()//hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
-                    .antMatchers("/all_users").hasAuthority("ROLE_ADMIN")
-                .and()
-                .formLogin(form -> form
-                    .defaultSuccessUrl("/profile")
-                    .failureUrl("/login?error=true"))
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
+            .authorizeRequests()
+                .antMatchers("/login", "/register").permitAll()
+                .antMatchers("/**").permitAll()//hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                .antMatchers("/all_users").hasAuthority("ROLE_ADMIN")
+            .and()
+            .formLogin(form -> form
+                .defaultSuccessUrl("/profile")
+                .failureUrl("/login?error=true"))
+            .logout(logout -> logout
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/login")
 //                        .logoutSuccessHandler(logoutSuccessHandler)
-                        .invalidateHttpSession(true)
+                    .invalidateHttpSession(true)
 //                        .addLogoutHandler(logoutHandler)
-                        .deleteCookies())
-                .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                    .invalidSessionUrl("/login")
-                .and()
-                .csrf().disable()
+                    .deleteCookies())
+            .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .invalidSessionUrl("/login")
+            .and()
+            .csrf().disable()
         ;
 //        http.authorizeRequests().antMatchers("/").permitAll().and().csrf().disable();
     }

@@ -2,7 +2,7 @@ package com.example.financetracker.controller;
 
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.model.dto.userDTOs.UserRegisterFormDTO;
-import com.example.financetracker.service.UserService;
+import com.example.financetracker.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import javax.validation.Valid;
 
 @Controller
-public class RegistrationController {
+public class AuthenticationController {
     @Autowired
-    private UserService userService;
+    private AuthenticationService authenticationService;
     @Autowired
     private MessageSource messageSource;
 
@@ -34,7 +34,7 @@ public class RegistrationController {
             return "account/register";
         }
         try {
-            userService.register(userData);
+            authenticationService.register(userData);
         }catch (BadRequestException e){
             bindingResult.rejectValue("email", "userData.email","An account already exists for this email.");
             model.addAttribute("registrationForm", userData);
