@@ -2,11 +2,7 @@ package com.example.financetracker.controller;
 
 import com.example.financetracker.exceptions.FileTransferException;
 import com.example.financetracker.exceptions.NotFoundException;
-import com.example.financetracker.model.dao.StatisticsDAO;
-import com.example.financetracker.service.CronJobs;
 import com.example.financetracker.service.TransactionService;
-import lombok.SneakyThrows;
-import org.aspectj.apache.bcel.util.ClassPath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,7 +43,7 @@ public class FileController {
         try {
             file = new ClassPathResource("static"+File.separator+"category_icons"+File.separator+filename).getFile();
         } catch (IOException e) {
-            throw new FileTransferException("A problem occurred when retrieving file.");
+            throw new FileTransferException("A problem occurred while retrieving file.");
         }
 
         if(!file.exists()){
