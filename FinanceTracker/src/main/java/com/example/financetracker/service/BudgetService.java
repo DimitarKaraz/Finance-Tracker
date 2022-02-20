@@ -42,9 +42,12 @@ public class BudgetService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    //@Transactional
     public BudgetResponseDTO createBudget(BudgetCreateRequestDTO requestDTO){
-        //TODO: security -> check if account.findById(requestDTO.getAccountId).getUser.getUserId == session user_id
+        Account account = accountRepository.findById(requestDTO.getAccountId())
+                .orElseThrow(() -> {throw new BadRequestException("Invalid account id.");});
+        if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this account.");
+        }
         if (budgetRepository.existsByAccount_AccountIdAndName(requestDTO.getAccountId(), requestDTO.getName())){
             throw new BadRequestException("Budget with that name already exists for this account.");
         }
@@ -64,47 +67,44 @@ public class BudgetService {
                 throw new BadRequestException("Start date cannot be past end date.");
             }
         }
-        budget.setAccount(accountRepository.findById(requestDTO.getAccountId())
-                .orElseThrow(() -> {throw new BadRequestException("Invalid account id.");}));
+        budget.setAccount(account);
         Set<Category> chosenCategories = categoryRepository.findCategoriesByCategoryIdIn(requestDTO.getCategoryIds());
         validateAndAssignCategories(budget, chosenCategories);
         budget.setAmountSpent(new BigDecimal(0));
         budgetRepository.save(budget);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
-        return convertToBudgetResponseDTO(budget);
+        return convertToBudgetResponseDTO(modelMapper, budget);
     }
 
-    public List<BudgetResponseDTO> getAllBudgetsByUserId(int userId){
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("Invalid user id.");
-        }
+    public List<BudgetResponseDTO> getAllBudgetsOfCurrentUser(){
+        int userId = MyUserDetailsService.getCurrentUserId();
         List<Budget> budgets = budgetRepository.findAllByAccount_User_UserId(userId);
-        return budgets.stream().map(this::convertToBudgetResponseDTO).collect(Collectors.toList());
+        return budgets.stream()
+                .map(budget -> convertToBudgetResponseDTO(modelMapper, budget))
+                .collect(Collectors.toList());
     }
 
     public BudgetResponseDTO getBudgetById(int budgetId){
         Budget budget = budgetRepository.findById(budgetId)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid budget id.");});
-        //TODO: SECURITY:
-//        if (budget.getAccount().getUser().getUserId() != <user session id>) {
-//            throw new UnauthorizedException("You must be logged in.");
-//        }
-        return convertToBudgetResponseDTO(budget);
+        if (budget.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this budget.");
+        }
+        return convertToBudgetResponseDTO(modelMapper, budget);
     }
 
     public BudgetResponseDTO editBudget(BudgetEditRequestDTO requestDTO) {
-        //TODO: SECURITY -> only for users with same id
         Budget budget = budgetRepository.findById(requestDTO.getBudgetId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid budget id.");});
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
+        if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this account.");
+        }
         if (budget.getAccount().getAccountId() != requestDTO.getAccountId()) {
             throw new ForbiddenException("You cannot change account id.");
         }
-        //todo rewrite this check
-        if (!userRepository.existsById(account.getUser().getUserId())) {
-            throw new NotFoundException("Invalid user id.");
-        }
+
         if (!budget.getName().equals(requestDTO.getName())) {
             if (budgetRepository.existsByAccount_AccountIdAndName(requestDTO.getAccountId(), requestDTO.getName())) {
                 throw new BadRequestException("A budget with that name already exists.");
@@ -126,26 +126,31 @@ public class BudgetService {
         Set<Category> chosenCategories = categoryRepository.findCategoriesByCategoryIdIn(requestDTO.getCategoryIds());
         validateAndAssignCategories(budget, chosenCategories);
         budgetRepository.save(budget);
-        return convertToBudgetResponseDTO(budget);
+        return convertToBudgetResponseDTO(modelMapper, budget);
     }
 
-    public void deleteBudget(int id) {
-        if (!budgetRepository.existsById(id)) {
-            throw new NotFoundException("Budget does not exist.");
+    public void deleteBudget(int budgetId) {
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> {throw new NotFoundException("Budget does not exist.");});
+        if (budget.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this budget.");
         }
-        budgetRepository.deleteById(id);
+        budgetRepository.deleteById(budgetId);
     }
 
     @Transactional
     public ClosedBudgetResponseDTO closeBudgetById(int budgetId) {
         Budget budget = budgetRepository.findById(budgetId)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid budget id.");});
+        if (budget.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this budget.");
+        }
         ClosedBudget closedBudget = modelMapper.map(budget, ClosedBudget.class);
         closedBudget.setClosedBudgetId(0);
         closedBudget.setClosedBudgetCategories(budget.getCategories());
         budgetRepository.deleteById(budgetId);
         closedBudgetRepository.save(closedBudget);
-        return convertToClosedBudgetResponseDTO(closedBudget);
+        return ClosedBudgetService.convertToClosedBudgetResponseDTO(modelMapper, closedBudget);
     }
 
     private void validateAndAssignCategories(Budget budget, Set<Category> categories){
@@ -164,17 +169,7 @@ public class BudgetService {
         });
     }
 
-
-    public ClosedBudgetResponseDTO convertToClosedBudgetResponseDTO(ClosedBudget closedBudget) {
-        ClosedBudgetResponseDTO responseDTO = modelMapper.map(closedBudget, ClosedBudgetResponseDTO.class);
-        responseDTO.setCategoryResponseDTOs(closedBudget.getClosedBudgetCategories().stream()
-                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
-                .collect(Collectors.toSet()));
-        responseDTO.setCurrency(closedBudget.getAccount().getCurrency());
-        return responseDTO;
-    }
-
-    public BudgetResponseDTO convertToBudgetResponseDTO(Budget budget) {
+    static BudgetResponseDTO convertToBudgetResponseDTO(@Autowired ModelMapper modelMapper, Budget budget) {
         BudgetResponseDTO responseDTO = modelMapper.map(budget, BudgetResponseDTO.class);
         responseDTO.setCategoryResponseDTOs(budget.getCategories().stream()
                 .map(category -> modelMapper.map(category, CategoryResponseDTO.class))

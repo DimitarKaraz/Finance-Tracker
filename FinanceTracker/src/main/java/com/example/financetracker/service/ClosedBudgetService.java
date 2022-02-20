@@ -41,7 +41,7 @@ public class ClosedBudgetService {
         budget.setCategories(closedBudget.getClosedBudgetCategories());
         closedBudgetRepository.deleteById(closedBudgetId);
         budgetRepository.save(budget);
-        return convertToBudgetResponseDTO(budget);
+        return BudgetService.convertToBudgetResponseDTO(modelMapper, budget);
     }
 
     public void deleteClosedBudget(int closedBudgetId) {
@@ -56,7 +56,9 @@ public class ClosedBudgetService {
             throw new NotFoundException("Invalid user id.");
         }
         List<ClosedBudget> closedBudgets = closedBudgetRepository.findAllByAccount_User_UserId(userId);
-        return closedBudgets.stream().map(this::convertToClosedBudgetResponseDTO).collect(Collectors.toList());
+        return closedBudgets.stream()
+                .map(closedBudget -> convertToClosedBudgetResponseDTO(modelMapper, closedBudget))
+                .collect(Collectors.toList());
     }
 
     public ClosedBudgetResponseDTO getClosedBudgetById(int closedBudgetId){
@@ -66,10 +68,10 @@ public class ClosedBudgetService {
 //        if (budget.getAccount().getUser().getUserId() != <user session id>) {
 //            throw new UnauthorizedException("You must be logged in.");
 //        }
-        return convertToClosedBudgetResponseDTO(closedBudget);
+        return convertToClosedBudgetResponseDTO(modelMapper, closedBudget);
     }
 
-    public ClosedBudgetResponseDTO convertToClosedBudgetResponseDTO(ClosedBudget closedBudget) {
+    static ClosedBudgetResponseDTO convertToClosedBudgetResponseDTO(@Autowired ModelMapper modelMapper, ClosedBudget closedBudget) {
         ClosedBudgetResponseDTO responseDTO = modelMapper.map(closedBudget, ClosedBudgetResponseDTO.class);
         responseDTO.setCategoryResponseDTOs(closedBudget.getClosedBudgetCategories().stream()
                 .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
@@ -78,13 +80,5 @@ public class ClosedBudgetService {
         return responseDTO;
     }
 
-    public BudgetResponseDTO convertToBudgetResponseDTO(Budget budget) {
-        BudgetResponseDTO responseDTO = modelMapper.map(budget, BudgetResponseDTO.class);
-        responseDTO.setCategoryResponseDTOs(budget.getCategories().stream()
-                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
-                .collect(Collectors.toSet()));
-        responseDTO.setCurrency(budget.getAccount().getCurrency());
-        return responseDTO;
-    }
 
 }

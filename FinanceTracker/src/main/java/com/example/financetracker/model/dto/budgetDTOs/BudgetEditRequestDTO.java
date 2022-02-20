@@ -18,6 +18,9 @@ public class BudgetEditRequestDTO {
     @Min(value = 1, message = "Invalid budget id.")
     private int budgetId;
 
+    @Min(value = 1, message = "Invalid account id.")
+    private int accountId;
+
     @NotBlank(message = "Invalid name.")
     private String name;
 
@@ -26,14 +29,11 @@ public class BudgetEditRequestDTO {
     @Digits(integer = 13, fraction = 2, message = "Invalid limit.")
     private BigDecimal maxLimit;
 
-    @Min(value = 1, message = "Invalid account id.")
-    private int accountId;
+    @NotEmpty
+    private Set<Integer> categoryIds;
 
     @NotNull(message = "Invalid note.")
     private String note;
-
-    @NotEmpty
-    private Set<Integer> categoryIds;
 
     @FutureOrPresent(message = "Invalid end date.")
     private LocalDate endDate;

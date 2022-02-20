@@ -14,11 +14,12 @@ public class CategoryResponseDTO {
 
     private int categoryId;
 
-    private String name;
+    private Integer userId;
 
-    private CategoryIcon categoryIcon;
+    private String name;
 
     private TransactionType transactionType;
 
-    private Integer userId;
+    private CategoryIcon categoryIcon;
+
 }

@@ -16,6 +16,9 @@ import java.util.Set;
 @NoArgsConstructor
 public class BudgetCreateRequestDTO {
 
+    @Min(value = 1, message = "Invalid account id.")
+    private int accountId;
+
     @NotBlank(message = "Invalid name.")
     private String name;
 
@@ -24,23 +27,20 @@ public class BudgetCreateRequestDTO {
     @Digits(integer = 13, fraction = 2, message = "Invalid limit.")
     private BigDecimal maxLimit;
 
-    @Min(value = 1, message = "Invalid interval id.")
-    private Integer intervalId;
+    @NotEmpty(message = "Invalid category ids.")
+    private Set<Integer> categoryIds;
+
+    @NotNull(message = "Invalid note.")
+    private String note;
 
     @NotNull(message = "Invalid start date.")
     @FutureOrPresent(message = "Invalid start date.")
     private LocalDate startDate;
 
-    @Min(value = 1, message = "Invalid account id.")
-    private int accountId;
-
-    @NotNull(message = "Invalid note.")
-    private String note;
-
-    @NotEmpty(message = "Invalid category ids.")
-    private Set<Integer> categoryIds;
-
     @FutureOrPresent(message = "Invalid end date.")
     private LocalDate endDate;
+
+    @Min(value = 1, message = "Invalid interval id.")
+    private Integer intervalId;
 
 }

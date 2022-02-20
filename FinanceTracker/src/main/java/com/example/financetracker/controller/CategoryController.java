@@ -14,42 +14,36 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/categories")
 public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
 
+    @PostMapping("/categories/create")
+    public ResponseEntity<ResponseWrapper<CategoryResponseDTO>> createCategory(@Valid @RequestBody CategoryCreateRequestDTO requestDTO){
+        return ResponseWrapper.wrap("Category created.",
+                categoryService.createCategory(requestDTO), HttpStatus.CREATED);
+    }
 
-    @GetMapping("/{category_id}")
+    @GetMapping("/categories")
+    public ResponseEntity<ResponseWrapper<List<CategoryResponseDTO>>> getAllCategoriesOfCurrentUser(){
+        return ResponseWrapper.wrap("Categories for user retrieved.",
+                categoryService.getAllCategoriesOfCurrentUser(), HttpStatus.OK);
+    }
+
+    @GetMapping("/categories/{category_id}")
     public ResponseEntity<ResponseWrapper<CategoryResponseDTO>> getCategoryById(@PathVariable("category_id") int id){
-        //TODO: SECURITY -> only for user with the same id
         return ResponseWrapper.wrap("Category " + id + " retrieved.",
                 categoryService.getCategoryById(id), HttpStatus.OK);
     }
 
-    @GetMapping("/user/{user_id}")
-    public ResponseEntity<ResponseWrapper<List<CategoryResponseDTO>>> getAllCategoriesByUserId(@PathVariable("user_id") int id){
-        //TODO: SECURITY -> only for user with the same id
-        return ResponseWrapper.wrap("Categories for user " + id + " retrieved.",
-                categoryService.getAllCategoriesByUserId(id), HttpStatus.OK);
-    }
-
-    @PostMapping("/create_category")
-    public ResponseEntity<ResponseWrapper<CategoryResponseDTO>> createCategory(@Valid @RequestBody CategoryCreateRequestDTO requestDTO){
-        return ResponseWrapper.wrap("Category created.", categoryService.createCategory(requestDTO), HttpStatus.CREATED);
-    }
-
-    @PutMapping("/edit_category")
+    @PutMapping("/categories/edit")
     public ResponseEntity<ResponseWrapper<CategoryResponseDTO>> editCategory(@Valid @RequestBody CategoryEditRequestDTO requestDTO){
         return ResponseWrapper.wrap("Category edited.", categoryService.editCategory(requestDTO), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{cat_id}/delete_category")
+    @DeleteMapping("/categories/{cat_id}/delete")
     public ResponseEntity<String> deleteCategoryById(@PathVariable("cat_id") int id){
-        //TODO: SECURITY -> only for user with the same id; otherwise LOG USER OUT and return OK:
-        //SecurityContextLogoutHandler sss = new SecurityContextLogoutHandler();
-        //sss.logout(...);
         categoryService.deleteCategoryById(id);
         return ResponseEntity.ok().body("Category deleted successfully.");
     }

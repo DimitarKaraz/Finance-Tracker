@@ -32,39 +32,16 @@ public class CategoryService {
     @Autowired
     private BudgetRepository budgetRepository;
     @Autowired
-    private BudgetService budgetService;
+    private ClosedBudgetRepository closedBudgetRepository;
     @Autowired
     private TransactionRepository transactionRepository;
     @Autowired
-    private TransactionService transactionService;
-    @Autowired
     private RecurrentTransactionRepository recurrentTransactionRepository;
-    @Autowired
-    private RecurrentTransactionService recurrentTransactionService;
 
-    public CategoryResponseDTO getCategoryById(int id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> {throw new NotFoundException("Invalid category id.");});
-//        if (category.getUser() != null && <session.userId != category.getUser().getUserId()>) {
-//            throw new UnauthorizedException("You cannot access this category.");
-//        }
-        return modelMapper.map(category, CategoryResponseDTO.class);
-    }
-
-    public List<CategoryResponseDTO> getAllCategoriesByUserId(int userId){
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("Invalid user id.");
-        }
-        return categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(userId).stream()
-                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
-                .collect(Collectors.toList());
-    }
-
-//    @Transactional
     public CategoryResponseDTO createCategory(CategoryCreateRequestDTO requestDTO){
-        //TODO: SECURITY -> LOG USER OUT and return OK:
+        int userId = MyUserDetailsService.getCurrentUserId();
 
-        if (categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(requestDTO.getUserId()).stream()
+        if (categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(userId).stream()
                 .map(Category::getName).anyMatch(s -> s.equals(requestDTO.getName()))) {
             throw new BadRequestException("A category with that name already exists.");
         }
@@ -72,8 +49,8 @@ public class CategoryService {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Category category = modelMapper.map(requestDTO, Category.class);
 
-        category.setUser(userRepository.findById(requestDTO.getUserId())
-                .orElseThrow(() -> {throw new UnauthorizedException("You have to be logged in to create a category.");}));
+        category.setUser(userRepository.findById(userId)
+                .orElseThrow(() -> {throw new UnauthorizedException("Invalid user id.");}));
         category.setCategoryIcon(categoryIconRepository.findById(requestDTO.getCategoryIconId())
                 .orElseThrow(() -> {throw new BadRequestException("Invalid category icon id.");}));
         category.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId())
@@ -84,27 +61,34 @@ public class CategoryService {
         return modelMapper.map(category, CategoryResponseDTO.class);
     }
 
-//    @Transactional
-    public CategoryResponseDTO editCategory(CategoryEditRequestDTO requestDTO){
-        if (!userRepository.existsById(requestDTO.getUserId())){
-            //TODO: SECURITY -> LOG USER OUT and return OK:
-            //SecurityContextLogoutHandler sss = new SecurityContextLogoutHandler();
-            //sss.logout(...);
-            throw new UnauthorizedException("You have to be logged in to create a category.");
+    public List<CategoryResponseDTO> getAllCategoriesOfCurrentUser(){
+        int userId = MyUserDetailsService.getCurrentUserId();
+        return categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(userId).stream()
+                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    public CategoryResponseDTO getCategoryById(int id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid category id.");});
+         if (category.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this category.");
         }
+        return modelMapper.map(category, CategoryResponseDTO.class);
+    }
+
+    public CategoryResponseDTO editCategory(CategoryEditRequestDTO requestDTO){
+        int userId = MyUserDetailsService.getCurrentUserId();
         Category category = categoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid category id.");});
         if (category.getUser() == null) {
             throw new ForbiddenException("You cannot edit this category.");
         }
-        if (category.getUser().getUserId() != requestDTO.getUserId()) {
-            //TODO: SECURITY -> LOG USER OUT and return OK:
-            //SecurityContextLogoutHandler sss = new SecurityContextLogoutHandler();
-            //sss.logout(...);
-            throw new UnauthorizedException("You cannot edit this category.");
+        if (category.getUser().getUserId() != userId) {
+            throw new ForbiddenException("You do not have access to this category.");
         }
         if (!category.getName().equals(requestDTO.getName())){
-            if (categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(requestDTO.getUserId()).stream()
+            if (categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(userId).stream()
                     .map(Category::getName).anyMatch(s -> s.equals(requestDTO.getName()))) {
                 throw new BadRequestException("A category with that name already exists.");
             }
@@ -123,15 +107,25 @@ public class CategoryService {
         Category otherCategory = categoryRepository.findById(1)
                 .orElseThrow(() -> {throw new NotFoundException("\"Other\" category does not exist.");});
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> {throw new NotFoundException("Category does not exist.");});
+                .orElseThrow(() -> {throw new NotFoundException("Invalid category id.");});
         if (category.getUser() == null) {
             throw new BadRequestException("This category cannot be deleted.");
+        }
+        if (category.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this category.");
         }
         budgetRepository.findAllByCategoryId(categoryId)
                 .forEach(budget -> {
                     budget.getCategories().remove(category);
                     budget.getCategories().add(otherCategory);
                     budgetRepository.save(budget);
+                });
+
+        closedBudgetRepository.findAllByCategoryId(categoryId)
+                .forEach(closedBudget -> {
+                    closedBudget.getClosedBudgetCategories().remove(category);
+                    closedBudget.getClosedBudgetCategories().add(otherCategory);
+                    closedBudgetRepository.save(closedBudget);
                 });
 
         transactionRepository.findAllByCategoryCategoryId(categoryId)
@@ -145,7 +139,6 @@ public class CategoryService {
                     recurrentTransaction.setCategory(otherCategory);
                     recurrentTransactionRepository.save(recurrentTransaction);
                 });
-        //TODO: same check for closedBudgets
 
         categoryRepository.deleteById(categoryId);
     }

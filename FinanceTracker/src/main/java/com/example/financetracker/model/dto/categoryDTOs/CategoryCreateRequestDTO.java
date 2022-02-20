@@ -17,14 +17,10 @@ public class CategoryCreateRequestDTO {
     @NotBlank(message = "Invalid category name.")
     private String name;
 
-    @Min(value = 1, message = "Invalid category icon id.")
-    private int categoryIconId;
-
     @Min(value = 1, message = "Invalid transaction type id.")
     private int transactionTypeId;
 
-    @Min(value = 1, message = "Invalid user id.")
-    private int userId;
-
+    @Min(value = 1, message = "Invalid category icon id.")
+    private int categoryIconId;
 
 }

@@ -38,7 +38,7 @@ public class AccountController {
                 accountService.getAccountById(accountId), HttpStatus.OK);
     }
 
-    @PutMapping("/edit_account")
+    @PutMapping("/accounts/edit")
     public ResponseEntity<ResponseWrapper<AccountResponseDTO>> editAccount(@Valid @RequestBody AccountEditRequestDTO requestDTO){
         return ResponseWrapper.wrap("Account edited.",
                 accountService.editAccount(requestDTO), HttpStatus.OK);

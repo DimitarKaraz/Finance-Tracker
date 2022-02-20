@@ -39,4 +39,6 @@ public class UtilityService {
     public List<Interval> getAllIntervals(){
         return intervalRepository.findAll();
     }
+
+
 }

@@ -35,7 +35,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        /*http
+        http
                 .authorizeRequests()
                     .antMatchers("/login", "/register").permitAll()
                     .antMatchers("/**").permitAll()//hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
@@ -55,8 +55,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .invalidSessionUrl("/login")
                 .and()
                 .csrf().disable()
-        ;*/
-        http.authorizeRequests().antMatchers("/").permitAll().and().csrf().disable();
+        ;
+//        http.authorizeRequests().antMatchers("/").permitAll().and().csrf().disable();
     }
 
     @Bean
