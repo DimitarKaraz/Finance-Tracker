@@ -25,7 +25,6 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.security.Security;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -34,6 +33,9 @@ import java.util.Properties;
 
 @Component
 public class CronJobs {
+    private final String SENDER_MAIL = "plevenskikozi@gmail.com";
+    private final String HOST = "smtp.gmail.com";
+    private final String PASSWORD = "financetrackerpass";
 
     @Autowired
     private RecurrentTransactionRepository recurrentTransactionRepository;
@@ -70,30 +72,23 @@ public class CronJobs {
         sendAllTheEmails(inactiveUsers);
     }
 
-    @SneakyThrows
     public void sendAllTheEmails(List<User> inactiveUsers){
         for (User user : inactiveUsers){
             sendEmail(user.getEmail());
         }
     }
 
-    public void sendEmail(String email){
-        String to = email;
-
-        String from = "plevenskikozi@gmail.com";
-
-        String host = "smtp.gmail.com";
-
+    public void sendEmail(String recipient){
         Properties properties = System.getProperties();
 
-        properties.put("mail.smtp.host", host);
+        properties.put("mail.smtp.host", HOST);
         properties.put("mail.smtp.port", "465");
         properties.put("mail.smtp.ssl.enable", "true");
         properties.put("mail.smtp.auth", "true");
 
         Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("plevenskikozi@gmail.com", "financetrackerpass");
+                return new PasswordAuthentication(SENDER_MAIL, PASSWORD);
             }
         });
 
@@ -102,9 +97,9 @@ public class CronJobs {
         try {
             MimeMessage message = new MimeMessage(session);
 
-            message.setFrom(new InternetAddress(from));
+            message.setFrom(new InternetAddress(SENDER_MAIL));
 
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
 
             message.setSubject("Finance-Tracker Inactivity");
 
@@ -152,7 +147,6 @@ public class CronJobs {
         });
     }
 
-    //todo implement recovery method
     @Recover
     @SneakyThrows
     void logger(Exception e){
@@ -165,9 +159,6 @@ public class CronJobs {
                 "\nStack trace: " + Arrays.toString(e.getStackTrace());
         Files.write(Path.of(fileName), text.getBytes(), StandardOpenOption.CREATE);
     }
-
-
-    //todo make cronjob for emails to inactive users
 
 
 }

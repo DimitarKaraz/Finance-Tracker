@@ -6,7 +6,6 @@ import com.example.financetracker.model.dto.userDTOs.ChangePasswordRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.MyUserDetails;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
 import com.example.financetracker.service.UserService;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -75,6 +75,10 @@ public class UserController {
 
 
     @PutMapping("/change_password")
+
+    @PreAuthorize("#requestDTO.userId == principal.userId")
+
+
     public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestDTO requestDTO){
         //TODO: SECURITY -> LOG USER OUT and return OK:
         //SecurityContextLogoutHandler sss = new SecurityContextLogoutHandler();
@@ -82,6 +86,16 @@ public class UserController {
         userService.changePassword(requestDTO);
         return ResponseEntity.ok().body("Password was changed.");
     }
+
+
+    //TODO:
+
+    @GetMapping("/show_profile")
+    public ResponseEntity<ResponseWrapper<UserProfileDTO>> getUserById_GUcii(Principal principal) {
+        MyUserDetails myUserDetails = (MyUserDetails) principal;
+        return ResponseWrapper.wrap("User retrieved.", userService.getUserById(myUserDetails.getUserId()), HttpStatus.OK);
+    }
+
 
     @GetMapping("/{id}")
     @PreAuthorize("#id == principal.userId")
