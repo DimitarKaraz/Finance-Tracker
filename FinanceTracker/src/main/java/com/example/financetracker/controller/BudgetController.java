@@ -47,7 +47,7 @@ public class BudgetController {
 
     @DeleteMapping("/budgets/{budget_id}/delete")
     public ResponseEntity<String> deleteBudgetById(@PathVariable("budget_id") int id) {
-        budgetService.deleteBudget(id);
+        budgetService.deleteBudgetById(id);
         return ResponseEntity.ok().body("Budget deleted successfully.");
     }
 

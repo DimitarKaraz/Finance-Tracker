@@ -1,5 +1,6 @@
 package com.example.financetracker.service;
 
+import com.example.financetracker.exceptions.ForbiddenException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.pojo.Budget;
@@ -27,14 +28,14 @@ public class ClosedBudgetService {
     private ClosedBudgetRepository closedBudgetRepository;
     @Autowired
     private ModelMapper modelMapper;
-    @Autowired
-    private UserRepository userRepository;
-
 
     @Transactional
     public BudgetResponseDTO openClosedBudgetById(int closedBudgetId) {
         ClosedBudget closedBudget = closedBudgetRepository.findById(closedBudgetId)
                         .orElseThrow(() -> {throw new NotFoundException("Invalid closed budget id.");});
+        if (closedBudget.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this closed budget.");
+        }
         Budget budget = modelMapper.map(closedBudget, Budget.class);
         budget.setBudgetId(0);
         budget.setStartDate(LocalDate.now());
@@ -44,17 +45,8 @@ public class ClosedBudgetService {
         return BudgetService.convertToBudgetResponseDTO(modelMapper, budget);
     }
 
-    public void deleteClosedBudget(int closedBudgetId) {
-        if (!closedBudgetRepository.existsById(closedBudgetId)) {
-            throw new NotFoundException("Closed budget does not exist.");
-        }
-        closedBudgetRepository.deleteById(closedBudgetId);
-    }
-
-    public List<ClosedBudgetResponseDTO> getAllClosedBudgetsByUserId(int userId){
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("Invalid user id.");
-        }
+    public List<ClosedBudgetResponseDTO> getAllClosedBudgetsOfCurrentUser(){
+        int userId = MyUserDetailsService.getCurrentUserId();
         List<ClosedBudget> closedBudgets = closedBudgetRepository.findAllByAccount_User_UserId(userId);
         return closedBudgets.stream()
                 .map(closedBudget -> convertToClosedBudgetResponseDTO(modelMapper, closedBudget))
@@ -64,11 +56,19 @@ public class ClosedBudgetService {
     public ClosedBudgetResponseDTO getClosedBudgetById(int closedBudgetId){
         ClosedBudget closedBudget = closedBudgetRepository.findById(closedBudgetId)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid closed budget id.");});
-        //TODO: SECURITY:
-//        if (budget.getAccount().getUser().getUserId() != <user session id>) {
-//            throw new UnauthorizedException("You must be logged in.");
-//        }
+        if (closedBudget.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this closed budget.");
+        }
         return convertToClosedBudgetResponseDTO(modelMapper, closedBudget);
+    }
+
+    public void deleteClosedBudgetById(int closedBudgetId) {
+        ClosedBudget closedBudget = closedBudgetRepository.findById(closedBudgetId)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid closed budget id.");});
+        if (closedBudget.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this closed budget.");
+        }
+        closedBudgetRepository.deleteById(closedBudgetId);
     }
 
     static ClosedBudgetResponseDTO convertToClosedBudgetResponseDTO(@Autowired ModelMapper modelMapper, ClosedBudget closedBudget) {

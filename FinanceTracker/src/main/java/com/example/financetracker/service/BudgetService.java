@@ -34,8 +34,6 @@ public class BudgetService {
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private ModelMapper modelMapper;
     @Autowired
     private IntervalRepository intervalRepository;
@@ -129,7 +127,7 @@ public class BudgetService {
         return convertToBudgetResponseDTO(modelMapper, budget);
     }
 
-    public void deleteBudget(int budgetId) {
+    public void deleteBudgetById(int budgetId) {
         Budget budget = budgetRepository.findById(budgetId)
                 .orElseThrow(() -> {throw new NotFoundException("Budget does not exist.");});
         if (budget.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
