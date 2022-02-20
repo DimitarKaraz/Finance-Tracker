@@ -7,7 +7,7 @@ import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.dto.userDTOs.ChangePasswordRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.UserEditProfileRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
-import com.example.financetracker.model.dto.userDTOs.UserRegisterForm;
+import com.example.financetracker.model.dto.userDTOs.UserRegisterFormDTO;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
 import org.apache.commons.io.FilenameUtils;
@@ -35,7 +35,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder encoder;
 
-    public UserProfileDTO register(UserRegisterForm form) {
+    public UserProfileDTO register(UserRegisterFormDTO form) {
         if (userRepository.existsByEmail(form.getEmail())) {
             System.out.println("Email already exists");
             throw new BadRequestException("Email already exists.");

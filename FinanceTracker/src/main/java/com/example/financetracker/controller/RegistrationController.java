@@ -1,7 +1,7 @@
 package com.example.financetracker.controller;
 
 import com.example.financetracker.exceptions.BadRequestException;
-import com.example.financetracker.model.dto.userDTOs.UserRegisterForm;
+import com.example.financetracker.model.dto.userDTOs.UserRegisterFormDTO;
 import com.example.financetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -23,12 +23,12 @@ public class RegistrationController {
 
     @GetMapping("/register")
     public String register(final Model model){
-        model.addAttribute("userRegisterForm", new UserRegisterForm());
+        model.addAttribute("userRegisterFormDTO", new UserRegisterFormDTO());
         return "account/register";
     }
 
     @PostMapping("/register")
-    public String userRegistration(final @Valid UserRegisterForm userData, final BindingResult bindingResult, final Model model) {
+    public String userRegistration(final @Valid UserRegisterFormDTO userData, final BindingResult bindingResult, final Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("registrationForm", userData);
             return "account/register";

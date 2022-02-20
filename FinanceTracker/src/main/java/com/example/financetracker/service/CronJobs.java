@@ -14,6 +14,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import javax.mail.*;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Properties;
 
 @Component
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class CronJobs {
     private final String SENDER_MAIL = "plevenskikozi@gmail.com";
     private final String HOST = "smtp.gmail.com";

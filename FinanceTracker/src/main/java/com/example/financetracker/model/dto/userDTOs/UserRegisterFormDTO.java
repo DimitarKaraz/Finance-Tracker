@@ -11,7 +11,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-public class UserRegisterForm implements Serializable {
+public class UserRegisterFormDTO implements Serializable {
 
     @NotBlank(message = "Invalid email.")
     @Pattern(regexp = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x" +
