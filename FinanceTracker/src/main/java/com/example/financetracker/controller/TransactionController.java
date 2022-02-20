@@ -14,16 +14,22 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/transactions")
 public class TransactionController {
 
     @Autowired
     private TransactionService transactionService;
 
-    @GetMapping("/{transaction_id}")
+    @PostMapping("/create_transaction")
+    public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> createTransaction(@Valid @RequestBody TransactionCreateRequestDTO requestDTO){
+        //TODO: SECURITY
+        return ResponseWrapper.wrap("Transaction created.", transactionService.createTransaction(requestDTO), HttpStatus.CREATED);
+    }
+    
+    @GetMapping("/transactions/{transaction_id}")
     public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> getTransactionById(@PathVariable("transaction_id") int transactionId){
         //TODO: SECURITY
-        return ResponseWrapper.wrap("Retrieved transaction.", transactionService.getTransactionsById(transactionId), HttpStatus.OK);
+        return ResponseWrapper.wrap("Retrieved transaction.",
+                transactionService.getTransactionsById(transactionId), HttpStatus.OK);
     }
 
     //todo pass user id into service method!!!
@@ -53,11 +59,6 @@ public class TransactionController {
         return ResponseWrapper.wrap("Transactions for budget " + budgetId + " retrieved.", transactionService.getAllTransactionsByBudgetId(budgetId), HttpStatus.OK);
     }
 
-    @PostMapping("/create_transaction")
-    public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> createTransaction(@Valid @RequestBody TransactionCreateRequestDTO requestDTO){
-        //TODO: SECURITY
-        return ResponseWrapper.wrap("Transaction created.", transactionService.createTransaction(requestDTO), HttpStatus.CREATED);
-    }
 
     @PutMapping("/edit_transaction")
     public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> editTransaction(@Valid @RequestBody TransactionEditRequestDTO requestDTO) {
