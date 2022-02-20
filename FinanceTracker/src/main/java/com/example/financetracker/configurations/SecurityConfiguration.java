@@ -50,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //                        .logoutSuccessHandler(logoutSuccessHandler)
                     .invalidateHttpSession(true)
 //                        .addLogoutHandler(logoutHandler)
-                    .deleteCookies())
+                    .deleteCookies("JSESSIONID"))
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .invalidSessionUrl("/login")

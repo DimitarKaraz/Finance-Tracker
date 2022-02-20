@@ -37,6 +37,7 @@ public class MyUserDetailsService implements UserDetailsService{
     }
 
     public static int getCurrentUserId() {
+        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         MyUserDetails myUserDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return myUserDetails.getUserId();
     }
