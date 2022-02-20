@@ -98,9 +98,9 @@ public class UserService {
         //todo implement better random name generation
         String fileName = System.nanoTime() + "." + extension;
         try {
-            Files.copy(file.getInputStream(), new File(FileController.PROFILE_IMAGES_PATH + File.separator + fileName).toPath());
+            Files.copy(file.getInputStream(), new File(FileService.PROFILE_IMAGES_PATH + File.separator + fileName).toPath());
             String oldImageUrl = user.getProfileImageUrl();
-            File oldFile = new File(FileController.PROFILE_IMAGES_PATH+File.separator+oldImageUrl);
+            File oldFile = new File(FileService.PROFILE_IMAGES_PATH+File.separator+oldImageUrl);
             oldFile.delete();
         } catch (IOException e) {
             throw new FileTransferException("File upload failed.");

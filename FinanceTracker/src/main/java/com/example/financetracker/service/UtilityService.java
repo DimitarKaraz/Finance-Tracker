@@ -48,36 +48,6 @@ public class UtilityService {
         return intervalRepository.findAll();
     }
 
-    @SneakyThrows
-    public PDDocument convertToPDF(List<Transaction> transactions){
-        LinkedList<Transaction> transactionsList = new LinkedList<>(transactions);
-        PDDocument document = new PDDocument();
-            for (int i = 0; i < transactions.size() / 10; i++) {
-                document.addPage(new PDPage());
-            }
-            for (int i = 0; i < document.getNumberOfPages(); i++) {
-                PDPage page = document.getPage(i);
-                PDPageContentStream contentStream = new PDPageContentStream(document, page);
-                contentStream.beginText();
-                contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
-                contentStream.newLineAtOffset(25, 500);
-                String text = "";
-                for (int j = 0; j < 10; j++) {
-                    if (transactionsList.isEmpty()) {
-                        break;
-                    }
-                    Transaction transaction = transactionsList.removeFirst();
-                    text = "\n " + transaction.getDateTime()
-                            + "Amount: "+transaction.getAmount()
-                            + "Category: "+transaction.getCategory().getName()
-                            + "Paid with:"+transaction.getPaymentMethod().getName()
-                            + " " + transaction.getTransactionType().getName().toUpperCase();
-                }
-                contentStream.showText(text);
-                contentStream.endText();
-                contentStream.close();
-            }
-            return document;
-    }
+
 }
 
