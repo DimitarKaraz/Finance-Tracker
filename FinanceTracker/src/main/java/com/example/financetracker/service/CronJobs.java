@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.math.BigDecimal;
@@ -35,9 +36,9 @@ import java.util.Properties;
 @Component
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 public class CronJobs {
-    private final String SENDER_MAIL = "plevenskikozi@gmail.com";
-    private final String HOST = "smtp.gmail.com";
-    private final String PASSWORD = "financetrackerpass";
+    public static final String SENDER_MAIL = "plevenskikozi@gmail.com";
+    public static final String HOST = "smtp.gmail.com";
+    public static final String PASSWORD = "financetrackerpass";
 
     @Autowired
     private RecurrentTransactionRepository recurrentTransactionRepository;
@@ -108,6 +109,7 @@ public class CronJobs {
             message.setText("Hey, we see you've been inactive for over a month now, would you like to give us another chance?");
 
             Transport.send(message);
+
         } catch (MessagingException mex) {
             mex.printStackTrace();
         }
@@ -161,6 +163,7 @@ public class CronJobs {
                 "\nStack trace: " + Arrays.toString(e.getStackTrace());
         Files.write(Path.of(fileName), text.getBytes(), StandardOpenOption.CREATE);
     }
+
 
 
 }
