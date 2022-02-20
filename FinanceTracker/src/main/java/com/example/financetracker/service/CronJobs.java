@@ -59,20 +59,35 @@ public class CronJobs {
     }
 
     @Scheduled(cron = "0 0 0 * * *") // every day at midnight
-    @Retryable( value = Exception.class,
+    @Retryable(value = Exception.class,
             maxAttempts = 10, backoff = @Backoff(delay = 60*1000))
-    public void budgetCronJob() {
+    public void budgetCronJob() throws Exception {
         List<Budget> budgets = budgetRepository.findAllBudgetsReadyForCronJob();
         resetAllBudgets(budgets);
+
     }
 
     @Scheduled(cron = "0 0 0 * * *")
-    @Retryable( value = Exception.class,
+    @Retryable(value = Exception.class,
             maxAttempts = 10, backoff = @Backoff(delay = 60*1000))
     public void sendEmailToInactiveUsersCronJob(){
         List<User> inactiveUsers = userRepository.findAllInactiveUsers();
         sendAllTheEmails(inactiveUsers);
     }
+
+    @Recover
+    @SneakyThrows
+    void logger(Exception e){
+        File folder = new File("logs");
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        String fileName = folder.getName() + File.separator + "cronJob_fail_log_"+ LocalDateTime.now() +".txt";
+        String text = "Message: " + e.getMessage() +
+                "\nStack trace: " + Arrays.toString(e.getStackTrace());
+        Files.write(Path.of(fileName), text.getBytes(), StandardOpenOption.CREATE);
+    }
+
 
     public void sendAllTheEmails(List<User> inactiveUsers){
         for (User user : inactiveUsers){
@@ -149,18 +164,7 @@ public class CronJobs {
         });
     }
 
-    @Recover
-    @SneakyThrows
-    void logger(Exception e){
-        File folder = new File("logs");
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-        String fileName = folder.getName() + File.separator + "cronJob_fail_log_"+ LocalDateTime.now() +".txt";
-        String text = "Message: " + e.getMessage() +
-                "\nStack trace: " + Arrays.toString(e.getStackTrace());
-        Files.write(Path.of(fileName), text.getBytes(), StandardOpenOption.CREATE);
-    }
+
 
 
 }

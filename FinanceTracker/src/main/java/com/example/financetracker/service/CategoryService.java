@@ -76,7 +76,7 @@ public class CategoryService {
     public CategoryResponseDTO getCategoryById(int id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid category id.");});
-         if (category.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+         if (category.getUser() != null && category.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
             throw new ForbiddenException("You do not have access to this category.");
         }
         return modelMapper.map(category, CategoryResponseDTO.class);
