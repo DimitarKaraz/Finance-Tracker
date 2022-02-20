@@ -87,7 +87,7 @@ public class FileService {
             document.save(file);
             document.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new FileTransferException("Error occurred when generating pdf statement.");
         }
         Properties properties = System.getProperties();
 
@@ -121,35 +121,39 @@ public class FileService {
             mex.printStackTrace();
         }
     }
-    //todo remove sneaky throws, add try/catch
-    @SneakyThrows
+
     public PDDocument convertToPDF(List<Transaction> transactions){
-        LinkedList<Transaction> transactionsList = new LinkedList<>(transactions);
-        PDDocument document = new PDDocument();
-        for (int i = 0; i < transactions.size() / 10; i++) {
-            document.addPage(new PDPage());
-        }
-        for (int i = 0; i < document.getNumberOfPages(); i++) {
-            PDPage page = document.getPage(i);
-            PDPageContentStream contentStream = new PDPageContentStream(document, page);
-            contentStream.beginText();
-            contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
-            contentStream.newLineAtOffset(25, 500);
-            String text = "";
-            for (int j = 0; j < 10; j++) {
-                if (transactionsList.isEmpty()) {
-                    break;
-                }
-                Transaction transaction = transactionsList.removeFirst();
-                text = "\n " + transaction.getDateTime()
-                        + "Amount: "+transaction.getAmount()
-                        + "Category: "+transaction.getCategory().getName()
-                        + "Paid with:"+transaction.getPaymentMethod().getName()
-                        + " " + transaction.getTransactionType().getName().toUpperCase();
+        PDDocument document;
+        try {
+            LinkedList<Transaction> transactionsList = new LinkedList<>(transactions);
+            document = new PDDocument();
+            for (int i = 0; i < transactions.size() / 10; i++) {
+                document.addPage(new PDPage());
             }
-            contentStream.showText(text);
-            contentStream.endText();
-            contentStream.close();
+            for (int i = 0; i < document.getNumberOfPages(); i++) {
+                PDPage page = document.getPage(i);
+                PDPageContentStream contentStream = new PDPageContentStream(document, page);
+                contentStream.beginText();
+                contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
+                contentStream.newLineAtOffset(25, 500);
+                String text = "";
+                for (int j = 0; j < 10; j++) {
+                    if (transactionsList.isEmpty()) {
+                        break;
+                    }
+                    Transaction transaction = transactionsList.removeFirst();
+                    text = "\n " + transaction.getDateTime()
+                            + "Amount: "+transaction.getAmount()
+                            + "Category: "+transaction.getCategory().getName()
+                            + "Paid with:"+transaction.getPaymentMethod().getName()
+                            + " " + transaction.getTransactionType().getName().toUpperCase();
+                }
+                contentStream.showText(text);
+                contentStream.endText();
+                contentStream.close();
+            }
+        } catch (IOException e) {
+            throw new FileTransferException("Error occurred when generating pdf statement.");
         }
         return document;
     }
