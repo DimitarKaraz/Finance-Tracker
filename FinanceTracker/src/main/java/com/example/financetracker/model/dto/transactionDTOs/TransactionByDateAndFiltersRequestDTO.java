@@ -19,21 +19,21 @@ import java.util.Set;
 public class TransactionByDateAndFiltersRequestDTO {
 
     @NotNull(message = "Start date cannot be null.")
-    private LocalDate start_date;
+    private LocalDate startDate;
 
     @NotNull(message = "End date cannot be null.")
-    private LocalDate end_date;
+    private LocalDate endDate;
 
     @Min(value = 1, message = "Invalid amount.")
     private Integer accountId;
 
     @Min(value = 1, message = "Invalid amount.")
-    private Integer paymentMethodId;
+    private Integer transactionTypeId;
 
     private Set<Integer> categoryIds;
 
     @Min(value = 1, message = "Invalid amount.")
-    private Integer transactionTypeId;
+    private Integer paymentMethodId;
 
     @Min(value = 1, message = "Invalid amount.")
     @Digits(integer = 13, fraction = 2, message = "Invalid amount.")

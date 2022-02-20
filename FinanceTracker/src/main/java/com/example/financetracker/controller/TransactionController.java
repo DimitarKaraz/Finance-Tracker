@@ -19,55 +19,50 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    @PostMapping("/create_transaction")
+    @PostMapping("/transactions/create")
     public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> createTransaction(@Valid @RequestBody TransactionCreateRequestDTO requestDTO){
-        //TODO: SECURITY
-        return ResponseWrapper.wrap("Transaction created.", transactionService.createTransaction(requestDTO), HttpStatus.CREATED);
+        return ResponseWrapper.wrap("Transaction created.",
+                transactionService.createTransaction(requestDTO), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/transactions")
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsOfCurrentUser(){
+        return ResponseWrapper.wrap("Retrieved transactions for user.",
+                transactionService.getAllTransactionsByCurrentUser(), HttpStatus.OK);
     }
     
     @GetMapping("/transactions/{transaction_id}")
     public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> getTransactionById(@PathVariable("transaction_id") int transactionId){
-        //TODO: SECURITY
         return ResponseWrapper.wrap("Retrieved transaction.",
                 transactionService.getTransactionsById(transactionId), HttpStatus.OK);
     }
 
-    //todo pass user id into service method!!!
-    @PutMapping("/byDatesAndFilters")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getTransactionsByDatesAndFilters(@Valid @RequestBody TransactionByDateAndFiltersRequestDTO requestDTO){
-        //TODO: SECURITY
-        return ResponseWrapper.wrap("Retrieved transactions for given dates.", transactionService.getTransactionsByDates(requestDTO), HttpStatus.OK);
-    }
-
-
-    @GetMapping("/user/{user_id}")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByUserId(@PathVariable("user_id") int userId){
-        //TODO: SECURITY
-        return ResponseWrapper.wrap("Retrieved transactions for user.", transactionService.getAllTransactionsByUserId(userId), HttpStatus.OK);
-    }
-
-    @GetMapping("/account/{account_id}")
+    @GetMapping("/transactions/for_account/{account_id}")
     public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByAccountId(@PathVariable("account_id") int accountId){
-        //TODO: SECURITY
-        return ResponseWrapper.wrap("Retrieved transactions for user.", transactionService.getAllTransactionsByAccountId(accountId), HttpStatus.OK);
+        return ResponseWrapper.wrap("Retrieved transactions for account.",
+                transactionService.getAllTransactionsByAccountId(accountId), HttpStatus.OK);
     }
 
-    @GetMapping("/budgets/{budget_id}")
+    @GetMapping("/transactions/for_budget/{budget_id}")
     public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByBudgetId(@PathVariable("budget_id") int budgetId) {
-        //TODO: SECURITY
-        return ResponseWrapper.wrap("Transactions for budget " + budgetId + " retrieved.", transactionService.getAllTransactionsByBudgetId(budgetId), HttpStatus.OK);
+        return ResponseWrapper.wrap("Retrieved transactions for budget.",
+                transactionService.getAllTransactionsByBudgetId(budgetId), HttpStatus.OK);
     }
 
+    @PutMapping("/transactions/by_dates_and_filters")
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getTransactionsByDatesAndFilters(@Valid @RequestBody TransactionByDateAndFiltersRequestDTO requestDTO){
+        return ResponseWrapper.wrap("Retrieved transactions for given dates.",
+                transactionService.getTransactionsByDatesAndFilters(requestDTO), HttpStatus.OK);
+    }
 
-    @PutMapping("/edit_transaction")
+    @PutMapping("/transactions/edit")
     public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> editTransaction(@Valid @RequestBody TransactionEditRequestDTO requestDTO) {
-        //TODO: SECURITY -> only for users with the same id
-        return ResponseWrapper.wrap("Transaction edited.", transactionService.editTransaction(requestDTO), HttpStatus.OK);
+        return ResponseWrapper.wrap("Transaction edited.",
+                transactionService.editTransaction(requestDTO), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{trans_id}/delete_transaction")
+    @DeleteMapping("/transactions/{trans_id}/delete")
     public ResponseEntity<String> deleteTransaction(@PathVariable("trans_id") int transactionId) {
-        //TODO: SECURITY -> only for user with same id
         transactionService.deleteTransaction(transactionId);
         return ResponseEntity.ok().body("Transaction deleted successfully.");
     }

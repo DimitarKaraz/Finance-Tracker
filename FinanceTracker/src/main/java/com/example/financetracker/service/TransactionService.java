@@ -3,7 +3,6 @@ package com.example.financetracker.service;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.ForbiddenException;
 import com.example.financetracker.exceptions.NotFoundException;
-import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionCreateRequestDTO;
@@ -17,6 +16,7 @@ import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 
 @Service
+@PreAuthorize("hasRole('ROLE_USER')")
 public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
@@ -49,58 +50,15 @@ public class TransactionService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public TransactionResponseDTO getTransactionsById(int transactionId){
-        //todo security
-        return convertToResponseDTO((transactionRepository.findById(transactionId)
-                .orElseThrow(() -> {throw new NotFoundException("Invalid transaction id.");})));
-    }
-
-    public List<TransactionResponseDTO> getAllTransactionsByUserId(int userId){
-        //todo security
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("Invalid user id.");
-        }
-        return transactionRepository.findAllByAccount_User_UserId(userId).stream()
-                .map(this::convertToResponseDTO).collect(Collectors.toList());
-    }
-
-    public List<TransactionResponseDTO> getAllTransactionsByAccountId(int accountId){
-        //todo security
-        return transactionRepository.findAllByAccount_AccountId(accountId).stream()
-                .map(this::convertToResponseDTO).collect(Collectors.toList());
-    }
-
-    //TODO remove this shit
-    public List<TransactionResponseDTO> getAllTransactionsByBudgetId(int budgetId) {
-        //todo security
-        Set<Category> categories = categoryRepository.findAllByBudgetId(budgetId);
-        Budget budget = budgetRepository.findById(budgetId)
-                .orElseThrow(() -> {throw new NotFoundException("Invalid budget id.");});
-        List<Transaction> transactionsByCategoryIds = transactionRepository
-                .findTransactionsByCategoryIsInAndAccountUserUserId(categories, budget.getAccount().getUser().getUserId());
-        List<Transaction> transactionsByStartDate = transactionRepository
-                .findTransactionsByDateTimeAfter(LocalDateTime.of(budget.getStartDate(), LocalTime.now()));
-        List<Transaction> transactionsByUserId = transactionRepository
-                .findAllByAccount_User_UserId(budget.getAccount().getUser().getUserId());
-
-        transactionsByCategoryIds.retainAll(transactionsByStartDate);
-        transactionsByCategoryIds.retainAll(transactionsByUserId);
-
-        return transactionsByCategoryIds.stream()
-                .map(transaction -> convertToResponseDTO(transaction))
-                .collect(Collectors.toList());
-    }
 
     @Transactional
     public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO requestDTO) {
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
-
-        //TODO: SECURITY -> only for users with same id
-        if (!userRepository.existsById(account.getUser().getUserId())) {
-            throw new ForbiddenException("You don't have permission to edit this budget.");
-            //TODO: Security -> LOG OUT
+        if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this account.");
         }
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Transaction transaction = modelMapper.map(requestDTO, Transaction.class);
         transaction.setAccount(account);
@@ -126,6 +84,70 @@ public class TransactionService {
         return convertToResponseDTO(transaction);
     }
 
+    public List<TransactionResponseDTO> getAllTransactionsByCurrentUser(){
+        int userId = MyUserDetailsService.getCurrentUserId();
+        return transactionRepository.findAllByAccount_User_UserId(userId).stream()
+                .map(this::convertToResponseDTO).collect(Collectors.toList());
+    }
+
+    public TransactionResponseDTO getTransactionsById(int transactionId){
+        Transaction transaction = (transactionRepository.findById(transactionId)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid transaction id.");}));
+        if (transaction.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this transaction.");
+        }
+        return convertToResponseDTO(transaction);
+    }
+
+    public List<TransactionResponseDTO> getAllTransactionsByAccountId(int accountId){
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
+        if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this account.");
+        }
+        return transactionRepository.findAllByAccount_AccountId(accountId).stream()
+                .map(this::convertToResponseDTO).collect(Collectors.toList());
+    }
+
+    public List<TransactionResponseDTO> getAllTransactionsByBudgetId(int budgetId) {
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid budget id.");});
+        if (budget.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this budget.");
+        }
+        Set<Category> categories = categoryRepository.findAllByBudgetId(budgetId);
+
+        List<Transaction> transactionsByCategoryIds = transactionRepository
+                .findTransactionsByCategoryIsInAndAccountUserUserId(categories, budget.getAccount().getUser().getUserId());
+        List<Transaction> transactionsByStartDate = transactionRepository
+                .findTransactionsByDateTimeAfter(LocalDateTime.of(budget.getStartDate(), LocalTime.now()));
+        List<Transaction> transactionsByUserId = transactionRepository
+                .findAllByAccount_User_UserId(budget.getAccount().getUser().getUserId());
+
+        transactionsByCategoryIds.retainAll(transactionsByStartDate);
+        transactionsByCategoryIds.retainAll(transactionsByUserId);
+
+        return transactionsByCategoryIds.stream()
+                .map(transaction -> convertToResponseDTO(transaction))
+                .collect(Collectors.toList());
+    }
+
+    public List<TransactionResponseDTO> getTransactionsByDatesAndFilters(TransactionByDateAndFiltersRequestDTO requestDTO){
+        if (requestDTO.getStartDate().isAfter(requestDTO.getStartDate())){
+            throw new BadRequestException("Start date cannot be past end date.");
+        }
+        int userId = MyUserDetailsService.getCurrentUserId();
+        LocalDateTime startDateTime = requestDTO.getStartDate().atTime(LocalTime.MIN);
+        LocalDateTime endDateTime = requestDTO.getEndDate().atTime(LocalTime.MAX);
+
+        List<Transaction> transactionsByDatesAndFilters =
+                transactionRepository.findAllByDateTimeBetweenAndAccount_User_UserId(startDateTime, endDateTime, userId);
+        applyFilters(transactionsByDatesAndFilters, requestDTO);
+        transactionsByDatesAndFilters.sort(Comparator.comparing(Transaction::getDateTime));
+        return transactionsByDatesAndFilters.stream()
+                .map(transaction -> convertToResponseDTO(transaction))
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public TransactionResponseDTO editTransaction(TransactionEditRequestDTO requestDTO) {
@@ -136,12 +158,10 @@ public class TransactionService {
 
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
-
-        //TODO: SECURITY -> only for users with same id
-        if (!userRepository.existsById(account.getUser().getUserId())) {
-            throw new UnauthorizedException("You don't have permission to edit this budget.");
-            //TODO: Security -> LOG OUT
+        if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this account.");
         }
+
         if (transaction.getAccount().getAccountId() != requestDTO.getAccountId()) {
             throw new BadRequestException("Account id cannot be changed.");
         }
@@ -182,6 +202,9 @@ public class TransactionService {
     public void deleteTransaction(int transactionId) {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> {throw new NotFoundException("Transaction does not exist.");});
+        if (transaction.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this transaction.");
+        }
         if (transaction.getTransactionType().getName().equalsIgnoreCase("expense")) {
             updateAffectedBudgets(transaction.getAmount(), new BigDecimal(0),
                     transaction.getAccount().getAccountId(), transaction.getCategory().getCategoryId(), transaction.getDateTime().toLocalDate());
@@ -224,23 +247,6 @@ public class TransactionService {
         responseDTO.setCurrency(transaction.getAccount().getCurrency());
         return responseDTO;
     }
-
-    public List<TransactionResponseDTO> getTransactionsByDates(TransactionByDateAndFiltersRequestDTO requestDTO){
-        if (requestDTO.getStart_date().isAfter(requestDTO.getStart_date())){
-            throw new BadRequestException("Start date cannot be past end date.");
-        }
-        //todo optimize selects with userId
-        LocalDateTime startDateTime = requestDTO.getStart_date().atTime(LocalTime.MIN);
-        LocalDateTime endDateTime = requestDTO.getEnd_date().atTime(LocalTime.MAX);
-
-        List<Transaction> transactionsByDatesAndFilters = transactionRepository.findAllByDateTimeBetweenAndAccount_User_UserId(startDateTime, endDateTime, 2);
-        applyFilters(transactionsByDatesAndFilters, requestDTO);
-        transactionsByDatesAndFilters.sort(Comparator.comparing(Transaction::getDateTime));
-        return transactionsByDatesAndFilters.stream()
-                .map(transaction -> convertToResponseDTO(transaction))
-                .collect(Collectors.toList());
-    }
-
 
     private void applyFilters(List<Transaction> transactionsByDatesAndFilters, TransactionByDateAndFiltersRequestDTO requestDTO){
         if (requestDTO.getCategoryIds() != null && !requestDTO.getCategoryIds().isEmpty() && requestDTO.getTransactionTypeId() != null){
