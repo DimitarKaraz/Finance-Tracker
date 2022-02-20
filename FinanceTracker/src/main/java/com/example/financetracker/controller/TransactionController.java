@@ -1,6 +1,7 @@
 package com.example.financetracker.controller;
 
 import com.example.financetracker.model.dto.ResponseWrapper;
+import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionCreateRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionEditRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
@@ -24,6 +25,15 @@ public class TransactionController {
         //TODO: SECURITY
         return ResponseWrapper.wrap("Retrieved transaction.", transactionService.getTransactionsById(transactionId), HttpStatus.OK);
     }
+
+    //todo pass user id into service method!!!
+    @PutMapping("/byDatesAndFilters")
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getTransactionsByDatesAndFilters(@Valid @RequestBody TransactionByDateAndFiltersRequestDTO requestDTO){
+        //TODO: SECURITY
+        return ResponseWrapper.wrap("Retrieved transactions for given dates.", transactionService.getTransactionsByDates(requestDTO), HttpStatus.OK);
+    }
+
+
 
     @GetMapping("/user/{user_id}")
     public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByUserId(@PathVariable("user_id") int userId){
@@ -61,5 +71,7 @@ public class TransactionController {
         transactionService.deleteTransaction(transactionId);
         return ResponseEntity.ok().body("Transaction deleted successfully.");
     }
+
+
 
 }

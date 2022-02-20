@@ -5,6 +5,7 @@ import com.example.financetracker.exceptions.ForbiddenException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
+import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionCreateRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionEditRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
@@ -223,5 +224,53 @@ public class TransactionService {
         return responseDTO;
     }
 
+    public List<TransactionResponseDTO> getTransactionsByDates(TransactionByDateAndFiltersRequestDTO requestDTO){
+        if (requestDTO.getStart_date().isAfter(requestDTO.getStart_date())){
+            throw new BadRequestException("Start date cannot be past end date.");
+        }
+        //todo optimize selects with userId
+        LocalDateTime startDateTime = requestDTO.getStart_date().atTime(LocalTime.MIN);
+        LocalDateTime endDateTime = requestDTO.getEnd_date().atTime(LocalTime.MAX);
 
+        List<Transaction> transactionsByDatesAndFilters = transactionRepository.findAllByDateTimeBetweenAndAccount_User_UserId(startDateTime, endDateTime, 2);
+
+        applyFilters(transactionsByDatesAndFilters, requestDTO);
+
+        return transactionsByDatesAndFilters.stream()
+                .map(transaction -> convertToResponseDTO(transaction))
+                .collect(Collectors.toList());
+    }
+
+
+    private void applyFilters(List<Transaction> transactionsByDatesAndFilters, TransactionByDateAndFiltersRequestDTO requestDTO){
+        if (requestDTO.getCategoryIds() != null && !requestDTO.getCategoryIds().isEmpty() && requestDTO.getTransactionTypeId() != null){
+            List<Category> chosenCategories = categoryRepository.findAllByCategoryIdIsIn(requestDTO.getCategoryIds());
+            for (Category category : chosenCategories){
+                if (category.getTransactionType().getTransactionTypeId() != requestDTO.getTransactionTypeId()){
+                    throw new BadRequestException("Category transaction types have to match selected transaction type.");
+                }
+            }
+        }
+        if (requestDTO.getAmountMin() != null && requestDTO.getAmountMax() != null){
+            List<Transaction> transactionsByAmount = transactionRepository.findAllByAmountBetween(requestDTO.getAmountMin(), requestDTO.getAmountMax());
+            transactionsByDatesAndFilters.retainAll(transactionsByAmount);
+        }
+        if (requestDTO.getAccountId() != null){
+            List<Transaction> transactionsByAccountId = transactionRepository.findAllByAccount_AccountId(requestDTO.getAccountId());
+            transactionsByDatesAndFilters.retainAll(transactionsByAccountId);
+        }
+        if (requestDTO.getCategoryIds() != null && !requestDTO.getCategoryIds().isEmpty()){
+            List<Transaction> transactionsByCategoryIds = transactionRepository.findAllByCategory_CategoryIdIsIn(requestDTO.getCategoryIds());
+            transactionsByDatesAndFilters.retainAll(transactionsByCategoryIds);
+        }
+
+        if (requestDTO.getTransactionTypeId() != null){
+            List<Transaction> transactionsByTransactionTypeId = transactionRepository.findAllByTransactionType_TransactionTypeId(requestDTO.getTransactionTypeId());
+            transactionsByDatesAndFilters.retainAll(transactionsByTransactionTypeId);
+        }
+        if (requestDTO.getPaymentMethodId() != null){
+            List<Transaction> transactionsByPaymentMethodId = transactionRepository.findAllByPaymentMethod_PaymentMethodId(requestDTO.getPaymentMethodId());
+            transactionsByDatesAndFilters.retainAll(transactionsByPaymentMethodId);
+        }
+    }
 }

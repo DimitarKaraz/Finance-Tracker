@@ -5,7 +5,10 @@ import com.example.financetracker.model.pojo.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +34,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     List<Transaction> findTransactionsByDateTimeAfter(LocalDateTime localDateTime);
 
     List<Transaction> findTransactionsByAccountUserUserId(int userId);
+
+    List<Transaction> findAllByDateTimeBetweenAndAccount_User_UserId(LocalDateTime start, LocalDateTime end, int userId);
+
+    List<Transaction> findAllByAmountBetween(BigDecimal min, BigDecimal max);
+
+    List<Transaction> findAllByCategory_CategoryIdIsIn(Set<Integer> categoryIds);
+
+    List<Transaction> findAllByTransactionType_TransactionTypeId(int transactionTypeId);
+
+    List<Transaction> findAllByPaymentMethod_PaymentMethodId(int paymentMethodId);
 
     //todo: (:myArray) OR ? -> String..of..(int[] myArray);
 

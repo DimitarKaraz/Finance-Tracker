@@ -4,6 +4,7 @@ import com.example.financetracker.exceptions.FileTransferException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.dao.StatisticsDAO;
 import com.example.financetracker.service.CronJobs;
+import com.example.financetracker.service.TransactionService;
 import lombok.SneakyThrows;
 import org.aspectj.apache.bcel.util.ClassPath;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ import java.nio.file.Files;
 public class FileController {
 
     public static final String PROFILE_IMAGES_PATH = "profileImages";
+
+    @Autowired
+    private TransactionService transactionService;
 
     @GetMapping("/profile_images/{filename}")
     public void downloadProfileImage(@PathVariable String filename, HttpServletResponse response){
