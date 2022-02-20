@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -233,9 +234,8 @@ public class TransactionService {
         LocalDateTime endDateTime = requestDTO.getEnd_date().atTime(LocalTime.MAX);
 
         List<Transaction> transactionsByDatesAndFilters = transactionRepository.findAllByDateTimeBetweenAndAccount_User_UserId(startDateTime, endDateTime, 2);
-
         applyFilters(transactionsByDatesAndFilters, requestDTO);
-
+        transactionsByDatesAndFilters.sort(Comparator.comparing(Transaction::getDateTime));
         return transactionsByDatesAndFilters.stream()
                 .map(transaction -> convertToResponseDTO(transaction))
                 .collect(Collectors.toList());

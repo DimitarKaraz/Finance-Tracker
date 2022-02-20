@@ -34,7 +34,6 @@ public class TransactionController {
     }
 
 
-
     @GetMapping("/user/{user_id}")
     public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByUserId(@PathVariable("user_id") int userId){
         //TODO: SECURITY
