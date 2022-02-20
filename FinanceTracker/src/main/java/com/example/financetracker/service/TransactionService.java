@@ -146,7 +146,6 @@ public class TransactionService {
         int userId = MyUserDetailsService.getCurrentUserId();
         LocalDateTime startDateTime = requestDTO.getStartDate().atTime(LocalTime.MIN);
         LocalDateTime endDateTime = requestDTO.getEndDate().atTime(LocalTime.MAX);
-
         List<Transaction> transactionsByDatesAndFilters =
                 transactionRepository.findAllByDateTimeBetweenAndAccount_User_UserId(startDateTime, endDateTime, userId);
         applyFilters(transactionsByDatesAndFilters, requestDTO);

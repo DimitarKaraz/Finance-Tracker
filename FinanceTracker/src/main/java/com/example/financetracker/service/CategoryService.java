@@ -149,4 +149,10 @@ public class CategoryService {
     }
 
 
+    public List<CategoryResponseDTO> getCategoriesOfCurrentUserByTransactionType(int transactionTypeId) {
+        return categoryRepository.findAllByTransactionType_TransactionTypeId(transactionTypeId)
+                .stream()
+                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
+                .collect(Collectors.toList());
+    }
 }
