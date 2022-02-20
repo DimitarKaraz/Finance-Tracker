@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@PreAuthorize("hasRole('ROLE_USER')")
 public class UserService {
 
     @Autowired

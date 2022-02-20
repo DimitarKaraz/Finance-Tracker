@@ -1,6 +1,9 @@
 package com.example.financetracker.service;
 
-import com.example.financetracker.exceptions.*;
+import com.example.financetracker.exceptions.BadRequestException;
+import com.example.financetracker.exceptions.ForbiddenException;
+import com.example.financetracker.exceptions.NotFoundException;
+import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryCreateRequestDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryEditRequestDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
@@ -9,6 +12,7 @@ import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -16,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@PreAuthorize("hasRole('ROLE_USER')")
 public class CategoryService {
 
     @Autowired

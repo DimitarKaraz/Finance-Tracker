@@ -3,15 +3,15 @@ package com.example.financetracker.service;
 import com.example.financetracker.exceptions.ForbiddenException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
+import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
+import com.example.financetracker.model.dto.closedBudgetDTOs.ClosedBudgetResponseDTO;
 import com.example.financetracker.model.pojo.Budget;
 import com.example.financetracker.model.pojo.ClosedBudget;
 import com.example.financetracker.model.repositories.BudgetRepository;
 import com.example.financetracker.model.repositories.ClosedBudgetRepository;
-import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
-import com.example.financetracker.model.dto.closedBudgetDTOs.ClosedBudgetResponseDTO;
-import com.example.financetracker.model.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@PreAuthorize("hasRole('ROLE_USER')")
 public class ClosedBudgetService {
 
     @Autowired

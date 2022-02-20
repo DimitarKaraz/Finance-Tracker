@@ -3,11 +3,13 @@ package com.example.financetracker.service;
 import com.example.financetracker.model.pojo.*;
 import com.example.financetracker.model.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@PreAuthorize("hasRole('ROLE_USER')")
 public class UtilityService {
     @Autowired
     private CurrencyRepository currencyRepository;
