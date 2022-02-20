@@ -3,7 +3,6 @@ package com.example.financetracker.service;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.ForbiddenException;
 import com.example.financetracker.exceptions.NotFoundException;
-import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
 import com.example.financetracker.model.dto.accountDTOs.AccountEditRequestDTO;
 import com.example.financetracker.model.dto.accountDTOs.AccountResponseDTO;
@@ -35,13 +34,14 @@ public class AccountService {
     private CurrencyRepository currencyRepository;
 
     public AccountResponseDTO createAccount(AccountCreateRequestDTO requestDTO){
-        if (accountRepository.existsAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName())){
+        int userId = MyUserDetailsService.getCurrentUserId();
+        if (accountRepository.existsAccountByUser_UserIdAndName(userId, requestDTO.getName())){
             throw new BadRequestException("An account with that name already exists.");
         }
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Account account = modelMapper.map(requestDTO, Account.class);
 
-        account.setUser(userRepository.findById(requestDTO.getUserId())
+        account.setUser(userRepository.findById(userId)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");}));
         account.setAccountType(accountTypeRepository.findById(requestDTO.getAccountTypeId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account type id.");}));
@@ -54,34 +54,34 @@ public class AccountService {
     }
 
 
-    public List<AccountResponseDTO> getAllAccountsByUserId(int id) {
-        if (!userRepository.existsById(id)){
+    public List<AccountResponseDTO> getAllAccountsOfCurrentUser() {
+        int userId = MyUserDetailsService.getCurrentUserId();
+        if (!userRepository.existsById(userId)){
             throw new NotFoundException("Invalid user id.");
         }
-        List<Account> accounts = accountRepository.findAccountsByUser_UserId(id);
+        List<Account> accounts = accountRepository.findAccountsByUser_UserId(userId);
         return accounts.stream().map(account -> modelMapper.map(account, AccountResponseDTO.class))
                 .collect(Collectors.toList());
     }
 
-    public AccountResponseDTO getAccountById(int userId, int accountId) {
+    public AccountResponseDTO getAccountById(int accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
-        if (account.getUser().getUserId() != userId) {
-            throw new UnauthorizedException("You do not have access to this user's accounts.");
+        if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this user's accounts.");
         }
         return modelMapper.map(account, AccountResponseDTO.class);
     }
 
-
     public AccountResponseDTO editAccount(AccountEditRequestDTO requestDTO){
-        //TODO: SECURITY -> only for users with same id
+        int userId = MyUserDetailsService.getCurrentUserId();
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
-        if (account.getUser().getUserId() != requestDTO.getUserId()) {
+        if (account.getUser().getUserId() != userId) {
             throw new ForbiddenException("You do not have permission to edit this account.");
         }
         if (!account.getName().equals(requestDTO.getName())) {
-            if (accountRepository.existsAccountByUser_UserIdAndName(requestDTO.getUserId(), requestDTO.getName())) {
+            if (accountRepository.existsAccountByUser_UserIdAndName(userId, requestDTO.getName())) {
                 throw new BadRequestException("An account with that name already exists.");
             }
         }
@@ -96,10 +96,12 @@ public class AccountService {
         return modelMapper.map(account, AccountResponseDTO.class);
     }
 
-    public void deleteAccountById(int id) {
-        if (!accountRepository.existsById(id)) {
-            throw new NotFoundException("Account does not exist.");
+    public void deleteAccountById(int accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
+        if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have permission to edit this account.");
         }
-        accountRepository.deleteById(id);
+        accountRepository.deleteById(accountId);
     }
 }

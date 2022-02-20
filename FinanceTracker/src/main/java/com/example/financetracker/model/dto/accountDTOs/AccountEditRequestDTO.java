@@ -17,14 +17,16 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class AccountEditRequestDTO {
 
-    @Min(value = 1, message = "Invalid user id.")
-    private int userId;
-
     @Min(value = 1, message = "Invalid account id.")
     private int accountId;
 
     @NotBlank(message = "Invalid name.")
     private String name;
+
+    @NotNull(message = "Invalid balance.")
+    @Min(value = 0, message = "Invalid balance.")
+    @Digits(integer = 13, fraction = 2, message = "Invalid balance.")
+    private BigDecimal balance;
 
     @Min(value = 1, message = "Invalid currency id.")
     private int currencyId;
@@ -32,9 +34,5 @@ public class AccountEditRequestDTO {
     @Min(value = 1, message = "Invalid account type id.")
     private int accountTypeId;
 
-    @NotNull(message = "Invalid balance.")
-    @Min(value = 0, message = "Invalid balance.")
-    @Digits(integer = 13, fraction = 2, message = "Invalid balance.")
-    private BigDecimal balance;
 
 }

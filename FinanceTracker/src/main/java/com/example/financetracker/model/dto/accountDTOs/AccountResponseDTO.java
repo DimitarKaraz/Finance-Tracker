@@ -17,10 +17,18 @@ import java.math.BigDecimal;
 public class AccountResponseDTO {
 
     private int accountId;
+
     private int userId;
-    private AccountType accountType;
-    private Currency currency;
-    private BigDecimal balance;
+
     private String name;
+
+    private BigDecimal balance;
+
+    private Currency currency;
+
+    private AccountType accountType;
+
+
+
 
 }

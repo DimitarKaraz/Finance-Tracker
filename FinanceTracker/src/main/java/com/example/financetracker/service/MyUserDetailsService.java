@@ -6,6 +6,7 @@ import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,14 +27,18 @@ public class MyUserDetailsService implements UserDetailsService{
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
         if (user == null){
-            throw new NotFoundException("User not found");
+            throw new NotFoundException("User not found.");
         }
 
-        List<GrantedAuthority> authorities = Arrays.stream(user.getAuthorities().split(",")).map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        List<GrantedAuthority> authorities = Arrays.stream(user.getAuthorities().split(","))
+                                                                .map(SimpleGrantedAuthority::new)
+                                                                .collect(Collectors.toList());
         return new MyUserDetails(user.getUserId(), user.getEmail(), user.getPassword(), authorities);
     }
 
-
+    public static int getCurrentUserId() {
+        MyUserDetails myUserDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return myUserDetails.getUserId();
+    }
 
 }

@@ -5,15 +5,15 @@ import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.FileTransferException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.dto.userDTOs.ChangePasswordRequestDTO;
+import com.example.financetracker.model.dto.userDTOs.UserEditProfileRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
 import com.example.financetracker.model.dto.userDTOs.UserRegisterForm;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
-import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,21 +72,7 @@ public class UserService {
 //        return modelMapper.map(user, UserProfileDTO.class);
 //    }
 
-    public UserProfileDTO editProfile(UserProfileDTO requestDTO){
-        User userBefore = userRepository.findById(requestDTO.getUserId())
-                .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
-        //TODO: check is userId == session.userId
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        User userAfter = modelMapper.map(requestDTO, User.class);
-        userAfter.setGender(requestDTO.getGender().toLowerCase());
-        userAfter.setPassword(userBefore.getPassword());
-        userAfter.setAuthorities(userBefore.getAuthorities());
-        userRepository.save(userAfter);
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
-        return modelMapper.map(userAfter, UserProfileDTO.class);
-    }
-
-    public UserProfileDTO getUserById(int id) {
+    public UserProfileDTO getProfile(int id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
         UserProfileDTO userProfileDTO = modelMapper.map(user, UserProfileDTO.class);
@@ -94,16 +80,20 @@ public class UserService {
         return userProfileDTO;
     }
 
-    public List<UserProfileDTO> getAllUsers() {
-        //TODO: check if ROLE_ADMIN
-        List<User> allUsers = userRepository.findAll();
-        return allUsers.stream().map(user -> modelMapper.map(user, UserProfileDTO.class))
-                .collect(Collectors.toList());
+    public UserProfileDTO editProfile(UserEditProfileRequestDTO requestDTO){
+        User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
+                .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
+        user.setFirstName(requestDTO.getFirstName());
+        user.setLastName(requestDTO.getLastName());
+        user.setGender(requestDTO.getGender().toLowerCase());
+        user.setDateOfBirth(requestDTO.getDateOfBirth());
+        userRepository.save(user);
+
+        return modelMapper.map(user, UserProfileDTO.class);
     }
 
     public void changePassword(ChangePasswordRequestDTO requestDTO){
-        //TODO: user must be logged in
-        User user =  userRepository.findById(requestDTO.getUserId())
+        User user =  userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
         //TODO: password strength
         if (!encoder.matches(requestDTO.getOldPassword(), user.getPassword())){
@@ -116,30 +106,37 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void deleteUserById(int id) {
-        //TODO: check is userId == session.userId
-        if (!userRepository.existsById(id)) {
-            throw new NotFoundException("User does not exist.");
-        }
-        userRepository.deleteById(id);
-    }
-
-    public String uploadFile(MultipartFile file, int userId) {
-        User user = userRepository.findById(userId)
+    public String uploadProfileImage(MultipartFile file) {
+        User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new NotFoundException("User not found.");});
-        String oldImageUrl = user.getProfileImageUrl();
-        File oldFile = new File(FileController.PROFILE_IMAGES_PATH+File.separator+oldImageUrl);
-        oldFile.delete();
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
         //todo implement better random name generation
         String fileName = System.nanoTime() + "." + extension;
         try {
             Files.copy(file.getInputStream(), new File(FileController.PROFILE_IMAGES_PATH + File.separator + fileName).toPath());
+            String oldImageUrl = user.getProfileImageUrl();
+            File oldFile = new File(FileController.PROFILE_IMAGES_PATH+File.separator+oldImageUrl);
+            oldFile.delete();
         } catch (IOException e) {
             throw new FileTransferException("File upload failed.");
         }
         user.setProfileImageUrl(fileName);
         userRepository.save(user);
         return fileName;
+    }
+
+    public void deleteUser() {
+        int id = MyUserDetailsService.getCurrentUserId();
+        if (!userRepository.existsById(id)) {
+            throw new NotFoundException("User does not exist.");
+        }
+        userRepository.deleteById(id);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public List<UserProfileDTO> getAllUsers() {
+        List<User> allUsers = userRepository.findAll();
+        return allUsers.stream().map(user -> modelMapper.map(user, UserProfileDTO.class))
+                .collect(Collectors.toList());
     }
 }

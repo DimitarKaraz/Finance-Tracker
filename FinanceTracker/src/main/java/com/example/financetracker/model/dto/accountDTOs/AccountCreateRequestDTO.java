@@ -18,9 +18,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class AccountCreateRequestDTO {
 
-    @Min(value = 1, message = "Invalid user id.")
-    private int userId;
-
     @NotBlank(message = "Invalid name.")
     private String name;
 

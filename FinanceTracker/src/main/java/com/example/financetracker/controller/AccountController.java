@@ -15,42 +15,37 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/accounts")
 public class AccountController {
 
     @Autowired
     private AccountService accountService;
 
-    @PostMapping("/create_account")
+    @PostMapping("/accounts/create")
     public ResponseEntity<ResponseWrapper<AccountResponseDTO>> createAccount(@Valid @RequestBody AccountCreateRequestDTO requestDTO){
-        //TODO: SECURITY -> only for user with same id
-        return ResponseWrapper.wrap("Account created.", accountService.createAccount(requestDTO), HttpStatus.CREATED);
+        return ResponseWrapper.wrap("Account created.",
+                accountService.createAccount(requestDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{user_id}")
-    public ResponseEntity<ResponseWrapper<List<AccountResponseDTO>>> getAllAccountsByUserId(@PathVariable("user_id") int id) {
-        //TODO: SECURITY -> only for user with same id
-        return ResponseWrapper.wrap("User " + id + " accounts retrieved.",
-                accountService.getAllAccountsByUserId(id), HttpStatus.OK);
+    @GetMapping("/accounts")
+    public ResponseEntity<ResponseWrapper<List<AccountResponseDTO>>> getAllAccountsOfCurrentUser() {
+        return ResponseWrapper.wrap("User accounts retrieved.",
+                accountService.getAllAccountsOfCurrentUser(), HttpStatus.OK);
     }
 
-    @GetMapping("/{user_id}/{account_id}")
-    public ResponseEntity<ResponseWrapper<AccountResponseDTO>> getAccountById(@PathVariable("user_id") int userId,
-                                                                              @PathVariable("account_id") int accountId) {
-        //TODO: SECURITY -> only for user with same id
+    @GetMapping("/accounts/{account_id}")
+    public ResponseEntity<ResponseWrapper<AccountResponseDTO>> getAccountById(@PathVariable("account_id") int accountId) {
         return ResponseWrapper.wrap("Account " + accountId + " retrieved.",
-                accountService.getAccountById(userId, accountId), HttpStatus.OK);
+                accountService.getAccountById(accountId), HttpStatus.OK);
     }
 
     @PutMapping("/edit_account")
     public ResponseEntity<ResponseWrapper<AccountResponseDTO>> editAccount(@Valid @RequestBody AccountEditRequestDTO requestDTO){
-        //TODO: check if request is valid with Interceptor (valid session, valid id input)
-        return ResponseWrapper.wrap("Account edited.", accountService.editAccount(requestDTO), HttpStatus.OK);
+        return ResponseWrapper.wrap("Account edited.",
+                accountService.editAccount(requestDTO), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{acc_id}/delete_account")
+    @DeleteMapping("/accounts/{acc_id}/delete")
     public ResponseEntity<String> deleteAccountById(@PathVariable("acc_id") int id) {
-        //TODO: SECURITY -> only for user with same id
         accountService.deleteAccountById(id);
         return ResponseEntity.ok().body("Account deleted successfully.");
     }
