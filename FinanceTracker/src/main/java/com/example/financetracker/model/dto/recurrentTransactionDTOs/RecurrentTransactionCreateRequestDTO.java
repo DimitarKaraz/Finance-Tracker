@@ -15,8 +15,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class RecurrentTransactionCreateRequestDTO {
 
-    @Min(value = 1, message = "Invalid transaction type id.")
-    private int transactionTypeId;
+    @Min(value = 1, message = "Invalid account id.")
+    private int accountId;
 
     @NotBlank(message = "Invalid name.")
     private String name;
@@ -26,8 +26,8 @@ public class RecurrentTransactionCreateRequestDTO {
     @Digits(integer = 13, fraction = 2, message = "Invalid amount.")
     private BigDecimal amount;
 
-    @Min(value = 1, message = "Invalid account id.")
-    private int accountId;
+    @Min(value = 1, message = "Invalid transaction type id.")
+    private int transactionTypeId;
 
     @Min(value = 1, message = "Invalid category id.")
     private int categoryId;

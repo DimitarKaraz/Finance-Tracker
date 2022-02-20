@@ -18,8 +18,8 @@ public class RecurrentTransactionEditRequestDTO {
     @Min(value = 1, message = "Invalid id.")
     private int recurrentTransactionId;
 
-    @Min(value = 1, message = "Invalid transaction type id.")
-    private int transactionTypeId;
+    @Min(value = 1, message = "Invalid account id.")
+    private int accountId;
 
     @NotBlank(message = "Invalid name.")
     private String name;
@@ -29,8 +29,8 @@ public class RecurrentTransactionEditRequestDTO {
     @Digits(integer = 13, fraction = 2, message = "Invalid amount.")
     private BigDecimal amount;
 
-    @Min(value = 1, message = "Invalid account id.")
-    private int accountId;
+    @Min(value = 1, message = "Invalid transaction type id.")
+    private int transactionTypeId;
 
     @Min(value = 1, message = "Invalid category id.")
     private int categoryId;

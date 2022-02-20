@@ -87,7 +87,7 @@ public class CategoryService {
         Category category = categoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid category id.");});
         if (category.getUser() == null) {
-            throw new ForbiddenException("You cannot edit this category.");
+            throw new BadRequestException("You cannot edit this category.");
         }
         if (category.getUser().getUserId() != userId) {
             throw new ForbiddenException("You do not have access to this category.");

@@ -13,43 +13,38 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/recurrent_transactions")
 public class RecurrentTransactionController {
 
     @Autowired
     private RecurrentTransactionService recurrentTransactionService;
-    
-    @GetMapping("/{rec_trans_id}")
-    public ResponseEntity<ResponseWrapper<RecurrentTransactionResponseDTO>> getRecurrentTransactionById(@PathVariable("rec_trans_id") int recurrentTransactionId){
-        //TODO: SECURITY -> only for user with same id
-        return ResponseWrapper.wrap("Retrieved recurrent transaction.",
-                recurrentTransactionService.getRecurrentTransactionById(recurrentTransactionId), HttpStatus.OK);
-    }
 
-    @GetMapping("users/{user_id}")
-    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getAllRecurrentTransactionsByUserId(@PathVariable("user_id") int userId){
-        //TODO: SECURITY -> only for user with same id
-        return ResponseWrapper.wrap("Retrieved recurrent transactions for user.",
-                recurrentTransactionService.getAllRecurrentTransactionsByUserId(userId), HttpStatus.OK);
-    }
-
-    @PostMapping("/create_recurrent_transaction")
+    @PostMapping("/recurrent_transactions/create")
     public ResponseEntity<ResponseWrapper<RecurrentTransactionResponseDTO>> createRecurrentTransaction(@Valid @RequestBody RecurrentTransactionCreateRequestDTO requestDTO){
-        //TODO: SECURITY -> only for user with same id
         return ResponseWrapper.wrap("Recurrent transaction created.",
                 recurrentTransactionService.createRecurrentTransaction(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/edit_recurrent_transaction")
+    @GetMapping("/recurrent_transactions")
+    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getAllRecurrentTransactionsForCurrentUser(){
+        return ResponseWrapper.wrap("Retrieved recurrent transactions for user.",
+                recurrentTransactionService.getAllRecurrentTransactionsForCurrentUser(), HttpStatus.OK);
+    }
+
+    @GetMapping("/recurrent_transactions/{rt_id}")
+    public ResponseEntity<ResponseWrapper<RecurrentTransactionResponseDTO>> getRecurrentTransactionById(@PathVariable("rt_id") int recurrentTransactionId){
+        return ResponseWrapper.wrap("Retrieved recurrent transaction.",
+                recurrentTransactionService.getRecurrentTransactionById(recurrentTransactionId), HttpStatus.OK);
+    }
+
+
+    @PutMapping("/recurrent_transactions/edit")
     public ResponseEntity<ResponseWrapper<RecurrentTransactionResponseDTO>> editRecurrentTransaction(@Valid @RequestBody RecurrentTransactionEditRequestDTO requestDTO){
-        //TODO: SECURITY -> only for user with same id
         return ResponseWrapper.wrap("Recurrent transaction successfully edited.",
                 recurrentTransactionService.editRecurrentTransaction(requestDTO), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{recurrent_transaction_id}/delete_recurrent_transaction")
-    public ResponseEntity<String> deleteRecurrentTransactionById(@PathVariable("recurrent_transaction_id") int id) {
-        //TODO: SECURITY -> only for user with same id
+    @DeleteMapping("/recurrent_transactions/{rt_id}/delete")
+    public ResponseEntity<String> deleteRecurrentTransactionById(@PathVariable("rt_id") int id) {
         recurrentTransactionService.deleteRecurrentTransaction(id);
         return ResponseEntity.ok().body("Recurrent transaction deleted successfully.");
     }

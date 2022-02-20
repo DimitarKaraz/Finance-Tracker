@@ -4,7 +4,6 @@ package com.example.financetracker.service;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.ForbiddenException;
 import com.example.financetracker.exceptions.NotFoundException;
-import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionCreateRequestDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionEditRequestDTO;
@@ -16,6 +15,7 @@ import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@PreAuthorize("hasRole('ROLE_USER')")
 public class RecurrentTransactionService {
 
     @Autowired
@@ -45,30 +46,14 @@ public class RecurrentTransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-
-    public RecurrentTransactionResponseDTO getRecurrentTransactionById(int recurrentTransactionId) {
-        //todo security
-        return convertToResponseDTO((recurrentTransactionRepository.findById(recurrentTransactionId)
-                .orElseThrow(() -> {throw new NotFoundException("Invalid recurrent transaction id.");})));
-    }
-
-    public List<RecurrentTransactionResponseDTO> getAllRecurrentTransactionsByUserId(int userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("Invalid user id.");
-        }
-        return recurrentTransactionRepository.findAllByAccount_User_UserId(userId).stream()
-                .map(this::convertToResponseDTO).collect(Collectors.toList());
-    }
-
     @Transactional
     public RecurrentTransactionResponseDTO createRecurrentTransaction(RecurrentTransactionCreateRequestDTO requestDTO) {
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
-        //TODO: security -> check if account.findById(requestDTO.getAccountId).getUser.getUserId == session user_id
-        if (!userRepository.existsById(account.getUser().getUserId())) {
-            throw new UnauthorizedException("You don't have permission to edit this budget.");
-            //TODO: Security -> LOG OUT
+        if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this account.");
         }
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         RecurrentTransaction recurrentTransaction = modelMapper.map(requestDTO, RecurrentTransaction.class);
         if (requestDTO.getEndDate() != null && requestDTO.getRemainingPayments() != null) {
@@ -90,10 +75,11 @@ public class RecurrentTransactionService {
                 recurrentTransaction.getCategory().getTransactionType().getTransactionTypeId()){
             throw new BadRequestException("Category - transaction type mismatch.");
         }
-        if (recurrentTransaction.getCategory().getUser() != null &&
-                recurrentTransaction.getCategory().getUser().getUserId() != account.getUser().getUserId()) {
-            //TODO: LOGOUT hacker
-            throw new ForbiddenException("You cannot access this category.");
+        if (recurrentTransaction.getCategory().getUser() == null) {
+            throw new BadRequestException("You cannot edit this category.");
+        }
+        if (recurrentTransaction.getCategory().getUser().getUserId() != account.getUser().getUserId()) {
+            throw new ForbiddenException("You do not have access to this category.");
         }
         if (recurrentTransaction.getStartDate().equals(LocalDate.now())){
             Transaction transaction = new Transaction(recurrentTransaction);
@@ -102,7 +88,21 @@ public class RecurrentTransactionService {
 
         recurrentTransactionRepository.save(recurrentTransaction);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
-        //TODO: cron job method
+        return convertToResponseDTO(recurrentTransaction);
+    }
+
+    public List<RecurrentTransactionResponseDTO> getAllRecurrentTransactionsForCurrentUser() {
+        int userId = MyUserDetailsService.getCurrentUserId();
+        return recurrentTransactionRepository.findAllByAccount_User_UserId(userId).stream()
+                .map(this::convertToResponseDTO).collect(Collectors.toList());
+    }
+
+    public RecurrentTransactionResponseDTO getRecurrentTransactionById(int recurrentTransactionId) {
+        RecurrentTransaction recurrentTransaction = recurrentTransactionRepository.findById(recurrentTransactionId)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid recurrent transaction id.");});
+        if (recurrentTransaction.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this recurrent transaciton.");
+        }
         return convertToResponseDTO(recurrentTransaction);
     }
 
@@ -110,13 +110,10 @@ public class RecurrentTransactionService {
     public RecurrentTransactionResponseDTO editRecurrentTransaction(RecurrentTransactionEditRequestDTO requestDTO){
         RecurrentTransaction recurrentTransaction = recurrentTransactionRepository.findById(requestDTO.getRecurrentTransactionId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid recurrent transaction id.");});
-        //todo security for account_id
         Account account = accountRepository.findById(requestDTO.getAccountId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
-        //TODO: security -> check if account.findById(requestDTO.getAccountId).getUser.getUserId == session user_id
-        if (!userRepository.existsById(account.getUser().getUserId())) {
-            throw new UnauthorizedException("You don't have permission to edit this budget.");
-            //TODO: Security -> LOG OUT
+        if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this account.");
         }
         if (requestDTO.getEndDate() != null && requestDTO.getRemainingPayments() != null) {
             throw new BadRequestException("You must select end date, remaining payment count or forever.");
@@ -135,8 +132,8 @@ public class RecurrentTransactionService {
             throw new BadRequestException("Category - transaction type mismatch.");
         }
         if (recurrentTransaction.getCategory().getUser() != null &&
-                recurrentTransaction.getCategory().getUser().getUserId() != recurrentTransaction.getAccount().getUser().getUserId()) {
-            throw new BadRequestException("You cannot access this category.");
+                recurrentTransaction.getCategory().getUser().getUserId() != account.getUser().getUserId()) {
+            throw new BadRequestException("You do not have access to this category.");
         }
 
         recurrentTransaction.setName(requestDTO.getName());
@@ -147,11 +144,13 @@ public class RecurrentTransactionService {
         return convertToResponseDTO(recurrentTransaction);
     }
 
-    public void deleteRecurrentTransaction(int id) {
-        if (!recurrentTransactionRepository.existsById(id)) {
-            throw new NotFoundException("Recurrent transaction does not exist.");
+    public void deleteRecurrentTransaction(int recurrentTransactionId) {
+        RecurrentTransaction recurrentTransaction = recurrentTransactionRepository.findById(recurrentTransactionId)
+                .orElseThrow(() -> {throw new NotFoundException("Recurrent transaction does not exist.");});
+        if (recurrentTransaction.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this account.");
         }
-        recurrentTransactionRepository.deleteById(id);
+        recurrentTransactionRepository.deleteById(recurrentTransactionId);
     }
 
     private RecurrentTransactionResponseDTO convertToResponseDTO(RecurrentTransaction recurrentTransaction) {

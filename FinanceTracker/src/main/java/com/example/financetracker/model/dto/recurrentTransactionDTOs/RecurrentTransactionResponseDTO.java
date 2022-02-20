@@ -21,15 +21,15 @@ public class RecurrentTransactionResponseDTO {
 
     private int recurrentTransactionId;
 
-    private TransactionType transactionType;
-
     private String name;
-
-    private BigDecimal amount;
 
     private String accountName;
 
     private Currency currency;
+
+    private BigDecimal amount;
+
+    private TransactionType transactionType;
 
     private CategoryResponseDTO categoryResponseDTO;
 

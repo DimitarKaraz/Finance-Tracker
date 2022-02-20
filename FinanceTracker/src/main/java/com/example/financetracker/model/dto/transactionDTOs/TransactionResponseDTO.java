@@ -20,13 +20,13 @@ public class TransactionResponseDTO {
 
     private int transactionId;
 
-    private TransactionType transactionType;
-
-    private BigDecimal amount;
-
     private String accountName;
 
     private Currency currency;
+
+    private BigDecimal amount;
+
+    private TransactionType transactionType;
 
     private CategoryResponseDTO categoryResponseDTO;
 
