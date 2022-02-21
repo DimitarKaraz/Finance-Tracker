@@ -105,13 +105,13 @@ public class ResetPasswordController {
 
         if (user == null) {
             model.addAttribute("message", "Invalid Token");
-            return "message";
+            return "redirect:/login";
         } else {
             resetPasswordService.updatePassword(user, password);
 
             model.addAttribute("message", "You have successfully changed your password.");
         }
 
-        return "message";
+        return "redirect:/login";
     }
 }
