@@ -23,11 +23,8 @@ public class StatisticsDAO {
     @Autowired
     private ModelMapper modelMapper;
 
-    public List<Budget> getBudgetsByFilters(BudgetByFiltersDTO filtersDTO) {
-        String sql = "SELECT *\n" +
-                "FROM budgets AS b\n" +
-                "LEFT JOIN budgets_have_categories AS bhc ON (b.budget_id = bhc.budget_id)\n" +
-                "WHERE (b.start_date BETWEEN ? AND ?)\n";
+    public String getBudgetsByFilters(BudgetByFiltersDTO filtersDTO) {
+        String sql = "(b.start_date BETWEEN "+filtersDTO.getStartDate()+" AND "+filtersDTO.getEndDate()+"\n";
 
         if (filtersDTO.getAccountId() != null) {
             sql += "AND (b.account_id = " +
@@ -56,6 +53,7 @@ public class StatisticsDAO {
                     (filtersDTO.getAmountMax() != null ? filtersDTO.getAmountMax() : "9999999999999.99") +
                     ");";
         }
+/*
 
         BudgetResponseDTO budgetRowMapper = new RowMapper<BudgetResponseDTO>() {
             @Override
@@ -77,8 +75,9 @@ public class StatisticsDAO {
 
 
 
+*/
 
-
+    return sql;
 
     }
 

@@ -169,7 +169,7 @@ public class BudgetService {
         });
     }
 
-    static BudgetResponseDTO convertToBudgetResponseDTO(@Autowired ModelMapper modelMapper, Budget budget) {
+    public static BudgetResponseDTO convertToBudgetResponseDTO(@Autowired ModelMapper modelMapper, Budget budget) {
         BudgetResponseDTO responseDTO = modelMapper.map(budget, BudgetResponseDTO.class);
         responseDTO.setCategoryResponseDTOs(budget.getCategories().stream()
                 .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
