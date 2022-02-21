@@ -16,7 +16,6 @@ public class ResetPasswordService {
     @Autowired
     private UserRepository userRepository;
 
-
     public void updateResetPasswordToken(String token, String email) throws NotFoundException {
         User user = userRepository.findByEmail(email);
         if (user != null) {

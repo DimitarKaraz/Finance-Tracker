@@ -29,7 +29,6 @@ public class ResetPasswordController {
 
     @GetMapping("/forgot_password")
     public String showForgotPasswordForm() {
-        System.out.println("XXXXX");
         return "account/forgotPassword";
     }
 
@@ -88,7 +87,6 @@ public class ResetPasswordController {
             model.addAttribute("message", "Invalid Token");
             return "redirect:/login";
         }
-
         return "account/resetPassword";
     }
 
