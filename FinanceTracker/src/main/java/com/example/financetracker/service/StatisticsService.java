@@ -23,8 +23,9 @@ public class StatisticsService {
     private ModelMapper modelMapper;
 
     public List<BudgetResponseDTO> getBudgetsByFilters(BudgetByFiltersDTO filtersDTO) {
-        List<Budget> budgets = budgetRepository.findBudgetsByFilters(statisticsDAO.getBudgetsByFilters(filtersDTO));
-        return budgets.stream().map(budget -> BudgetService.convertToBudgetResponseDTO(modelMapper, budget)).collect(Collectors.toList());
-        //return statisticsDAO.getBudgetsByFilters(filtersDTO);
+        List<Budget> budgets = statisticsDAO.getBudgetsByFilters(filtersDTO);
+        return budgets.stream()
+                .map(budget -> BudgetService.convertToBudgetResponseDTO(modelMapper, budget))
+                .collect(Collectors.toList());
     }
 }

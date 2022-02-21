@@ -171,9 +171,11 @@ public class BudgetService {
 
     public static BudgetResponseDTO convertToBudgetResponseDTO(@Autowired ModelMapper modelMapper, Budget budget) {
         BudgetResponseDTO responseDTO = modelMapper.map(budget, BudgetResponseDTO.class);
-        responseDTO.setCategoryResponseDTOs(budget.getCategories().stream()
-                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
-                .collect(Collectors.toSet()));
+        if (budget.getCategories() != null) {
+            responseDTO.setCategoryResponseDTOs(budget.getCategories().stream()
+                    .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
+                    .collect(Collectors.toSet()));
+        }
         responseDTO.setCurrency(budget.getAccount().getCurrency());
         return responseDTO;
     }

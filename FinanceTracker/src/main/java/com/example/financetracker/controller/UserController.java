@@ -61,7 +61,7 @@ public class UserController {
     @GetMapping("/profile")
     public ResponseEntity<ResponseWrapper<UserProfileDTO>> getProfile() {
         return ResponseWrapper.wrap("User retrieved.",
-                userService.getProfile(MyUserDetailsService.getCurrentUserId()), HttpStatus.OK);
+                userService.getProfile(), HttpStatus.OK);
     }
     // You can't see other people's profiles
 /*    @GetMapping("/{id}")

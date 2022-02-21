@@ -1,6 +1,5 @@
 package com.example.financetracker.service;
 
-import com.example.financetracker.controller.FileController;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.FileTransferException;
 import com.example.financetracker.exceptions.NotFoundException;
@@ -57,8 +56,8 @@ public class UserService {
 //        return modelMapper.map(user, UserProfileDTO.class);
 //    }
 
-    public UserProfileDTO getProfile(int id) {
-        User user = userRepository.findById(id)
+    public UserProfileDTO getProfile() {
+        User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
         UserProfileDTO userProfileDTO = modelMapper.map(user, UserProfileDTO.class);
         System.out.println(userProfileDTO);

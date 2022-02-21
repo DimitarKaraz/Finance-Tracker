@@ -1,10 +1,8 @@
 package com.example.financetracker.model.repositories;
 
-import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersDTO;
 import com.example.financetracker.model.pojo.Budget;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -37,12 +35,5 @@ public interface BudgetRepository extends JpaRepository<Budget, Integer> {
             "LEFT JOIN intervals AS i ON b.interval_id = i.interval_id\n" +
             "WHERE b.end_date = CURDATE() OR DATE_ADD(b.start_date, INTERVAL i.days DAY) = CURDATE();", nativeQuery = true)
     List<Budget> findAllBudgetsReadyForCronJob();
-
-
-    @Query(value = "SELECT b.*\n" +
-            "FROM budgets AS b\n" +
-            "JOIN budgets_have_categories AS bhc ON (b.budget_id = bhc.budget_id)\n" +
-            "WHERE ? ", nativeQuery = true)
-    List<Budget> findBudgetsByFilters(String name);
 
 }

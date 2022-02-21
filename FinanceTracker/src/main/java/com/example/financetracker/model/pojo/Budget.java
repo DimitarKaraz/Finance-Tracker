@@ -15,6 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Builder
 public class Budget {
 
     @Id

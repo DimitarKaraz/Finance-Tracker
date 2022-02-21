@@ -5,6 +5,7 @@ import com.example.financetracker.model.dto.ExceptionDTO;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -99,6 +100,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionDTO> handleNoHandlerFoundException() {
         return ResponseEntity.status(404).body(new ExceptionDTO(HttpStatus.NOT_FOUND,
                 "PAGE NOT FOUND. (See if you are using appropriate HTTP request method and url.)", LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<ExceptionDTO> handleFileTransferException(AccessDeniedException e){
+        // This exception is thrown if the userId of the current principal doesn't exist in the database.
+        // Therefore, it is a good idea to log out the user (and redirect him to login page)
+        HttpServletRequest request =
+                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        new SecurityContextLogoutHandler().logout(request, null, null);
+        return ResponseEntity.status(401).body(new ExceptionDTO(HttpStatus.UNAUTHORIZED, e.getMessage(), LocalDateTime.now()));
     }
 
 

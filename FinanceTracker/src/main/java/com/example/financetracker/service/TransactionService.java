@@ -275,7 +275,6 @@ public class TransactionService {
             List<Transaction> transactionsByCategoryIds = transactionRepository.findAllByCategory_CategoryIdIsIn(requestDTO.getCategoryIds());
             transactionsByDatesAndFilters.retainAll(transactionsByCategoryIds);
         }
-
         if (requestDTO.getTransactionTypeId() != null){
             List<Transaction> transactionsByTransactionTypeId = transactionRepository.findAllByTransactionType_TransactionTypeId(requestDTO.getTransactionTypeId());
             transactionsByDatesAndFilters.retainAll(transactionsByTransactionTypeId);
