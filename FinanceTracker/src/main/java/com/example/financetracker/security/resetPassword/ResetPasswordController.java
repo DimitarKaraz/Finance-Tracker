@@ -1,5 +1,6 @@
 package com.example.financetracker.security.resetPassword;
 
+import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.service.CronJobs;
@@ -85,7 +86,7 @@ public class ResetPasswordController {
 
         if (user == null) {
             model.addAttribute("message", "Invalid Token");
-            return "message";
+            return "redirect:/login";
         }
 
         return "account/resetPassword";
@@ -95,10 +96,11 @@ public class ResetPasswordController {
     public String processResetPassword(HttpServletRequest request, Model model) {
         String token = request.getParameter("token");
         String password = request.getParameter("password");
+        String confirmPassword = request.getParameter("confirmPassword");
 
-//        if (!requestDTO.getNewPassword().equals(requestDTO.getConfirmNewPassword())){
-//            throw new BadRequestException("Passwords do not match.");
-//        }
+        if (!password.equals(confirmPassword)) {
+            throw new BadRequestException("Passwords do not match.");
+        }
 
         User user = resetPasswordService.getByResetPasswordToken(token);
         model.addAttribute("title", "Reset your password");
