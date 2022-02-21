@@ -1,4 +1,4 @@
-package com.example.financetracker.authentication;
+package com.example.financetracker.security;
 
 import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.pojo.User;

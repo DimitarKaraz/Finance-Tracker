@@ -1,7 +1,7 @@
 package com.example.financetracker.configurations;
 
 
-import com.example.financetracker.authentication.LoginSuccessHandler;
+import com.example.financetracker.security.LoginSuccessHandler;
 import com.example.financetracker.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -40,7 +40,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .antMatchers("/login", "/register").permitAll()
+                .antMatchers("/login", "/register", "/forgot_password", "/reset_password").permitAll()
                 .antMatchers("/**").permitAll()//hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                 .antMatchers("/all_users").hasAuthority("ROLE_ADMIN")
             .and()

@@ -82,6 +82,14 @@ public class CategoryService {
         return modelMapper.map(category, CategoryResponseDTO.class);
     }
 
+    public List<CategoryResponseDTO> getCategoriesOfCurrentUserByTransactionType(int transactionTypeId) {
+        int userId = MyUserDetailsService.getCurrentUserId();
+        return categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNullAndTransactionType_TransactionTypeId(userId, transactionTypeId)
+                .stream()
+                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
     public CategoryResponseDTO editCategory(CategoryEditRequestDTO requestDTO){
         int userId = MyUserDetailsService.getCurrentUserId();
         Category category = categoryRepository.findById(requestDTO.getCategoryId())
@@ -148,11 +156,4 @@ public class CategoryService {
         categoryRepository.deleteById(categoryId);
     }
 
-
-    public List<CategoryResponseDTO> getCategoriesOfCurrentUserByTransactionType(int transactionTypeId) {
-        return categoryRepository.findAllByTransactionType_TransactionTypeId(transactionTypeId)
-                .stream()
-                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
-                .collect(Collectors.toList());
-    }
 }

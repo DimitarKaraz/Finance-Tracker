@@ -1,4 +1,4 @@
-package com.example.financetracker.authentication;
+package com.example.financetracker.security.resetPassword;
 
 import com.example.financetracker.model.pojo.User;
 

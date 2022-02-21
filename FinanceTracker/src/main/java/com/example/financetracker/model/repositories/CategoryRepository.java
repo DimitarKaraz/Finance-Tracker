@@ -22,7 +22,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
                     "WHERE bhc.budget_id = ?;", nativeQuery = true)
     Set<Category> findAllByBudgetId(int budgetId);
 
-    List<Category> findAllByTransactionType_TransactionTypeId(int transactionTypeId);
+    List<Category> findAllByUser_UserIdOrUser_UserIdIsNullAndTransactionType_TransactionTypeId(int userId, int transactionTypeId);
 
     List<Category> findAllByCategoryIdIsIn(Set<Integer> ids);
 

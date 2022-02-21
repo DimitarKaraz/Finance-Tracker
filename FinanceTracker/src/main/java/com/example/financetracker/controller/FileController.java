@@ -1,15 +1,12 @@
 package com.example.financetracker.controller;
 
 
+import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
 import com.example.financetracker.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
-import com.example.financetracker.service.TransactionService;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -33,7 +30,7 @@ public class FileController {
         fileService.downloadCategoryIcon(filename, response);
     }
 
-   @PutMapping("/files/PdfStatement")
+   @PutMapping("/files/pdf_statement")
     public void sendPDFToEmail(@Valid @RequestBody TransactionByDateAndFiltersRequestDTO requestDTO){
         fileService.sendPDFToEmail(requestDTO);
     }
