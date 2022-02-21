@@ -2,15 +2,13 @@ package com.example.financetracker.model.dto.categoryDTOs;
 
 import com.example.financetracker.model.pojo.CategoryIcon;
 import com.example.financetracker.model.pojo.TransactionType;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.stereotype.Component;
 @Component
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class CategoryResponseDTO {
 

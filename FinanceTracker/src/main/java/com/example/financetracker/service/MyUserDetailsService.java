@@ -1,6 +1,7 @@
 package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.NotFoundException;
+import com.example.financetracker.exceptions.UnauthorizedException;
 import com.example.financetracker.model.dto.userDTOs.MyUserDetails;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
@@ -37,9 +38,12 @@ public class MyUserDetailsService implements UserDetailsService{
     }
 
     public static int getCurrentUserId() {
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        MyUserDetails myUserDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return myUserDetails.getUserId();
+        try {
+            MyUserDetails myUserDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return myUserDetails.getUserId();
+        } catch (ClassCastException e) {
+            throw new UnauthorizedException("Something went wrong. Please log in.");
+        }
     }
 
 }

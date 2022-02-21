@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @ToString
-@Builder
 public class Account {
 
     @Id
