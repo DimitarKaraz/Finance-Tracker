@@ -59,9 +59,9 @@ public class AuthenticationController {
     @GetMapping("/verify")
     public String verifyUser(@Param("code") String code) {
         if (authenticationService.verify(code)) {
-            return "verify_success";
+            return "account/verifySuccess";
         } else {
-            return "verify_fail";
+            return "account/verifyFail";
         }
     }
 }

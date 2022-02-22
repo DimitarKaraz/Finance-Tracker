@@ -1,4 +1,4 @@
-package com.example.financetracker.security.resetPassword;
+package com.example.financetracker.security;
 
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.NotFoundException;

@@ -1,4 +1,4 @@
-package com.example.financetracker.security.resetPassword;
+package com.example.financetracker.security;
 
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.pojo.User;

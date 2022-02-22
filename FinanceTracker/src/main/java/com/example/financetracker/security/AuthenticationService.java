@@ -9,11 +9,9 @@ import com.example.financetracker.service.EmailService;
 import net.bytebuddy.utility.RandomString;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.Email;
 import java.time.LocalDateTime;
 
 @Service
@@ -57,7 +55,7 @@ public class AuthenticationService {
                 + "Your company name.";
 
         emailService.sendEmail("Activate your account.", user.getEmail(),
-                content, false, null, null);
+                content, true, null, null);
     }
 
     public boolean verify(String verificationToken) {
