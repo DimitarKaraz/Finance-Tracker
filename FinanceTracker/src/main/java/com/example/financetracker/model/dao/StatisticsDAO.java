@@ -368,7 +368,7 @@ public class StatisticsDAO {
                 .endDate(rs.getDate("b.end_date") != null ? rs.getDate("b.end_date").toLocalDate() : null)
                 .build();
     }
-    
+
     private CategoryResponseDTO buildCategoryResponseDTO(ResultSet rs) throws SQLException {
         CategoryIcon categoryIcon = CategoryIcon.builder()
                 .categoryIconId(rs.getInt("ci.category_icon_id"))

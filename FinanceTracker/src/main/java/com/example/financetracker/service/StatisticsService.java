@@ -51,18 +51,32 @@ public class StatisticsService {
         return statisticsDAO.getTransactionsByFilters(requestDTO);
     }
 
-    public TopFiveExpensesOrIncomesResponseDTO getTopFiveExpensesByDates(FilterByDatesRequestDTO requestDTO) {
+    public TopFiveExpensesOrIncomesResponseDTO getTopFiveExpensesCategories(FilterByDatesRequestDTO requestDTO) {
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
-        return specialStatisticsDAO.getTopFiveExpensesOrIncomesByDates(requestDTO, "expense");
+        return specialStatisticsDAO.getTopFiveExpensesOrIncomesCategories(requestDTO, "expense");
     }
     
-    public TopFiveExpensesOrIncomesResponseDTO getTopFiveIncomesByDates(FilterByDatesRequestDTO requestDTO) {
+    public TopFiveExpensesOrIncomesResponseDTO getTopFiveIncomesCategories(FilterByDatesRequestDTO requestDTO) {
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
-        return specialStatisticsDAO.getTopFiveExpensesOrIncomesByDates(requestDTO, "income");
+        return specialStatisticsDAO.getTopFiveExpensesOrIncomesCategories(requestDTO, "income");
+    }
+
+    public TopFiveExpensesOrIncomesResponseDTO getTopFiveExpensesPaymentMethods(FilterByDatesRequestDTO requestDTO) {
+        if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
+            throw new BadRequestException("Start date cannot be past end date.");
+        }
+        return specialStatisticsDAO.getTopFiveExpensesOrIncomesPaymentMethods(requestDTO, "expense");
+    }
+
+    public TopFiveExpensesOrIncomesResponseDTO getTopFiveIncomesPaymentMethods(FilterByDatesRequestDTO requestDTO) {
+        if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
+            throw new BadRequestException("Start date cannot be past end date.");
+        }
+        return specialStatisticsDAO.getTopFiveExpensesOrIncomesPaymentMethods(requestDTO, "income");
     }
 
     public CashFlowsResponseDTO getCashFlowsForAccounts(FilterByDatesRequestDTO requestDTO) {
@@ -91,4 +105,5 @@ public class StatisticsService {
         }
         return specialStatisticsDAO.getNumberOfTransactionsByTransactionTypes(requestDTO);
     }
+
 }

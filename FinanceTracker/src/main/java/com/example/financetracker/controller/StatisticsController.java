@@ -55,15 +55,27 @@ public class StatisticsController {
     }
 
     @PutMapping("/categories/top-5-expenses")
-    public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveExpensesByDates(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveExpensesCategories(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Top five expenses retrieved.",
-                statisticsService.getTopFiveExpensesByDates(requestDTO), HttpStatus.OK);
+                statisticsService.getTopFiveExpensesCategories(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("/categories/top-5-incomes")
-    public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveIncomesByDates(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveIncomesCategories(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Top five incomes retrieved.",
-                statisticsService.getTopFiveIncomesByDates(requestDTO), HttpStatus.OK);
+                statisticsService.getTopFiveIncomesCategories(requestDTO), HttpStatus.OK);
+    }
+
+    @PutMapping("/payment_methods/top-5-expenses")
+    public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveExpensesPaymentMethods(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
+        return ResponseWrapper.wrap("Top five expenses retrieved.",
+                statisticsService.getTopFiveExpensesPaymentMethods(requestDTO), HttpStatus.OK);
+    }
+
+    @PutMapping("/payment_methods/top-5-incomes")
+    public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveIncomesPaymentMethods(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
+        return ResponseWrapper.wrap("Top five incomes retrieved.",
+                statisticsService.getTopFiveIncomesPaymentMethods(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("accounts/cash-flows")
