@@ -3,10 +3,12 @@ package com.example.financetracker.controller;
 import com.example.financetracker.model.dto.ResponseWrapper;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
+import com.example.financetracker.model.dto.closedBudgetDTOs.ClosedBudgetResponseDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
+import com.example.financetracker.model.dto.specialStatisticsDTOs.NumberOfTransactionsByTypeResponseDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.CashFlowsResponseDTO;
@@ -27,15 +29,21 @@ public class StatisticsController {
     private StatisticsService statisticsService;
 
     @PutMapping("/budgets/stats")
-    public ResponseEntity<ResponseWrapper<List<BudgetResponseDTO>>> getBudgetsByFilters(@RequestBody BudgetByFiltersRequestDTO filtersDTO) {
+    public ResponseEntity<ResponseWrapper<List<BudgetResponseDTO>>> getBudgetsByFilters(@RequestBody BudgetByFiltersRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Budgets by filters retrieved.",
-                statisticsService.getBudgetsByFilters(filtersDTO), HttpStatus.OK);
+                statisticsService.getBudgetsByFilters(requestDTO), HttpStatus.OK);
+    }
+
+    @PutMapping("/closed_budgets/stats")
+    public ResponseEntity<ResponseWrapper<List<ClosedBudgetResponseDTO>>> getClosedBudgetsByFilters(@RequestBody BudgetByFiltersRequestDTO requestDTO) {
+        return ResponseWrapper.wrap("Closed budgets by filters retrieved.",
+                statisticsService.getClosedBudgetsByFilters(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("/recurrent_transactions/stats")
-    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getBudgetsByFilters(@RequestBody RecurrentTransactionByFiltersRequestDTO filtersDTO) {
+    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getBudgetsByFilters(@RequestBody RecurrentTransactionByFiltersRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Budgets by filters retrieved.",
-                statisticsService.getRecurrentTransactionsByFilters(filtersDTO), HttpStatus.OK);
+                statisticsService.getRecurrentTransactionsByFilters(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("/transactions/stats")
@@ -61,6 +69,12 @@ public class StatisticsController {
         return ResponseWrapper.wrap("Cash-flows for accounts retrieved.",
                 statisticsService.getCashFlowsForAccounts(requestDTO), HttpStatus.OK);
 
+    }
+
+    @PutMapping("/transactions_by_type/count")
+    public ResponseEntity<ResponseWrapper<NumberOfTransactionsByTypeResponseDTO>> getNumberOfTransactionsByType(@RequestBody FilterByDatesRequestDTO requestDTO) {
+        return ResponseWrapper.wrap("Transaction count by type retrieved.",
+                statisticsService.getNumberOfTransactionsByType(requestDTO), HttpStatus.OK);
     }
 
 

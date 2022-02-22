@@ -5,9 +5,11 @@ import com.example.financetracker.model.dao.SpecialStatisticsDAO;
 import com.example.financetracker.model.dao.StatisticsDAO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
+import com.example.financetracker.model.dto.closedBudgetDTOs.ClosedBudgetResponseDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
+import com.example.financetracker.model.dto.specialStatisticsDTOs.NumberOfTransactionsByTypeResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
@@ -69,5 +71,18 @@ public class StatisticsService {
         return specialStatisticsDAO.getCashFlowsForAccounts(requestDTO);
     }
 
-    
+
+    public List<ClosedBudgetResponseDTO> getClosedBudgetsByFilters(BudgetByFiltersRequestDTO requestDTO) {
+        if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
+            throw new BadRequestException("Start date cannot be past end date.");
+        }
+        return statisticsDAO.getClosedBudgetsByFilters(requestDTO);
+    }
+
+    public NumberOfTransactionsByTypeResponseDTO getNumberOfTransactionsByType(FilterByDatesRequestDTO requestDTO) {
+        if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
+            throw new BadRequestException("Start date cannot be past end date.");
+        }
+        return specialStatisticsDAO.getNumberOfTransactionsByTransactionTypes(requestDTO);
+    }
 }
