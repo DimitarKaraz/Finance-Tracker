@@ -41,7 +41,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
             .authorizeRequests()
                 .antMatchers("/login", "/register", "/forgot_password", "/reset_password").permitAll()
-                .antMatchers("/**").permitAll()//hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                .antMatchers("/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                 .antMatchers("/all_users").hasAuthority("ROLE_ADMIN")
             .and()
             .formLogin(form -> form
@@ -52,9 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login")
-//                        .logoutSuccessHandler(logoutSuccessHandler)
                 .invalidateHttpSession(true)
-//                        .addLogoutHandler(logoutHandler)
                 .deleteCookies("JSESSIONID"))
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
@@ -62,7 +60,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .and()
             .csrf().disable()
         ;
-//        http.authorizeRequests().antMatchers("/").permitAll().and().csrf().disable();
     }
 
     @Bean
