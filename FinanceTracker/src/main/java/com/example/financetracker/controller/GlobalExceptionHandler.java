@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -116,8 +117,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ExceptionDTO> handleHttpMessageNotReadableExceptionException(HttpMessageNotReadableException e){
+    public ResponseEntity<ExceptionDTO> handleHttpMessageNotReadableException(HttpMessageNotReadableException e){
         return ResponseEntity.status(400).body(new ExceptionDTO(HttpStatus.BAD_REQUEST, "Invalid input data.", LocalDateTime.now()));
+    }
+
+
+    @ExceptionHandler(BadSqlGrammarException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<ExceptionDTO> handleBadSqlGrammarException(BadSqlGrammarException e) {
+        return ResponseEntity.status(500).body(new ExceptionDTO(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Sorry, we are experiencing some trouble.", LocalDateTime.now()));
     }
 
 }
