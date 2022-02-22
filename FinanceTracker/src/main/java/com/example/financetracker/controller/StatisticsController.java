@@ -1,13 +1,13 @@
 package com.example.financetracker.controller;
 
 import com.example.financetracker.model.dto.ResponseWrapper;
-import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersDTO;
+import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
-import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersDTO;
+import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
-import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
+import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.CashFlowsResponseDTO;
 import com.example.financetracker.service.StatisticsService;
@@ -27,19 +27,19 @@ public class StatisticsController {
     private StatisticsService statisticsService;
 
     @PutMapping("/budgets/stats")
-    public ResponseEntity<ResponseWrapper<List<BudgetResponseDTO>>> getBudgetsByFilters(@RequestBody BudgetByFiltersDTO filtersDTO) {
+    public ResponseEntity<ResponseWrapper<List<BudgetResponseDTO>>> getBudgetsByFilters(@RequestBody BudgetByFiltersRequestDTO filtersDTO) {
         return ResponseWrapper.wrap("Budgets by filters retrieved.",
                 statisticsService.getBudgetsByFilters(filtersDTO), HttpStatus.OK);
     }
 
     @PutMapping("/recurrent_transactions/stats")
-    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getBudgetsByFilters(@RequestBody RecurrentTransactionByFiltersDTO filtersDTO) {
+    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getBudgetsByFilters(@RequestBody RecurrentTransactionByFiltersRequestDTO filtersDTO) {
         return ResponseWrapper.wrap("Budgets by filters retrieved.",
                 statisticsService.getRecurrentTransactionsByFilters(filtersDTO), HttpStatus.OK);
     }
 
     @PutMapping("/transactions/stats")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getTransactionsByFilters(@RequestBody TransactionByDateAndFiltersRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getTransactionsByFilters(@RequestBody TransactionByFiltersRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Transactions by filters retrieved.",
                 statisticsService.getTransactionsByFilters(requestDTO), HttpStatus.OK);
     }

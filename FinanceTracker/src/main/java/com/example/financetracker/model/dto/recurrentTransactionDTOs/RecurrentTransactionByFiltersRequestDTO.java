@@ -16,7 +16,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-public class RecurrentTransactionByFiltersDTO {
+public class RecurrentTransactionByFiltersRequestDTO {
 
     @NotNull(message = "Start date cannot be null.")
     private LocalDate startDate;
