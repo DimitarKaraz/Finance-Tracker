@@ -5,11 +5,12 @@ import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersRequestDTO
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
+import com.example.financetracker.model.dto.specialStatisticsDTOs.AverageTransactionForTransactionTypesResponseDTO;
+import com.example.financetracker.model.dto.specialStatisticsDTOs.CashFlowsResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.CashFlowsResponseDTO;
 import com.example.financetracker.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -27,40 +29,45 @@ public class StatisticsController {
     private StatisticsService statisticsService;
 
     @PutMapping("/budgets/stats")
-    public ResponseEntity<ResponseWrapper<List<BudgetResponseDTO>>> getBudgetsByFilters(@RequestBody BudgetByFiltersRequestDTO filtersDTO) {
+    public ResponseEntity<ResponseWrapper<List<BudgetResponseDTO>>> getBudgetsByFilters(@Valid @RequestBody BudgetByFiltersRequestDTO filtersDTO) {
         return ResponseWrapper.wrap("Budgets by filters retrieved.",
                 statisticsService.getBudgetsByFilters(filtersDTO), HttpStatus.OK);
     }
 
     @PutMapping("/recurrent_transactions/stats")
-    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getBudgetsByFilters(@RequestBody RecurrentTransactionByFiltersRequestDTO filtersDTO) {
+    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getBudgetsByFilters(@Valid @RequestBody RecurrentTransactionByFiltersRequestDTO filtersDTO) {
         return ResponseWrapper.wrap("Budgets by filters retrieved.",
                 statisticsService.getRecurrentTransactionsByFilters(filtersDTO), HttpStatus.OK);
     }
 
     @PutMapping("/transactions/stats")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getTransactionsByFilters(@RequestBody TransactionByFiltersRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getTransactionsByFilters(@Valid @RequestBody TransactionByFiltersRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Transactions by filters retrieved.",
                 statisticsService.getTransactionsByFilters(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("/categories/top-5-expenses")
-    public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveExpensesByDates(@RequestBody FilterByDatesRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveExpensesByDates(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Top five expenses retrieved.",
                 statisticsService.getTopFiveExpensesByDates(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("/categories/top-5-incomes")
-    public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveIncomesByDates(@RequestBody FilterByDatesRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveIncomesByDates(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Top five incomes retrieved.",
                 statisticsService.getTopFiveIncomesByDates(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("accounts/cash-flows")
-    public ResponseEntity<ResponseWrapper<CashFlowsResponseDTO>> getCashFlowsForAccounts(@RequestBody FilterByDatesRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<CashFlowsResponseDTO>> getCashFlowsForAccounts(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Cash-flows for accounts retrieved.",
                 statisticsService.getCashFlowsForAccounts(requestDTO), HttpStatus.OK);
+    }
 
+    @PutMapping("/transactions/average_for_transaction_type")
+    public ResponseEntity<ResponseWrapper<AverageTransactionForTransactionTypesResponseDTO>> getAverageTransactions(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
+        return ResponseWrapper.wrap("Average transaction amount for transaction types retrieved.",
+                statisticsService.getAverageTransactions(requestDTO), HttpStatus.OK);
     }
 
 

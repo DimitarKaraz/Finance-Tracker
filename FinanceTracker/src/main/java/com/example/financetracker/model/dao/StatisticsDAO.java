@@ -5,12 +5,9 @@ import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.model.pojo.*;
-import com.example.financetracker.model.pojo.Currency;
 import com.example.financetracker.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -21,7 +18,10 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 @Component
 public class StatisticsDAO {
