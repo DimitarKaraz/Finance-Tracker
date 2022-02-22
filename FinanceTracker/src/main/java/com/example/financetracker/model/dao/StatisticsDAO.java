@@ -5,6 +5,8 @@ import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
+import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
+import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.model.pojo.*;
 import com.example.financetracker.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,7 @@ import java.util.List;
 
 @Component
 public class StatisticsDAO {
-    private final String transactionSQL = "";
+
     private final String recurrentTransactionSQL = "SELECT rt.recurrent_transaction_id, rt.name, rt.amount, rt.start_date, rt.interval_count, rt.end_date, rt.remaining_payments,\n" +
             "i.interval_id, i.days, i.name,\n" +
             "a.name, curr.currency_id, curr.name, curr.abbreviation,\n" +
@@ -53,6 +55,22 @@ public class StatisticsDAO {
             "LEFT JOIN intervals AS i ON (b.interval_id = i.interval_id)\n" +
             "WHERE\t";
 
+    private final String transactionSQL = "SELECT t.transaction_id, t.amount, t.date_time, a.name, curr.currency_id, curr.abbreviation, curr.name, tt.transaction_type_id, tt.name,\n" +
+            "c.category_id, c.name, c.user_id, ci.category_icon_id, ci.image_url, p.payment_method_id, p.name\n" +
+            "FROM transactions AS t\n" +
+            "JOIN accounts AS a\n" +
+            "ON (a.account_id = t.account_id)\n" +
+            "JOIN currencies AS curr\n" +
+            "ON (curr.currency_id = a.currency_id)\n" +
+            "JOIN transaction_types AS tt\n" +
+            "ON (tt.transaction_type_id = t.transaction_type_id)\n" +
+            "JOIN categories AS c\n" +
+            "ON (c.category_id = t.category_id)\n" +
+            "JOIN category_icons AS ci\n" +
+            "ON (ci.category_icon_id = c.category_icon_id)\n" +
+            "JOIN payment_methods AS p\n" +
+            "ON (p.payment_method_id = t.payment_method_id)\n" +
+            "WHERE\t";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -73,7 +91,70 @@ public class StatisticsDAO {
         });
     }
 
+    public List<TransactionResponseDTO> getTransactionsByFilters(TransactionByDateAndFiltersRequestDTO requestDTO){
+        String sql = generateTransactionSQLQuery(requestDTO);
 
+        return jdbcTemplate.query(sql, new ResultSetExtractor<List<TransactionResponseDTO>>() {
+            @Override
+            public List<TransactionResponseDTO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+                List<TransactionResponseDTO> transactions = new ArrayList<>();
+
+                while (rs.next()) {
+                    transactions.add(buildTransactionResponseDTO(rs));
+                }
+                return transactions;
+            }
+        });
+    }
+
+    private TransactionResponseDTO buildTransactionResponseDTO(ResultSet rs) throws SQLException {
+        return TransactionResponseDTO.builder()
+                .transactionId(rs.getInt("t.transaction_id"))
+                .accountName(rs.getString("a.name"))
+                .currency(buildCurrency(rs))
+                .amount(rs.getBigDecimal("t.amount"))
+                .transactionType(buildTransactionType(rs))
+                .categoryResponseDTO(buildCategoryResponseDTO(rs))
+                .paymentMethod(buildPaymentMethod(rs))
+                .dateTime(rs.getTimestamp("t.date_time").toLocalDateTime())
+                .build();
+    }
+
+    private String generateTransactionSQLQuery(TransactionByDateAndFiltersRequestDTO requestDTO){
+        int userId = MyUserDetailsService.getCurrentUserId();
+        String sql = transactionSQL +
+                "(a.user_id = " + userId + ") AND (t.start_date BETWEEN \"" +
+                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n";
+        if (requestDTO.getAccountId() != null) {
+            sql += "AND (t.account_id = " + requestDTO.getAccountId() + ")\n";
+        }
+        if (requestDTO.getTransactionTypeId() != null) {
+            sql += "AND (t.transaction_type_id = " + requestDTO.getTransactionTypeId() + ")\n";
+        }
+        if (requestDTO.getCategoryIds() != null) {
+            StringBuffer categoryIds = new StringBuffer();
+            requestDTO.getCategoryIds()
+                    .forEach(integer -> categoryIds.append(integer).append(","));
+            categoryIds.deleteCharAt(categoryIds.length() - 1);
+
+            sql += "AND (t.category_id IN (" +
+                    categoryIds +
+                    "))\n";
+        }
+        if (requestDTO.getPaymentMethodId() != null) {
+            sql += "AND (t.payment_method_id = " + requestDTO.getPaymentMethodId() + ")\n";
+        }
+        if (requestDTO.getAmountMin() != null || requestDTO.getAmountMax() != null) {
+            sql += "AND (t.amount BETWEEN " +
+                    (requestDTO.getAmountMin() != null ? requestDTO.getAmountMin() : BigDecimal.valueOf(0.00)) +
+                    " AND " +
+                    (requestDTO.getAmountMax() != null ? requestDTO.getAmountMax() : BigDecimal.valueOf(9999999999999.99)) +
+                    ")\n";
+        }
+        sql += "ORDER BY t.start_date ASC;";
+        return sql;
+    }
+    
     public List<BudgetResponseDTO> getBudgetsByFilters(BudgetByFiltersDTO filtersDTO) {
         String sql = generateBudgetSQLQuery(filtersDTO);
 
@@ -125,7 +206,7 @@ public class StatisticsDAO {
             sql += "AND (rt.payment_method_id = " + filtersDTO.getPaymentMethodId() + ")\n";
         }
         if (filtersDTO.getAmountMin() != null || filtersDTO.getAmountMax() != null) {
-            sql += "AND (b.max_limit BETWEEN " +
+            sql += "AND (rt.amount BETWEEN " +
                     (filtersDTO.getAmountMin() != null ? filtersDTO.getAmountMin() : BigDecimal.valueOf(0.00)) +
                     " AND " +
                     (filtersDTO.getAmountMax() != null ? filtersDTO.getAmountMax() : BigDecimal.valueOf(9999999999999.99)) +
