@@ -95,6 +95,7 @@ public class UserService {
         User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new NotFoundException("User not found.");});
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+        //todo might produce nullpointer?
         if (!extension.matches(FileService.allowedExtensionsREGEX)){
             throw new BadRequestException("Unsupported file type.");
         }

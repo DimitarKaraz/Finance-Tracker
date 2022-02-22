@@ -89,10 +89,12 @@ public class CronJobs {
         Files.write(Path.of(fileName), text.getBytes(), StandardOpenOption.CREATE);
     }
 
-
+    @Transactional
     public void sendAllTheEmails(List<User> inactiveUsers) throws MessagingException {
         for (User user : inactiveUsers){
             sendEmail(user.getEmail());
+            user.setLastEmailSentOn(LocalDate.now());
+            userRepository.save(user);
         }
     }
 

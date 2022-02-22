@@ -5,7 +5,6 @@ import com.example.financetracker.model.dto.ResponseWrapper;
 import com.example.financetracker.model.dto.userDTOs.ChangePasswordRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.UserEditProfileRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
-import com.example.financetracker.service.MyUserDetailsService;
 import com.example.financetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -93,7 +92,6 @@ public class UserController {
         return ResponseEntity.ok().body("\"message\": \"Your profile was deleted. We will miss you!\"\n" + "\"timestamp\": "
                 + LocalDateTime.now());
     }
-
 
     @GetMapping("/all_users")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
