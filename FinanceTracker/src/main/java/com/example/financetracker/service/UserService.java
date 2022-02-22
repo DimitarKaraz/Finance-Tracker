@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -94,8 +95,10 @@ public class UserService {
         User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new NotFoundException("User not found.");});
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-        //todo implement better random name generation
-        String fileName = System.nanoTime() + "." + extension;
+        if (!extension.matches(FileService.allowedExtensionsREGEX)){
+            throw new BadRequestException("Unsupported file type.");
+        }
+        String fileName = UUID.randomUUID() + "." + extension;
         try {
             Files.copy(file.getInputStream(), new File(FileService.PROFILE_IMAGES_PATH + File.separator + fileName).toPath());
             String oldImageUrl = user.getProfileImageUrl();
