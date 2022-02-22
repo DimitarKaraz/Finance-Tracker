@@ -1,5 +1,6 @@
 package com.example.financetracker.model.dao;
 
+import com.example.financetracker.model.dto.specialStatisticsDTOs.*;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.AverageTransactionForTransactionTypesResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.CashFlowsResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
@@ -93,16 +94,12 @@ public class SpecialStatisticsDAO {
         String sql = "SELECT SUM(t.amount) AS total, p.name AS transactionType\n" +
                 "FROM transactions AS t\n" +
                 "JOIN payment_methods AS p ON (t.payment_method_id = p.payment_method_id)\n" +
-                "JOIN transaction_types as tt ON (t.transaction_type_id = tt.transaction_type_id)\n" +
+                "JOIN transaction_types AS tt ON (t.transaction_type_id = tt.transaction_type_id)\n" +
                 "JOIN accounts AS a ON (t.account_id = a.account_id)\n" +
-                "WHERE (LOWER(tt.name) = \"" +
-                transactionTypeName.toLowerCase() +
-                "\" \t";
-
-        sql += "AND (a.user_id = " + userId + ") AND (t.date_time BETWEEN \"" +
-                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\") \n";
-
-        sql += "GROUP BY t.payment_method_id\n" +
+                "WHERE a.user_id = " + userId + "\n" +
+                "AND LOWER(tt.name) = \"" + transactionTypeName + "\"\n" +
+                "AND (t.date_time BETWEEN \"" + requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n" +
+                "GROUP BY t.payment_method_id\n" +
                 "ORDER BY total DESC\n" +
                 "LIMIT 5;";
         return sql;
@@ -208,4 +205,36 @@ public class SpecialStatisticsDAO {
                 "ORDER BY Total\n";
         return sql;
     }
+
+    public SumOfTransactionsByTypeResponseDTO getSumOfTransactionsByTransactionTypes(FilterByDatesRequestDTO requestDTO){
+        final String sql = generateSumOfTransactionsByTypeSQLQuery(requestDTO);
+
+        return jdbcTemplate.query(sql,
+                new ResultSetExtractor<SumOfTransactionsByTypeResponseDTO>() {
+                    @Override
+                    public SumOfTransactionsByTypeResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
+                        SumOfTransactionsByTypeResponseDTO byTypeResponseDTO = new SumOfTransactionsByTypeResponseDTO();
+                        byTypeResponseDTO.setTransactionsSum(new HashMap<>());
+                        while (rs.next()) {
+                            byTypeResponseDTO.getTransactionsSum().put(rs.getString("Type"), rs.getBigDecimal("Total"));
+                        }
+                        return byTypeResponseDTO;
+                    }
+                });
+    }
+
+    private String generateSumOfTransactionsByTypeSQLQuery(FilterByDatesRequestDTO requestDTO) {
+        int userId = MyUserDetailsService.getCurrentUserId();
+        String sql = "SELECT transaction_types.name AS \"Type\",  SUM(transactions.amount) as Total\n" +
+                "FROM transactions\n" +
+                "JOIN transaction_types\n" +
+                "ON (transactions.transaction_type_id = transaction_types.transaction_type_id)\n" +
+                "WHERE (a.user_id = " + userId + ") AND (t.start_date BETWEEN \"" +
+                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n" +
+                "GROUP BY transactions.transaction_type_id\n" +
+                "ORDER BY Total\n";
+        return sql;
+    }
+
+
 }

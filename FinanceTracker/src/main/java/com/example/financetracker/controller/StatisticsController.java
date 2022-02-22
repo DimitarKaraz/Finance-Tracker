@@ -6,6 +6,7 @@ import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.dto.closedBudgetDTOs.ClosedBudgetResponseDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
+import com.example.financetracker.model.dto.specialStatisticsDTOs.*;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.AverageTransactionForTransactionTypesResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.CashFlowsResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
@@ -90,10 +91,16 @@ public class StatisticsController {
                 statisticsService.getAverageTransactions(requestDTO), HttpStatus.OK);
     }
 
-    @PutMapping("/transactions_by_type/count")
+    @PutMapping("/transaction/count_for_transaction_types")
     public ResponseEntity<ResponseWrapper<NumberOfTransactionsByTypeResponseDTO>> getNumberOfTransactionsByType(@RequestBody FilterByDatesRequestDTO requestDTO) {
-        return ResponseWrapper.wrap("Transaction count by type retrieved.",
+        return ResponseWrapper.wrap("Transaction count for transaction types retrieved.",
                 statisticsService.getNumberOfTransactionsByType(requestDTO), HttpStatus.OK);
+    }
+
+    @PutMapping("/transaction/sum_for_transaction_types")
+    public ResponseEntity<ResponseWrapper<SumOfTransactionsByTypeResponseDTO>> getSumOfTransactionsByType(@RequestBody FilterByDatesRequestDTO requestDTO) {
+        return ResponseWrapper.wrap("Transaction sum for transaction types retrieved.",
+                statisticsService.getSumOfTransactionsByType(requestDTO), HttpStatus.OK);
     }
 
 
