@@ -72,55 +72,8 @@ public class StatisticsDAO {
             "ON (p.payment_method_id = t.payment_method_id)\n" +
             "WHERE\t";
 
-    private final String topFiveExpensesOrIncomes = "SELECT c.name as \"Category\", SUM(t.amount) AS Total\n" +
-            "FROM transactions AS t\n" +
-            "JOIN accounts as a\n" +
-            "ON (t.account_id = a.account_id)\n" +
-            "JOIN categories AS c\n" +
-            "ON (t.category_id = c.category_id)\n" +
-            "JOIN transaction_types as tt\n" +
-            "ON (t.transaction_type_id = tt.transaction_type_id)\n" +
-            "WHERE (LOWER(tt.name) ";
-
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    public TopFiveExpensesOrIncomesResponseDTO getTopFiveExpensesOrIncomesByDates(FilterByDatesRequestDTO requestDTO, String transactionTypeName){
-        String sql = generateTopFiveExpensesOrIncomesSQLQuery(requestDTO, transactionTypeName);
-
-        return jdbcTemplate.query(sql, new ResultSetExtractor<TopFiveExpensesOrIncomesResponseDTO>() {
-            @Override
-            public TopFiveExpensesOrIncomesResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
-                TopFiveExpensesOrIncomesResponseDTO topFive = new TopFiveExpensesOrIncomesResponseDTO();
-                topFive.setTopFiveExpenses(new HashMap<>());
-                while (rs.next()) {
-                    topFive.getTopFiveExpenses().put(rs.getString("Category"), rs.getBigDecimal("Total"));
-                }
-                return topFive;
-            }
-        });
-    }
-
-    private String generateTopFiveExpensesOrIncomesSQLQuery(FilterByDatesRequestDTO requestDTO, String transactionTypeName) {
-        int userId = MyUserDetailsService.getCurrentUserId();
-
-        String sql = topFiveExpensesOrIncomes;
-        if (transactionTypeName.equalsIgnoreCase("expense")){
-            sql += "= \"expense\")";
-        }
-        if (transactionTypeName.equalsIgnoreCase("income")){
-            sql += "= \"income\")";
-        }
-
-        sql += "AND (a.user_id = " + userId + ") AND (t.start_date BETWEEN \"" +
-                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n";
-
-        sql += "GROUP BY t.category_id\n" +
-                "ORDER BY Total DESC\n" +
-                "LIMIT 5";
-        return sql;
-    }
 
     public List<RecurrentTransactionResponseDTO> getRecurrentTransactionsByFilters(RecurrentTransactionByFiltersRequestDTO filtersDTO) {
         String sql = generateRecurrentTransactionSQLQuery(filtersDTO);

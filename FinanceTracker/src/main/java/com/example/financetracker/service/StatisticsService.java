@@ -52,14 +52,14 @@ public class StatisticsService {
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
-        return statisticsDAO.getTopFiveExpensesOrIncomesByDates(requestDTO, "expense");
+        return specialStatisticsDAO.getTopFiveExpensesOrIncomesByDates(requestDTO, "expense");
     }
     
     public TopFiveExpensesOrIncomesResponseDTO getTopFiveIncomesByDates(FilterByDatesRequestDTO requestDTO) {
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
-        return statisticsDAO.getTopFiveExpensesOrIncomesByDates(requestDTO, "income");
+        return specialStatisticsDAO.getTopFiveExpensesOrIncomesByDates(requestDTO, "income");
     }
 
     public CashFlowsResponseDTO getCashFlowsForAccounts(FilterByDatesRequestDTO requestDTO) {
