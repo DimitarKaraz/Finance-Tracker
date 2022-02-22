@@ -1,7 +1,10 @@
 package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.*;
+import com.example.financetracker.model.dao.StatisticsDAO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
+import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
+import com.example.financetracker.model.dto.userDTOs.MyUserDetails;
 import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
@@ -13,6 +16,8 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
@@ -39,7 +44,7 @@ public class FileService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private TransactionService transactionService;
+    private StatisticsDAO statisticsDAO;
 
     public void downloadProfileImage(String filename, HttpServletResponse response){
         User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
@@ -76,12 +81,14 @@ public class FileService {
         }
     }
 
+    //todo fix
     public void sendPDFToEmail(TransactionByDateAndFiltersRequestDTO requestDTO){
-        List<Transaction> requestedTransactions = transactionService.getRequiredTransactions(requestDTO);
+        List<TransactionResponseDTO> requestedTransactions = statisticsDAO.getTransactionsByFilters(requestDTO);
         if (requestedTransactions.isEmpty()){
             throw new BadRequestException("You have no transactions to show!");
         }
-        String userEmail = requestedTransactions.get(0).getAccount().getUser().getEmail();
+        MyUserDetails details = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userEmail = details.getEmail();
         File file = new File(convertToPDF(requestedTransactions));
 
         Properties properties = System.getProperties();
@@ -118,10 +125,10 @@ public class FileService {
         file.delete();
     }
 
-    public String convertToPDF(List<Transaction> transactions){
-        String fileName = "Statement-"+transactions.get(0).getAccount().getUser().getEmail()+System.nanoTime()+".pdf";
+    public String convertToPDF(List<TransactionResponseDTO> transactions){
+        String fileName = "Statement-"+System.nanoTime()+".pdf";
         try(PDDocument document = new PDDocument()) {
-            LinkedList<Transaction> transactionsList = new LinkedList<>(transactions);
+            LinkedList<TransactionResponseDTO> transactionsList = new LinkedList<>(transactions);
             for (int i = 0; i < (transactions.size() / 30) +1; i++) {
                 document.addPage(new PDPage());
             }
@@ -138,7 +145,8 @@ public class FileService {
                     if (transactionsList.isEmpty()) {
                         break;
                     }
-                    Transaction transaction = transactionsList.removeFirst();
+                    //todo fix
+                    TransactionResponseDTO transaction = transactionsList.removeFirst();
                     text =  "Date: "+transaction.getDateTime().toLocalDate()+", "
                             +"Time: "+transaction.getDateTime().toLocalTime()+", "
                             + "Amount: "+transaction.getAmount()+transaction.getAccount().getCurrency().getName().toUpperCase()+", "

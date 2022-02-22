@@ -5,7 +5,8 @@ import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesResponseDTO;
+import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
+import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.model.pojo.*;
@@ -71,27 +72,27 @@ public class StatisticsDAO {
             "ON (p.payment_method_id = t.payment_method_id)\n" +
             "WHERE\t";
 
-    private final String topFiveExpenses = "SELECT c.name as \"Category\", SUM(t.amount) AS Total\n" +
+    private final String topFiveExpensesOrIncomes = "SELECT c.name as \"Category\", SUM(t.amount) AS Total\n" +
             "FROM transactions AS t\n" +
+            "JOIN accounts as a\n" +
+            "ON (t.account_id = a.account_id)\n" +
             "JOIN categories AS c\n" +
             "ON (t.category_id = c.category_id)\n" +
             "JOIN transaction_types as tt\n" +
             "ON (t.transaction_type_id = tt.transaction_type_id)\n" +
-            "WHERE (LOWER(tt.name) = \"expense\")\n" +
-            "GROUP BY t.category_id\n" +
-            "ORDER BY Total DESC\n" +
-            "LIMIT 5";
+            "WHERE (LOWER(tt.name) ";
+
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public TopFiveExpensesResponseDTO getTopFiveExpensesByDates(FilterByDatesRequestDTO requestDTO){
-        String sql = generateTopFiveExpensesSQLQuery(requestDTO);
+    public TopFiveExpensesOrIncomesResponseDTO getTopFiveExpensesOrIncomesByDates(FilterByDatesRequestDTO requestDTO, String transactionTypeName){
+        String sql = generateTopFiveExpensesOrIncomesSQLQuery(requestDTO, transactionTypeName);
 
-        return jdbcTemplate.query(sql, new ResultSetExtractor<TopFiveExpensesResponseDTO>() {
+        return jdbcTemplate.query(sql, new ResultSetExtractor<TopFiveExpensesOrIncomesResponseDTO>() {
             @Override
-            public TopFiveExpensesResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
-                TopFiveExpensesResponseDTO topFive = new TopFiveExpensesResponseDTO();
+            public TopFiveExpensesOrIncomesResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
+                TopFiveExpensesOrIncomesResponseDTO topFive = new TopFiveExpensesOrIncomesResponseDTO();
                 topFive.setTopFiveExpenses(new HashMap<>());
                 while (rs.next()) {
                     topFive.getTopFiveExpenses().put(rs.getString("Category"), rs.getBigDecimal("Total"));
@@ -101,8 +102,24 @@ public class StatisticsDAO {
         });
     }
 
-    private String generateTopFiveExpensesSQLQuery(FilterByDatesRequestDTO requestDTO) {
-        
+    private String generateTopFiveExpensesOrIncomesSQLQuery(FilterByDatesRequestDTO requestDTO, String transactionTypeName) {
+        int userId = MyUserDetailsService.getCurrentUserId();
+
+        String sql = topFiveExpensesOrIncomes;
+        if (transactionTypeName.equalsIgnoreCase("expense")){
+            sql += "= \"expense\")";
+        }
+        if (transactionTypeName.equalsIgnoreCase("income")){
+            sql += "= \"income\")";
+        }
+
+        sql += "AND (a.user_id = " + userId + ") AND (t.start_date BETWEEN \"" +
+                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n";
+
+        sql += "GROUP BY t.category_id\n" +
+                "ORDER BY Total DESC\n" +
+                "LIMIT 5";
+        return sql;
     }
 
     public List<RecurrentTransactionResponseDTO> getRecurrentTransactionsByFilters(RecurrentTransactionByFiltersDTO filtersDTO) {

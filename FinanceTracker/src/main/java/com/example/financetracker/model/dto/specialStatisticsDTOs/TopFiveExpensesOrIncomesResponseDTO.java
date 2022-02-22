@@ -10,7 +10,7 @@ import java.util.Map;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TopFiveExpensesResponseDTO {
+public class TopFiveExpensesOrIncomesResponseDTO {
 
     private Map<String, BigDecimal> topFiveExpenses;
 

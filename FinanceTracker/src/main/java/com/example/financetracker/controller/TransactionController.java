@@ -49,12 +49,6 @@ public class TransactionController {
                 transactionService.getAllTransactionsByBudgetId(budgetId), HttpStatus.OK);
     }
 
-    @PutMapping("/transactions/by_dates_and_filters")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getTransactionsByDatesAndFilters(@Valid @RequestBody TransactionByDateAndFiltersRequestDTO requestDTO){
-        return ResponseWrapper.wrap("Retrieved transactions for given dates.",
-                transactionService.getTransactionsByDatesAndFilters(requestDTO), HttpStatus.OK);
-    }
-
     @PutMapping("/transactions/edit")
     public ResponseEntity<ResponseWrapper<TransactionResponseDTO>> editTransaction(@Valid @RequestBody TransactionEditRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Transaction edited.",

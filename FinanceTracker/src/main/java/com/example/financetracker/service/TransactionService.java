@@ -132,27 +132,6 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
-    public List<TransactionResponseDTO> getTransactionsByDatesAndFilters(TransactionByDateAndFiltersRequestDTO requestDTO){
-        List<Transaction> transactionsByDatesAndFilters = getRequiredTransactions(requestDTO);
-        return transactionsByDatesAndFilters.stream()
-                .map(transaction -> convertToResponseDTO(transaction))
-                .collect(Collectors.toList());
-    }
-
-    public List<Transaction> getRequiredTransactions(TransactionByDateAndFiltersRequestDTO requestDTO){
-        if (requestDTO.getStartDate().isAfter(requestDTO.getStartDate())){
-            throw new BadRequestException("Start date cannot be past end date.");
-        }
-        int userId = MyUserDetailsService.getCurrentUserId();
-        LocalDateTime startDateTime = requestDTO.getStartDate().atTime(LocalTime.MIN);
-        LocalDateTime endDateTime = requestDTO.getEndDate().atTime(LocalTime.MAX);
-        List<Transaction> transactionsByDatesAndFilters =
-                transactionRepository.findAllByDateTimeBetweenAndAccount_User_UserId(startDateTime, endDateTime, userId);
-        applyFilters(transactionsByDatesAndFilters, requestDTO);
-        transactionsByDatesAndFilters.sort(Comparator.comparing(Transaction::getDateTime));
-        return transactionsByDatesAndFilters;
-    }
-
     @Transactional
     public TransactionResponseDTO editTransaction(TransactionEditRequestDTO requestDTO) {
         Transaction transaction = transactionRepository.findById((requestDTO.getTransactionId()))
