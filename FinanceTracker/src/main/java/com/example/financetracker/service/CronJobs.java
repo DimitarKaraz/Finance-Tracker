@@ -16,9 +16,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.math.BigDecimal;
@@ -29,7 +26,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 @Component
 //@PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -51,48 +47,46 @@ public class CronJobs {
     @Autowired
     private EmailService emailService;
 
-    @Scheduled(cron = "0 0 0 * * *")
-//    @Scheduled(fixedDelay = 1000*60*60*24, initialDelay = 1000)
+    @Scheduled(cron = "0 0 0 * * *")    // every day at midnight
     @Retryable( value = Exception.class,
-            maxAttempts = 10, backoff = @Backoff(delay = 60*1000))
+            maxAttempts = 5, backoff = @Backoff(delay = 60*1000))
     public void recurrentCronJob(){
         List<RecurrentTransaction> allRecurrentTransactions = recurrentTransactionRepository.findAllThatExpireOrNeedPaymentToday();
         executeAllRecurrentTransactions(allRecurrentTransactions);
     }
 
-    @Scheduled(cron = "0 0 0 * * *") // every day at midnight
-//    @Scheduled(fixedDelay = 1000*60*60*24, initialDelay = 1000)
+    @Scheduled(cron = "0 0 0 * * *")   // every day at midnight
     @Retryable(value = Exception.class,
-            maxAttempts = 10, backoff = @Backoff(delay = 60*1000))
+            maxAttempts = 5, backoff = @Backoff(delay = 60*1000))
     public void budgetCronJob()  {
         List<Budget> budgets = budgetRepository.findAllBudgetsReadyForCronJob();
         resetAllBudgets(budgets);
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
-//    @Scheduled(fixedDelay = 1000*60*60*24, initialDelay = 1000)
+    @Scheduled(cron = "0 0 0 * * *")  // every day at midnight
     @Retryable(value = Exception.class,
-            maxAttempts = 10, backoff = @Backoff(delay = 60*1000))
-    public void sendEmailToInactiveUsersCronJob() throws Exception {
+            maxAttempts = 5, backoff = @Backoff(delay = 60*1000))
+    public void sendEmailToInactiveUsersCronJob() {
+        System.out.println("IN RETRYABLE");
         List<User> inactiveUsers = userRepository.findAllInactiveUsers();
         sendAllTheEmails(inactiveUsers);
     }
 
     @Recover
     @SneakyThrows
-    void logger(Exception e){
+    public void logger(Exception e){
         File folder = new File("logs");
         if (!folder.exists()) {
             folder.mkdir();
         }
-        String fileName = folder.getName() + File.separator + "cronJob_fail_log_"+ LocalDateTime.now() +".txt";
-        String text = "Message: " + e.getMessage() +
+        String fileName = folder.getName() + File.separator + "cron_job_fail_"+ System.nanoTime() +".txt";
+        String text = "Message: " + e.getMessage() + "\nTimestamp:" + LocalDateTime.now() +
                 "\nStack trace: " + Arrays.toString(e.getStackTrace());
         Files.write(Path.of(fileName), text.getBytes(), StandardOpenOption.CREATE);
     }
 
     @Transactional
-    public void sendAllTheEmails(List<User> inactiveUsers) throws MessagingException {
+    public void sendAllTheEmails(List<User> inactiveUsers) {
         for (User user : inactiveUsers){
             emailService.sendEmail("Finance Tracker Inactivity", user.getEmail(),
                     "Hey, we see you've been inactive for over a month now, would you like to give us another chance?",
