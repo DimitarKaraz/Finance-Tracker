@@ -5,12 +5,14 @@ import com.example.financetracker.model.dto.userDTOs.UserRegisterFormDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Controller
@@ -27,13 +29,14 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public String userRegistration(final @Valid UserRegisterFormDTO userData, final BindingResult bindingResult, final Model model) {
+    public String userRegistration(final @Valid UserRegisterFormDTO userData, final BindingResult bindingResult, final Model model, HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("registrationForm", userData);
             return "account/register";
         }
         try {
-            authenticationService.register(userData);
+            String url = getSiteURL(request);
+            authenticationService.register(userData, url);
         }catch (BadRequestException e){
             bindingResult.rejectValue("email", "userData.email","An account already exists for this email.");
             model.addAttribute("registrationForm", userData);
@@ -48,4 +51,17 @@ public class AuthenticationController {
         return "account/login";
     }
 
+    private String getSiteURL(HttpServletRequest request) {
+        String siteURL = request.getRequestURL().toString();
+        return siteURL.replace(request.getServletPath(), "");
+    }
+
+    @GetMapping("/verify")
+    public String verifyUser(@Param("code") String code) {
+        if (authenticationService.verify(code)) {
+            return "verify_success";
+        } else {
+            return "verify_fail";
+        }
+    }
 }

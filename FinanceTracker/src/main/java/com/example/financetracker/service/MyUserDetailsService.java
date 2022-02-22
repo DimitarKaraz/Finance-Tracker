@@ -34,7 +34,7 @@ public class MyUserDetailsService implements UserDetailsService{
         List<GrantedAuthority> authorities = Arrays.stream(user.getAuthorities().split(","))
                                                                 .map(SimpleGrantedAuthority::new)
                                                                 .collect(Collectors.toList());
-        return new MyUserDetails(user.getUserId(), user.getEmail(), user.getPassword(), authorities);
+        return new MyUserDetails(user.getUserId(), user.getEmail(), user.getPassword(), authorities, user.isEnabled());
     }
 
     public static int getCurrentUserId() {

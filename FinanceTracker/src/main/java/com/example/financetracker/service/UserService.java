@@ -127,4 +127,5 @@ public class UserService {
         return allUsers.stream().map(user -> modelMapper.map(user, UserProfileDTO.class))
                 .collect(Collectors.toList());
     }
+
 }

@@ -22,13 +22,15 @@ public class MyUserDetails implements UserDetails {
     private String email;
     private String password;
     private List<GrantedAuthority> authorities;
+    private boolean isEnabled;
 
 
-    public MyUserDetails(int userId, String email, String password, List<GrantedAuthority> authorities){
+    public MyUserDetails(int userId, String email, String password, List<GrantedAuthority> authorities, boolean isEnabled){
         this.userId = userId;
         this.email = email;
         this.password = password;
         this.authorities = authorities;
+        this.isEnabled = isEnabled;
     }
 
     @Override
@@ -63,8 +65,7 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        //todo might change later
-        return true;
+        return this.isEnabled;
     }
 
 
