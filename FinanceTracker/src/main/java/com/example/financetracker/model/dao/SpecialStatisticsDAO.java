@@ -34,9 +34,9 @@ public class SpecialStatisticsDAO {
                     @Override
                     public TopFiveExpensesOrIncomesResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
                         TopFiveExpensesOrIncomesResponseDTO topFive = new TopFiveExpensesOrIncomesResponseDTO();
-                        topFive.setTopFiveExpenses(new HashMap<>());
+                        topFive.setTopFiveExpensesOrIncomes(new HashMap<>());
                         while (rs.next()) {
-                            topFive.getTopFiveExpenses().put(rs.getString("Category"), rs.getBigDecimal("Total"));
+                            topFive.getTopFiveExpensesOrIncomes().put(rs.getString("Category"), rs.getBigDecimal("Total"));
                         }
                         return topFive;
                     }
@@ -79,9 +79,9 @@ public class SpecialStatisticsDAO {
                     @Override
                     public TopFiveExpensesOrIncomesResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
                         TopFiveExpensesOrIncomesResponseDTO topFive = new TopFiveExpensesOrIncomesResponseDTO();
-                        topFive.setTopFiveExpenses(new HashMap<>());
+                        topFive.setTopFiveExpensesOrIncomes(new HashMap<>());
                         while (rs.next()) {
-                            topFive.getTopFiveExpenses().put(rs.getString("transactionType"), rs.getBigDecimal("total"));
+                            topFive.getTopFiveExpensesOrIncomes().put(rs.getString("transactionType"), rs.getBigDecimal("total"));
                         }
                         return topFive;
                     }

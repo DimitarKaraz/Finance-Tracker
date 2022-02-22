@@ -12,6 +12,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class TopFiveExpensesOrIncomesResponseDTO {
 
-    private Map<String, BigDecimal> topFiveExpenses;
+    private Map<String, BigDecimal> topFiveExpensesOrIncomes;
 
 }
