@@ -44,13 +44,13 @@ public class StatisticsController {
                 statisticsService.getTransactionsByFilters(requestDTO), HttpStatus.OK);
     }
 
-    @PutMapping("/topexpenses/stats")
+    @PutMapping("/top-5-expenses/stats")
     public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveExpensesByDates(@RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Top five expenses retrieved.",
                 statisticsService.getTopFiveExpensesByDates(requestDTO), HttpStatus.OK);
     }
 
-    @PutMapping("/topincomes/stats")
+    @PutMapping("/top-5-incomes/stats")
     public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveIncomesByDates(@RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Top five incomes retrieved.",
                 statisticsService.getTopFiveIncomesByDates(requestDTO), HttpStatus.OK);
