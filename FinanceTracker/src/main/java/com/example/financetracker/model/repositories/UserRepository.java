@@ -22,8 +22,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     //todo verify if working properly
     @Modifying
-    @Query(value = "SELECT * FROM users\n" +
-            "WHERE last_login <= DATE_ADD(CURDATE(), INTERVAL -1 MONTH);", nativeQuery = true)
+    @Query(value = "SELECT *\n" +
+            "FROM users\n" +
+            "WHERE last_login <= DATE_ADD(CURDATE(), INTERVAL -1 MONTH)" +
+            "AND last_email_sent_on <= DATE_ADD(CURDATE(), INTERVAL -1 MONTH);", nativeQuery = true)
     List<User> findAllInactiveUsers();
 
 

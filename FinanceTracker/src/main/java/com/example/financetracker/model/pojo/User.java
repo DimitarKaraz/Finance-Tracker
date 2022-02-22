@@ -45,6 +45,9 @@ public class User {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
+    @Column(name = "last_email_sent_on")
+    private LocalDate lastEmailSentOn;
+
     @Column(name = "authorities")
     private String authorities;
 
