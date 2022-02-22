@@ -9,6 +9,7 @@ import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesR
 import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
+import com.example.financetracker.model.dto.specialStatisticsDTOs.CashFlowsResponseDTO;
 import com.example.financetracker.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,13 @@ public class StatisticsController {
     public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveIncomesByDates(@RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Top five incomes retrieved.",
                 statisticsService.getTopFiveIncomesByDates(requestDTO), HttpStatus.OK);
+    }
+
+    @PutMapping("accounts/cash-flows")
+    public ResponseEntity<ResponseWrapper<CashFlowsResponseDTO>> getCashFlowsForAccounts(@RequestBody FilterByDatesRequestDTO requestDTO) {
+        return ResponseWrapper.wrap("Cash-flows for accounts retrieved.",
+                statisticsService.getCashFlowsForAccounts(requestDTO), HttpStatus.OK);
+
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.financetracker.service;
 
+import com.example.financetracker.model.dao.SpecialStatisticsDAO;
 import com.example.financetracker.model.dao.StatisticsDAO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
@@ -9,6 +10,7 @@ import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesR
 import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
+import com.example.financetracker.model.dto.specialStatisticsDTOs.CashFlowsResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ public class StatisticsService {
 
     @Autowired
     private StatisticsDAO statisticsDAO;
+    @Autowired
+    private SpecialStatisticsDAO specialStatisticsDAO;
 
     public List<BudgetResponseDTO> getBudgetsByFilters(BudgetByFiltersDTO filtersDTO) {
         return statisticsDAO.getBudgetsByFilters(filtersDTO);
@@ -40,6 +44,10 @@ public class StatisticsService {
     
     public TopFiveExpensesOrIncomesResponseDTO getTopFiveIncomesByDates(FilterByDatesRequestDTO requestDTO) {
         return statisticsDAO.getTopFiveExpensesOrIncomesByDates(requestDTO, "income");
+    }
+
+    public CashFlowsResponseDTO getCashFlowsForAccounts(FilterByDatesRequestDTO requestDTO) {
+        return specialStatisticsDAO.getCashFlowsForAccounts(requestDTO);
     }
 
 }
