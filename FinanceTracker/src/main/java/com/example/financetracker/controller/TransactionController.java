@@ -1,7 +1,6 @@
 package com.example.financetracker.controller;
 
 import com.example.financetracker.model.dto.ResponseWrapper;
-import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionCreateRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionEditRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;

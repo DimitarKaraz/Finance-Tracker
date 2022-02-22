@@ -1,7 +1,7 @@
 package com.example.financetracker.controller;
 
 
-import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
+import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,7 +31,7 @@ public class FileController {
     }
 
    @PutMapping("/files/pdf_statement")
-    public void sendPDFToEmail(@Valid @RequestBody TransactionByDateAndFiltersRequestDTO requestDTO){
+    public void sendPDFToEmail(@Valid @RequestBody TransactionByFiltersRequestDTO requestDTO){
         fileService.sendPDFToEmail(requestDTO);
     }
 

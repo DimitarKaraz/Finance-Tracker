@@ -4,7 +4,7 @@ import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.ForbiddenException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
-import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
+import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionCreateRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionEditRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
@@ -24,7 +24,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -233,7 +232,7 @@ public class TransactionService {
         return responseDTO;
     }
 
-    private void applyFilters(List<Transaction> transactionsByDatesAndFilters, TransactionByDateAndFiltersRequestDTO requestDTO){
+    private void applyFilters(List<Transaction> transactionsByDatesAndFilters, TransactionByFiltersRequestDTO requestDTO){
         if (requestDTO.getCategoryIds() != null && !requestDTO.getCategoryIds().isEmpty() && requestDTO.getTransactionTypeId() != null){
             List<Category> chosenCategories = categoryRepository.findAllByCategoryIdIsIn(requestDTO.getCategoryIds());
             for (Category category : chosenCategories){

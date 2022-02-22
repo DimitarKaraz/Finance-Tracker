@@ -16,7 +16,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TransactionByDateAndFiltersRequestDTO {
+public class TransactionByFiltersRequestDTO {
 
     @NotNull(message = "Start date cannot be null.")
     private LocalDate startDate;

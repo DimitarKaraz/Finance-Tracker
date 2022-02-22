@@ -1,13 +1,13 @@
 package com.example.financetracker.model.dao;
 
-import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersDTO;
+import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
-import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersDTO;
+import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
-import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
+import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.model.pojo.*;
 import com.example.financetracker.model.pojo.Currency;
@@ -122,7 +122,7 @@ public class StatisticsDAO {
         return sql;
     }
 
-    public List<RecurrentTransactionResponseDTO> getRecurrentTransactionsByFilters(RecurrentTransactionByFiltersDTO filtersDTO) {
+    public List<RecurrentTransactionResponseDTO> getRecurrentTransactionsByFilters(RecurrentTransactionByFiltersRequestDTO filtersDTO) {
         String sql = generateRecurrentTransactionSQLQuery(filtersDTO);
 
         return jdbcTemplate.query(sql, new ResultSetExtractor<List<RecurrentTransactionResponseDTO>>() {
@@ -138,7 +138,7 @@ public class StatisticsDAO {
         });
     }
 
-    public List<TransactionResponseDTO> getTransactionsByFilters(TransactionByDateAndFiltersRequestDTO requestDTO){
+    public List<TransactionResponseDTO> getTransactionsByFilters(TransactionByFiltersRequestDTO requestDTO){
         String sql = generateTransactionSQLQuery(requestDTO);
 
         return jdbcTemplate.query(sql, new ResultSetExtractor<List<TransactionResponseDTO>>() {
@@ -167,7 +167,7 @@ public class StatisticsDAO {
                 .build();
     }
 
-    private String generateTransactionSQLQuery(TransactionByDateAndFiltersRequestDTO requestDTO){
+    private String generateTransactionSQLQuery(TransactionByFiltersRequestDTO requestDTO){
         int userId = MyUserDetailsService.getCurrentUserId();
         String sql = transactionSQL +
                 "(a.user_id = " + userId + ") AND (t.start_date BETWEEN \"" +
@@ -202,7 +202,7 @@ public class StatisticsDAO {
         return sql;
     }
     
-    public List<BudgetResponseDTO> getBudgetsByFilters(BudgetByFiltersDTO filtersDTO) {
+    public List<BudgetResponseDTO> getBudgetsByFilters(BudgetByFiltersRequestDTO filtersDTO) {
         String sql = generateBudgetSQLQuery(filtersDTO);
 
         return jdbcTemplate.query(sql,
@@ -224,7 +224,7 @@ public class StatisticsDAO {
                 });
     }
 
-    private String generateRecurrentTransactionSQLQuery(RecurrentTransactionByFiltersDTO filtersDTO) {
+    private String generateRecurrentTransactionSQLQuery(RecurrentTransactionByFiltersRequestDTO filtersDTO) {
         int userId = MyUserDetailsService.getCurrentUserId();
 
         String sql = recurrentTransactionSQL +
@@ -263,7 +263,7 @@ public class StatisticsDAO {
         return sql;
     }
 
-    private String generateBudgetSQLQuery(BudgetByFiltersDTO filtersDTO) {
+    private String generateBudgetSQLQuery(BudgetByFiltersRequestDTO filtersDTO) {
         int userId = MyUserDetailsService.getCurrentUserId();
 
         String sql = budgetSQL +

@@ -2,21 +2,17 @@ package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.*;
 import com.example.financetracker.model.dao.StatisticsDAO;
-import com.example.financetracker.model.dto.transactionDTOs.TransactionByDateAndFiltersRequestDTO;
+import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.model.dto.userDTOs.MyUserDetails;
-import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
-import lombok.SneakyThrows;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -82,7 +78,7 @@ public class FileService {
     }
 
     //todo fix
-    public void sendPDFToEmail(TransactionByDateAndFiltersRequestDTO requestDTO){
+    public void sendPDFToEmail(TransactionByFiltersRequestDTO requestDTO){
         List<TransactionResponseDTO> requestedTransactions = statisticsDAO.getTransactionsByFilters(requestDTO);
         if (requestedTransactions.isEmpty()){
             throw new BadRequestException("You have no transactions to show!");
@@ -119,7 +115,6 @@ public class FileService {
             message.setContent(multipart);
             Transport.send(message);
         } catch (MessagingException mex) {
-            //todo maybe create new email failed exception
             throw new FileTransferException("Sending email failed.");
         }
         file.delete();
@@ -145,12 +140,11 @@ public class FileService {
                     if (transactionsList.isEmpty()) {
                         break;
                     }
-                    //todo fix
                     TransactionResponseDTO transaction = transactionsList.removeFirst();
                     text =  "Date: "+transaction.getDateTime().toLocalDate()+", "
                             +"Time: "+transaction.getDateTime().toLocalTime()+", "
-                            + "Amount: "+transaction.getAmount()+transaction.getAccount().getCurrency().getName().toUpperCase()+", "
-                            + "Category: "+transaction.getCategory().getName()+", "
+                            + "Amount: "+transaction.getAmount()+" "+transaction.getCurrency().getAbbreviation().toUpperCase()+", "
+                            + "Category: "+transaction.getCategoryResponseDTO().getName()+", "
                             + "Paid with: "+transaction.getPaymentMethod().getName()+", "
                             + "Type: " + transaction.getTransactionType().getName().toUpperCase();
                     contentStream.showText(text);
