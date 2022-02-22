@@ -3,10 +3,9 @@ package com.example.financetracker.model.dao;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
-import com.example.financetracker.model.pojo.CategoryIcon;
-import com.example.financetracker.model.pojo.Currency;
-import com.example.financetracker.model.pojo.Interval;
-import com.example.financetracker.model.pojo.TransactionType;
+import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersDTO;
+import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
+import com.example.financetracker.model.pojo.*;
 import com.example.financetracker.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -17,18 +16,66 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
 @Component
 public class StatisticsDAO {
+    private final String transactionSQL = "";
+    private final String recurrentTransactionSQL = "SELECT rt.recurrent_transaction_id, rt.name, rt.amount, rt.start_date, rt.interval_count, rt.end_date, rt.remaining_payments,\n" +
+            "i.interval_id, i.days, i.name,\n" +
+            "a.name, curr.currency_id, curr.name, curr.abbreviation,\n" +
+            "c.category_id, c.user_id, c.name, ci.category_icon_id, ci.image_url,\n" +
+            "tt.transaction_type_id, tt.name,\n" +
+            "p.payment_method_id, p.name\n" +
+            "FROM recurrent_transactions AS rt\n" +
+            "JOIN categories AS c ON (rt.category_id = c.category_id)\n" +
+            "JOIN category_icons AS ci ON (c.category_icon_id = ci.category_icon_id)\n" +
+            "JOIN transaction_types AS tt ON (rt.transaction_type_id = tt.transaction_type_id)\n" +
+            "JOIN payment_methods AS p ON (rt.payment_method_id = p.payment_method_id)\n" +
+            "JOIN accounts AS a ON (rt.account_id = a.account_id)\n" +
+            "JOIN currencies AS curr ON (curr.currency_id = a.account_id)\n" +
+            "JOIN intervals AS i ON (rt.interval_id = i.interval_id)\n" +
+            "WHERE\t";
+    private final String budgetSQL = "SELECT b.budget_id, b.name, b.amount_spent, b.max_limit, b.start_date, b.note, b.end_date,\n" +
+            "i.interval_id, i.days, i.name,\n" +
+            "a.name, curr.currency_id, curr.name, curr.abbreviation,\n" +
+            "c.category_id, c.user_id, c.name, tt.transaction_type_id, tt.name, ci.category_icon_id, ci.image_url\n" +
+            "FROM budgets AS b\n" +
+            "JOIN budgets_have_categories AS bhc ON (b.budget_id = bhc.budget_id)\n" +
+            "JOIN categories AS c ON (c.category_id = bhc.category_id)\n" +
+            "JOIN transaction_types AS tt ON (c.transaction_type_id = tt.transaction_type_id)\n" +
+            "JOIN category_icons AS ci ON (c.category_icon_id = ci.category_icon_id)\n" +
+            "JOIN accounts AS a ON (b.account_id = a.account_id)\n" +
+            "JOIN currencies AS curr ON (curr.currency_id = a.account_id)\n" +
+            "LEFT JOIN intervals AS i ON (b.interval_id = i.interval_id)\n" +
+            "WHERE\t";
+
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    public List<RecurrentTransactionResponseDTO> getRecurrentTransactionsByFilters(RecurrentTransactionByFiltersDTO filtersDTO) {
+        String sql = generateRecurrentTransactionSQLQuery(filtersDTO);
+
+        return jdbcTemplate.query(sql, new ResultSetExtractor<List<RecurrentTransactionResponseDTO>>() {
+            @Override
+            public List<RecurrentTransactionResponseDTO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+                List<RecurrentTransactionResponseDTO> recurrentTransactions = new ArrayList<>();
+
+                while (rs.next()) {
+                    recurrentTransactions.add(buildRecurrentTransactionResponseDTO(rs));
+                }
+                return recurrentTransactions;
+            }
+        });
+    }
+
+
     public List<BudgetResponseDTO> getBudgetsByFilters(BudgetByFiltersDTO filtersDTO) {
-        String sql = generateBudgetSQL(filtersDTO);
+        String sql = generateBudgetSQLQuery(filtersDTO);
 
         return jdbcTemplate.query(sql,
                 new ResultSetExtractor<List<BudgetResponseDTO>>() {
@@ -49,35 +96,20 @@ public class StatisticsDAO {
                 });
     }
 
-    private String generateBudgetSQL(BudgetByFiltersDTO filtersDTO) {
+    private String generateRecurrentTransactionSQLQuery(RecurrentTransactionByFiltersDTO filtersDTO) {
         int userId = MyUserDetailsService.getCurrentUserId();
 
-        String sql = "SELECT b.budget_id, b.name, b.amount_spent, b.max_limit, b.start_date, b.note, b.end_date,\n" +
-                "i.interval_id, i.days, i.name,\n" +
-                "a.name, curr.currency_id, curr.name, curr.abbreviation,\n" +
-                "c.category_id, c.user_id, c.name, tr.transaction_type_id, tr.name, ci.category_icon_id, ci.image_url\n" +
-                "FROM budgets AS b\n" +
-                "JOIN budgets_have_categories AS bhc ON (b.budget_id = bhc.budget_id)\n" +
-                "JOIN categories AS c ON (c.category_id = bhc.category_id)\n" +
-                "JOIN transaction_types AS tr ON (c.transaction_type_id = tr.transaction_type_id)\n" +
-                "JOIN category_icons AS ci ON (c.category_icon_id = ci.category_icon_id)\n" +
-                "JOIN accounts AS a ON (b.account_id = a.account_id)\n" +
-                "JOIN currencies AS curr ON (curr.currency_id = a.account_id)\n" +
-                "LEFT JOIN intervals AS i ON (b.interval_id = i.interval_id)\n" +
-                "WHERE (a.user_id = " + userId +
-                ") AND (b.start_date BETWEEN \"" +
-                filtersDTO.getStartDate() + "\" AND \"" +
-                filtersDTO.getEndDate() +
-                "\")\n";
+        String sql = recurrentTransactionSQL +
+                "(a.user_id = " + userId + ") AND (rt.start_date BETWEEN \"" +
+                filtersDTO.getStartDate() + "\" AND \"" + filtersDTO.getEndDate() + "\")\n";
         if (filtersDTO.getAccountId() != null) {
-            sql += "AND (b.account_id = " +
-                    filtersDTO.getAccountId() +
-                    ")\n";
+            sql += "AND (rt.account_id = " + filtersDTO.getAccountId() + ")\n";
         }
         if (filtersDTO.getIntervalId() != null) {
-            sql += "AND (b.interval_id = " +
-                    filtersDTO.getIntervalId() +
-                    ")\n";
+            sql += "AND (rt.interval_id = " + filtersDTO.getIntervalId() + ")\n";
+        }
+        if (filtersDTO.getTransactionTypeId() != null) {
+            sql += "AND (rt.transaction_type_id = " + filtersDTO.getTransactionTypeId() + ")\n";
         }
         if (filtersDTO.getCategoryIds() != null) {
             StringBuffer categoryIds = new StringBuffer();
@@ -85,25 +117,90 @@ public class StatisticsDAO {
                     .forEach(integer -> categoryIds.append(integer).append(","));
             categoryIds.deleteCharAt(categoryIds.length() - 1);
 
-            sql += "AND (bhc.category_id IN (" +
+            sql += "AND (rt.category_id IN (" +
                     categoryIds +
                     "))\n";
+        }
+        if (filtersDTO.getPaymentMethodId() != null) {
+            sql += "AND (rt.payment_method_id = " + filtersDTO.getPaymentMethodId() + ")\n";
         }
         if (filtersDTO.getAmountMin() != null || filtersDTO.getAmountMax() != null) {
             sql += "AND (b.max_limit BETWEEN " +
                     (filtersDTO.getAmountMin() != null ? filtersDTO.getAmountMin() : BigDecimal.valueOf(0.00)) +
                     " AND " +
                     (filtersDTO.getAmountMax() != null ? filtersDTO.getAmountMax() : BigDecimal.valueOf(9999999999999.99)) +
-                    ");";
+                    ")\n";
         }
+        sql += "ORDER BY rt.interval_id ASC;";
         return sql;
     }
 
-    private CategoryResponseDTO buildCategoryResponseDTO(ResultSet rs) throws SQLException {
-        TransactionType transactionType = TransactionType.builder()
-                .transactionTypeId(rs.getInt("tr.transaction_type_id"))
-                .name(rs.getString("tr.name"))
+    private String generateBudgetSQLQuery(BudgetByFiltersDTO filtersDTO) {
+        int userId = MyUserDetailsService.getCurrentUserId();
+
+        String sql = budgetSQL +
+                "(a.user_id = " + userId + ") AND (b.start_date BETWEEN \"" +
+                filtersDTO.getStartDate() + "\" AND \"" + filtersDTO.getEndDate() + "\")\n";
+        if (filtersDTO.getAccountId() != null) {
+            sql += "AND (b.account_id = " + filtersDTO.getAccountId() + ")\n";
+        }
+        if (filtersDTO.getIntervalId() != null) {
+            sql += "AND (b.interval_id = " + filtersDTO.getIntervalId() + ")\n";
+        }
+        if (filtersDTO.getCategoryIds() != null) {
+            StringBuffer categoryIds = new StringBuffer();
+            filtersDTO.getCategoryIds()
+                    .forEach(integer -> categoryIds.append(integer).append(","));
+            categoryIds.deleteCharAt(categoryIds.length() - 1);
+
+            sql += "AND (bhc.category_id IN (" + categoryIds + "))\n";
+        }
+        if (filtersDTO.getAmountMin() != null || filtersDTO.getAmountMax() != null) {
+            sql += "AND (b.max_limit BETWEEN " +
+                    (filtersDTO.getAmountMin() != null ? filtersDTO.getAmountMin() : BigDecimal.valueOf(0.00)) +
+                    " AND " +
+                    (filtersDTO.getAmountMax() != null ? filtersDTO.getAmountMax() : BigDecimal.valueOf(9999999999999.99)) +
+                    ")\n";
+        }
+        sql += "ORDER BY b.budget_id ASC;";
+        return sql;
+    }
+
+    private RecurrentTransactionResponseDTO buildRecurrentTransactionResponseDTO(ResultSet rs) throws SQLException {
+        return RecurrentTransactionResponseDTO.builder()
+                .recurrentTransactionId(rs.getInt("rt.recurrent_transaction_id"))
+                .name(rs.getString("rt.name"))
+                .accountName(rs.getString("a.name"))
+                .currency(buildCurrency(rs))
+                .amount(rs.getBigDecimal("rt.amount"))
+                .transactionType(buildTransactionType(rs))
+                .categoryResponseDTO(buildCategoryResponseDTO(rs))
+                .paymentMethod(buildPaymentMethod(rs))
+                .startDate(rs.getDate("rt.start_date").toLocalDate())
+                .interval(buildInterval(rs))
+                .intervalCount(rs.getInt("rt.interval_count"))
+                .endDate(rs.getDate("rt.end_date") != null ? rs.getDate("rt.end_date").toLocalDate() : null)
+                .remainingPayments(rs.getInt("rt.remaining_payments") != 0 ? rs.getInt("rt.remaining_payments") : null)
                 .build();
+    }
+
+    private BudgetResponseDTO buildBudgetResponseDTO(ResultSet rs) throws SQLException {
+        return BudgetResponseDTO.builder()
+                .budgetId(rs.getInt("b.budget_id"))
+                .name(rs.getString("b.name"))
+                .amountSpent(rs.getBigDecimal("b.amount_spent"))
+                .maxLimit(rs.getBigDecimal("b.max_limit"))
+                .interval(buildInterval(rs))
+                .startDate(rs.getDate("b.start_date").toLocalDate())
+                .accountName(rs.getString("a.name"))
+                .currency(buildCurrency(rs))
+                .note(rs.getString("b.note"))
+                .categoryResponseDTOs(new HashSet<>())
+                .endDate(rs.getDate("b.end_date") != null ? rs.getDate("b.end_date").toLocalDate() : null)
+                .build();
+    }
+
+    private CategoryResponseDTO buildCategoryResponseDTO(ResultSet rs) throws SQLException {
         CategoryIcon categoryIcon = CategoryIcon.builder()
                 .categoryIconId(rs.getInt("ci.category_icon_id"))
                 .imageUrl(rs.getString("ci.image_url"))
@@ -111,39 +208,44 @@ public class StatisticsDAO {
 
         return CategoryResponseDTO.builder()
                 .categoryId(rs.getInt("c.category_id"))
-                .userId(rs.getInt("c.user_id"))
+                .userId(rs.getInt("c.user_id") != 0 ? rs.getInt("c.user_id") : null)
                 .name(rs.getString("c.name"))
-                .transactionType(transactionType)
+                .transactionType(buildTransactionType(rs))
                 .categoryIcon(categoryIcon)
                 .build();
     }
 
-    private BudgetResponseDTO buildBudgetResponseDTO(ResultSet rs) throws SQLException {
-        Interval interval = Interval.builder()
-                .intervalId(rs.getInt("i.interval_id"))
-                .days(rs.getInt("i.days"))
-                .name(rs.getString("i.name"))
+    private TransactionType buildTransactionType(ResultSet rs) throws SQLException {
+        return TransactionType.builder()
+                .transactionTypeId(rs.getInt("tt.transaction_type_id"))
+                .name(rs.getString("tt.name"))
                 .build();
-        Currency currency= Currency.builder()
+    }
+
+    private Currency buildCurrency(ResultSet rs) throws SQLException {
+        return Currency.builder()
                 .currencyId(rs.getInt("curr.currency_id"))
                 .name(rs.getString("curr.name"))
                 .abbreviation(rs.getString("curr.abbreviation"))
                 .build();
+    }
 
-        return BudgetResponseDTO.builder()
-                .budgetId(rs.getInt("b.budget_id"))
-                .name(rs.getString("b.name"))
-                .amountSpent(rs.getBigDecimal("b.amount_spent"))
-                .maxLimit(rs.getBigDecimal("b.max_limit"))
-                .interval(interval)
-                .startDate(rs.getDate("b.start_date").toLocalDate())
-                .accountName(rs.getString("a.name"))
-                .currency(currency)
-                .note(rs.getString("b.note"))
-                .categoryResponseDTOs(new HashSet<>())
-                .endDate(rs.getDate("b.end_date") != null ? rs.getDate("b.end_date").toLocalDate() : null)
+    private Interval buildInterval(ResultSet rs) throws SQLException {
+        if (rs.getInt("i.interval_id") == 0) {
+            return null;
+        }
+        return Interval.builder()
+                .intervalId(rs.getInt("i.interval_id"))
+                .days(rs.getInt("i.days"))
+                .name(rs.getString("i.name"))
                 .build();
     }
 
+    private PaymentMethod buildPaymentMethod(ResultSet rs) throws SQLException {
+        return PaymentMethod.builder()
+                .paymentMethodId(rs.getInt("p.payment_method_id"))
+                .name(rs.getString("p.name"))
+                .build();
+    }
 
 }

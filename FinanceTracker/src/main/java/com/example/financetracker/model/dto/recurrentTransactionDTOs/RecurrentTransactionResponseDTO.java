@@ -5,9 +5,7 @@ import com.example.financetracker.model.pojo.Currency;
 import com.example.financetracker.model.pojo.Interval;
 import com.example.financetracker.model.pojo.PaymentMethod;
 import com.example.financetracker.model.pojo.TransactionType;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -17,6 +15,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class RecurrentTransactionResponseDTO {
 
     private int recurrentTransactionId;

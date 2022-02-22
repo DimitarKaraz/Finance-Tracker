@@ -3,6 +3,8 @@ package com.example.financetracker.controller;
 import com.example.financetracker.model.dto.ResponseWrapper;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
+import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersDTO;
+import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
 import com.example.financetracker.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,12 @@ public class StatisticsController {
     public ResponseEntity<ResponseWrapper<List<BudgetResponseDTO>>> getBudgetsByFilters(@RequestBody BudgetByFiltersDTO filtersDTO) {
         return ResponseWrapper.wrap("Budgets by filters retrieved.",
                 statisticsService.getBudgetsByFilters(filtersDTO), HttpStatus.OK);
+    }
+
+    @PutMapping("/recurrent_transactions/stats")
+    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getBudgetsByFilters(@RequestBody RecurrentTransactionByFiltersDTO filtersDTO) {
+        return ResponseWrapper.wrap("Budgets by filters retrieved.",
+                statisticsService.getRecurrentTransactionsByFilters(filtersDTO), HttpStatus.OK);
     }
 
 
