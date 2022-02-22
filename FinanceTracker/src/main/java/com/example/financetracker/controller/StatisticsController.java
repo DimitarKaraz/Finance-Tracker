@@ -6,12 +6,9 @@ import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.dto.closedBudgetDTOs.ClosedBudgetResponseDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.NumberOfTransactionsByTypeResponseDTO;
+import com.example.financetracker.model.dto.specialStatisticsDTOs.*;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.CashFlowsResponseDTO;
 import com.example.financetracker.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -75,6 +72,12 @@ public class StatisticsController {
     public ResponseEntity<ResponseWrapper<NumberOfTransactionsByTypeResponseDTO>> getNumberOfTransactionsByType(@RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Transaction count by type retrieved.",
                 statisticsService.getNumberOfTransactionsByType(requestDTO), HttpStatus.OK);
+    }
+
+    @PutMapping("/transactions_by_type/count")
+    public ResponseEntity<ResponseWrapper<SumOfTransactionsByTypeResponseDTO>> getSumOfTransactionsByType(@RequestBody FilterByDatesRequestDTO requestDTO) {
+        return ResponseWrapper.wrap("Transaction sum by type retrieved.",
+                statisticsService.getSumOfTransactionsByType(requestDTO), HttpStatus.OK);
     }
 
 

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 public class FilterByDatesRequestDTO {
+
     @NotNull(message = "Start date cannot be null.")
     private LocalDate startDate;
 
