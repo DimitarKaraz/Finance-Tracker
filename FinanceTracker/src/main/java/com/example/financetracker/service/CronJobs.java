@@ -48,6 +48,8 @@ public class CronJobs {
     private BudgetService budgetService;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private EmailService emailService;
 
     @Scheduled(cron = "0 0 0 * * *")
 //    @Scheduled(fixedDelay = 1000*60*60*24, initialDelay = 1000)
@@ -92,41 +94,14 @@ public class CronJobs {
     @Transactional
     public void sendAllTheEmails(List<User> inactiveUsers) throws MessagingException {
         for (User user : inactiveUsers){
-            sendEmail(user.getEmail());
+            emailService.sendEmail("Finance Tracker Inactivity", user.getEmail(),
+                    "Hey, we see you've been inactive for over a month now, would you like to give us another chance?",
+                    false, null, null);
             user.setLastEmailSentOn(LocalDate.now());
             userRepository.save(user);
         }
     }
 
-    public void sendEmail(String recipient) throws MessagingException {
-        Properties properties = System.getProperties();
-
-        properties.put("mail.smtp.host", HOST);
-        properties.put("mail.smtp.port", "465");
-        properties.put("mail.smtp.ssl.enable", "true");
-        properties.put("mail.smtp.auth", "true");
-
-        Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(SENDER_MAIL, PASSWORD);
-            }
-        });
-
-        session.setDebug(true);
-
-        MimeMessage message = new MimeMessage(session);
-
-        message.setFrom(new InternetAddress(SENDER_MAIL));
-
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
-
-        message.setSubject("Finance-Tracker Inactivity");
-
-        message.setText("Hey, we see you've been inactive for over a month now, would you like to give us another chance?");
-
-        Transport.send(message);
-
-    }
 
     @Transactional
     public void executeAllRecurrentTransactions(List<RecurrentTransaction> allRecurrentTransactions){

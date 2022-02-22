@@ -82,7 +82,7 @@ public class FileService {
         String fileName = convertToPDF(requestedTransactions);
         File file = new File(fileName);
         String text = "Your pdf statement for dates between "+requestDTO.getStartDate()+" and "+requestDTO.getEndDate()+".";
-        emailService.sendEmail("PDF Statement", userEmail, text, file, "Statement.pdf", false);
+        emailService.sendEmail("PDF Statement", userEmail, text,false, file, "Statement.pdf");
         file.delete();
     }
 

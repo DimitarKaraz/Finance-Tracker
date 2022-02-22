@@ -20,7 +20,7 @@ public class EmailService {
     private String appEmail;
 
 
-    public void sendEmail(String subject, String to, String text, File file, String fileName, boolean hasHtml){
+    public void sendEmail(String subject, String to, String text, boolean hasHtml, File file, String fileName){
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);

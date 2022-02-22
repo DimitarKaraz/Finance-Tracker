@@ -122,14 +122,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(new ExceptionDTO(HttpStatus.BAD_REQUEST, "Invalid input data.", LocalDateTime.now()));
     }
 
-/*
     @ExceptionHandler(BadSqlGrammarException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ExceptionDTO> handleBadSqlGrammarException(BadSqlGrammarException e) {
         return ResponseEntity.status(500).body(new ExceptionDTO(HttpStatus.INTERNAL_SERVER_ERROR,
                 "Sorry, we are experiencing some trouble.", LocalDateTime.now()));
     }
-*/
 
     @ExceptionHandler(FileSizeLimitExceededException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
