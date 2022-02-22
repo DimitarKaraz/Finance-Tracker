@@ -28,6 +28,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "AND last_email_sent_on <= DATE_ADD(CURDATE(), INTERVAL -1 MONTH);", nativeQuery = true)
     List<User> findAllInactiveUsers();
 
-
+    User findByVerificationToken(String token);
 
 }

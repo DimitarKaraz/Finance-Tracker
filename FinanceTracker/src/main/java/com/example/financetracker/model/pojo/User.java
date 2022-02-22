@@ -54,4 +54,10 @@ public class User {
     @Column(name = "reset_password_token")
     private String resetPasswordToken;
 
+    @Column(name = "verification_token")
+    private String verificationToken;
+
+    @Column(name = "is_enabled")
+    private boolean isEnabled;
+
 }
