@@ -16,32 +16,26 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
+import java.util.UUID;
 
 @Service
 public class FileService {
 
     public static final String PROFILE_IMAGES_PATH = "profileImages";
-    public static final String allowedExtensionsREGEX = "(?i)(jpeg|png|bmp)";
+    public static final String allowedExtensionsREGEX = "(?i)(jpeg|png|bmp|jpg)";
 
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private StatisticsDAO statisticsDAO;
+    @Autowired
+    private EmailService emailService;
 
     public void downloadProfileImage(String filename, HttpServletResponse response){
         User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
@@ -78,7 +72,6 @@ public class FileService {
         }
     }
 
-    //todo fix
     public void sendPDFToEmail(TransactionByFiltersRequestDTO requestDTO){
         List<TransactionResponseDTO> requestedTransactions = statisticsDAO.getTransactionsByFilters(requestDTO);
         if (requestedTransactions.isEmpty()){
@@ -86,43 +79,15 @@ public class FileService {
         }
         MyUserDetails details = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userEmail = details.getEmail();
-        File file = new File(convertToPDF(requestedTransactions));
-
-        Properties properties = System.getProperties();
-        properties.put("mail.smtp.host", CronJobs.HOST);
-        properties.put("mail.smtp.port", "465");
-        properties.put("mail.smtp.ssl.enable", "true");
-        properties.put("mail.smtp.auth", "true");
-
-        Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(CronJobs.SENDER_MAIL, CronJobs.PASSWORD);
-            }
-        });
-
-        session.setDebug(true);
-
-        try {
-            MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(CronJobs.SENDER_MAIL));
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(userEmail));
-            message.setSubject("Transaction Statement for the period between "+requestDTO.getStartDate()+" and "+requestDTO.getEndDate()+".");
-            MimeBodyPart messageBodyPart = new MimeBodyPart();
-            DataSource source = new FileDataSource(file);
-            messageBodyPart.setDataHandler(new DataHandler(source));
-            messageBodyPart.setFileName("Statement.pdf");
-            Multipart multipart = new MimeMultipart();
-            multipart.addBodyPart(messageBodyPart);
-            message.setContent(multipart);
-            Transport.send(message);
-        } catch (MessagingException mex) {
-            throw new FileTransferException("Sending email failed.");
-        }
+        String fileName = convertToPDF(requestedTransactions);
+        File file = new File(fileName);
+        String text = "Your pdf statement for dates between "+requestDTO.getStartDate()+" and "+requestDTO.getEndDate()+".";
+        emailService.sendEmail("PDF Statement", userEmail, text, file, "Statement.pdf", false);
         file.delete();
     }
 
     public String convertToPDF(List<TransactionResponseDTO> transactions){
-        String fileName = "Statement-"+System.nanoTime()+".pdf";
+        String fileName = "Statement-"+ UUID.randomUUID()+".pdf";
         try(PDDocument document = new PDDocument()) {
             LinkedList<TransactionResponseDTO> transactionsList = new LinkedList<>(transactions);
             for (int i = 0; i < (transactions.size() / 30) +1; i++) {

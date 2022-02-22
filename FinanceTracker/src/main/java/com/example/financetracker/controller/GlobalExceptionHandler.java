@@ -3,6 +3,7 @@ package com.example.financetracker.controller;
 import com.example.financetracker.exceptions.*;
 import com.example.financetracker.model.dto.ExceptionDTO;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -121,11 +122,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(new ExceptionDTO(HttpStatus.BAD_REQUEST, "Invalid input data.", LocalDateTime.now()));
     }
 
+/*
     @ExceptionHandler(BadSqlGrammarException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ExceptionDTO> handleBadSqlGrammarException(BadSqlGrammarException e) {
         return ResponseEntity.status(500).body(new ExceptionDTO(HttpStatus.INTERNAL_SERVER_ERROR,
                 "Sorry, we are experiencing some trouble.", LocalDateTime.now()));
     }
+*/
+
+    @ExceptionHandler(FileSizeLimitExceededException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ExceptionDTO> handleFileSizeLimitExceededException(FileSizeLimitExceededException e) {
+        return ResponseEntity.status(500).body(new ExceptionDTO(HttpStatus.BAD_REQUEST,
+                "The file you are trying to upload is too big, it cannot exceed 50mb.", LocalDateTime.now()));
+    }
+
 
 }

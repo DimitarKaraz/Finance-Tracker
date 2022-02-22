@@ -210,7 +210,7 @@ public class StatisticsDAO {
     private String generateTransactionSQLQuery(TransactionByFiltersRequestDTO requestDTO){
         int userId = MyUserDetailsService.getCurrentUserId();
         String sql = transactionSQL +
-                "(a.user_id = " + userId + ") AND (t.start_date BETWEEN \"" +
+                "(a.user_id = " + userId + ") AND (t.date_time BETWEEN \"" +
                 requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n";
         if (requestDTO.getAccountId() != null) {
             sql += "AND (t.account_id = " + requestDTO.getAccountId() + ")\n";
@@ -238,7 +238,7 @@ public class StatisticsDAO {
                     (requestDTO.getAmountMax() != null ? requestDTO.getAmountMax() : BigDecimal.valueOf(9999999999999.99)) +
                     ")\n";
         }
-        sql += "ORDER BY t.start_date ASC;";
+        sql += "ORDER BY t.date_time ASC;";
         return sql;
     }
 
