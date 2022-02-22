@@ -4,9 +4,7 @@ import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.pojo.Currency;
 import com.example.financetracker.model.pojo.PaymentMethod;
 import com.example.financetracker.model.pojo.TransactionType;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -16,6 +14,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class TransactionResponseDTO {
 
     private int transactionId;
