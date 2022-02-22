@@ -125,7 +125,7 @@ public class StatisticsDAO {
             sql += "AND (rt.payment_method_id = " + filtersDTO.getPaymentMethodId() + ")\n";
         }
         if (filtersDTO.getAmountMin() != null || filtersDTO.getAmountMax() != null) {
-            sql += "AND (b.max_limit BETWEEN " +
+            sql += "AND (rt.amount BETWEEN " +
                     (filtersDTO.getAmountMin() != null ? filtersDTO.getAmountMin() : BigDecimal.valueOf(0.00)) +
                     " AND " +
                     (filtersDTO.getAmountMax() != null ? filtersDTO.getAmountMax() : BigDecimal.valueOf(9999999999999.99)) +
