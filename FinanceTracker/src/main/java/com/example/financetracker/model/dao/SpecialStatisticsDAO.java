@@ -4,6 +4,7 @@ import com.example.financetracker.model.dto.specialStatisticsDTOs.AverageTransac
 import com.example.financetracker.model.dto.specialStatisticsDTOs.CashFlowsResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
+import com.example.financetracker.model.dto.specialStatisticsDTOs.NumberOfTransactionsByTypeResponseDTO;
 import com.example.financetracker.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -138,7 +139,36 @@ public class SpecialStatisticsDAO {
                 "WHERE (a.user_id = " + userId + ") AND (t.date_time BETWEEN \"" +
                 requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n" +
                 "GROUP BY t.transaction_type_id;";
+        return sql;
+    }
 
+    public NumberOfTransactionsByTypeResponseDTO getNumberOfTransactionsByTransactionTypes(FilterByDatesRequestDTO requestDTO){
+        final String sql = generateNumberOfTransactionsByTypeSQLQuery(requestDTO);
+
+        return jdbcTemplate.query(sql,
+                new ResultSetExtractor<NumberOfTransactionsByTypeResponseDTO>() {
+                    @Override
+                    public NumberOfTransactionsByTypeResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
+                        NumberOfTransactionsByTypeResponseDTO byTypeResponseDTO = new NumberOfTransactionsByTypeResponseDTO();
+                        byTypeResponseDTO.setTransactionsByType(new HashMap<>());
+                        while (rs.next()) {
+                            byTypeResponseDTO.getTransactionsByType().put(rs.getString("Type"), rs.getInt("Total"));
+                        }
+                        return byTypeResponseDTO;
+                    }
+                });
+    }
+
+    private String generateNumberOfTransactionsByTypeSQLQuery(FilterByDatesRequestDTO requestDTO) {
+        int userId = MyUserDetailsService.getCurrentUserId();
+        String sql = "SELECT transaction_types.name AS \"Type\",  COUNT(*) as Total\n" +
+                "FROM transactions\n" +
+                "JOIN transaction_types\n" +
+                "ON (transactions.transaction_type_id = transaction_types.transaction_type_id)\n" +
+                "WHERE (a.user_id = " + userId + ") AND (t.start_date BETWEEN \"" +
+                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n" +
+                "GROUP BY transactions.transaction_type_id\n" +
+                "ORDER BY Total\n";
         return sql;
     }
 }
