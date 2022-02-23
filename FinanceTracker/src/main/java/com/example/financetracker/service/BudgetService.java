@@ -160,7 +160,6 @@ public class BudgetService {
         budget.setCategories(categories);
         budget.getCategories().forEach(category -> {
             if (category.getUser() != null && budget.getAccount().getUser().getUserId() != category.getUser().getUserId()) {
-                //todo LOG OUT hacker
                 throw new ForbiddenException("You don't have access to this category.");
             }
             if (category.getTransactionType().getName().equalsIgnoreCase("income")) {

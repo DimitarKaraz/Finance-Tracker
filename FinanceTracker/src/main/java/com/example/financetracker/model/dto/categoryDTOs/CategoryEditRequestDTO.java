@@ -17,9 +17,6 @@ public class CategoryEditRequestDTO {
     @Min(value = 1, message = "Invalid category id.")
     private int categoryId;
 
-    @Min(value = 1, message = "Invalid transaction type id.")
-    private int transactionTypeId;
-
     @NotBlank(message = "Invalid category name.")
     private String name;
 

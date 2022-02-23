@@ -40,7 +40,7 @@ public class FileService {
     public void downloadProfileImage(String filename, HttpServletResponse response){
         User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new UnauthorizedException("Invalid user id.");});
-        if (!user.getProfileImageUrl().equals(filename)) {
+        if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().equals(filename)) {
             throw new ForbiddenException("You do not have access to this image.");
         }
         try {

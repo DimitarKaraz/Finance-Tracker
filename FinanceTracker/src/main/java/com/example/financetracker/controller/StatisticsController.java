@@ -38,7 +38,7 @@ public class StatisticsController {
     }
 
     @PutMapping("/closed_budgets/stats")
-    public ResponseEntity<ResponseWrapper<List<ClosedBudgetResponseDTO>>> getClosedBudgetsByFilters(@RequestBody BudgetByFiltersRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<List<ClosedBudgetResponseDTO>>> getClosedBudgetsByFilters(@Valid @RequestBody BudgetByFiltersRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Closed budgets by filters retrieved.",
                 statisticsService.getClosedBudgetsByFilters(requestDTO), HttpStatus.OK);
     }
@@ -79,26 +79,26 @@ public class StatisticsController {
                 statisticsService.getTopFiveIncomesPaymentMethods(requestDTO), HttpStatus.OK);
     }
 
-    @PutMapping("accounts/cash-flows")
+    @PutMapping("/accounts/cash-flows")
     public ResponseEntity<ResponseWrapper<CashFlowsResponseDTO>> getCashFlowsForAccounts(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Cash-flows for accounts retrieved.",
                 statisticsService.getCashFlowsForAccounts(requestDTO), HttpStatus.OK);
     }
 
-    @PutMapping("/transactions/average_for_transaction_type")
+    @PutMapping("/transactions/average_for_transaction_types")
     public ResponseEntity<ResponseWrapper<AverageTransactionForTransactionTypesResponseDTO>> getAverageTransactions(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Average transaction amount for transaction types retrieved.",
                 statisticsService.getAverageTransactions(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("/transaction/count_for_transaction_types")
-    public ResponseEntity<ResponseWrapper<NumberOfTransactionsByTypeResponseDTO>> getNumberOfTransactionsByType(@RequestBody FilterByDatesRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<NumberOfTransactionsByTypeResponseDTO>> getNumberOfTransactionsByType(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Transaction count for transaction types retrieved.",
                 statisticsService.getNumberOfTransactionsByType(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("/transaction/sum_for_transaction_types")
-    public ResponseEntity<ResponseWrapper<SumOfTransactionsByTypeResponseDTO>> getSumOfTransactionsByType(@RequestBody FilterByDatesRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<SumOfTransactionsByTypeResponseDTO>> getSumOfTransactionsByType(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Transaction sum for transaction types retrieved.",
                 statisticsService.getSumOfTransactionsByType(requestDTO), HttpStatus.OK);
     }

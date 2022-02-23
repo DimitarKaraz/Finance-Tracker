@@ -37,7 +37,7 @@ public class CategoryController {
                 categoryService.getCategoryById(id), HttpStatus.OK);
     }
 
-    @GetMapping("/categories/{transaction_type_id}")
+    @GetMapping("/categories/transaction_type/{transaction_type_id}")
     public ResponseEntity<ResponseWrapper<List<CategoryResponseDTO>>> getCategoriesOfCurrentUserByTransactionType(@PathVariable("transaction_type_id") int transactionTypeId){
         return ResponseWrapper.wrap("Categories for user retrieved.",
                 categoryService.getCategoriesOfCurrentUserByTransactionType(transactionTypeId), HttpStatus.OK);

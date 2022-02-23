@@ -84,7 +84,7 @@ public class CategoryService {
 
     public List<CategoryResponseDTO> getCategoriesOfCurrentUserByTransactionType(int transactionTypeId) {
         int userId = MyUserDetailsService.getCurrentUserId();
-        return categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNullAndTransactionType_TransactionTypeId(userId, transactionTypeId)
+        return categoryRepository.findCategoriesByUserIdAndTransactionTypeId(userId, transactionTypeId)
                 .stream()
                 .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
                 .collect(Collectors.toList());
@@ -109,8 +109,6 @@ public class CategoryService {
         }
         category.setCategoryIcon(categoryIconRepository.findById(requestDTO.getCategoryIconId())
                 .orElseThrow(() -> {throw new BadRequestException("Invalid category icon id.");}));
-        category.setTransactionType(transactionTypeRepository.findById(requestDTO.getTransactionTypeId())
-                .orElseThrow(() -> {throw new BadRequestException("Invalid transaction type id.");}));
         categoryRepository.save(category);
         return modelMapper.map(category, CategoryResponseDTO.class);
     }
