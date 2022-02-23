@@ -3,7 +3,6 @@ package com.example.financetracker.model.dto.userDTOs;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
@@ -23,7 +22,6 @@ public class UserRegisterFormDTO implements Serializable {
             "?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e" +
             "-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])",
             message = "Invalid email.")
-    @Email(message = "Invalid email.")
     private String email;
 
     @NotBlank(message = "Invalid password.")

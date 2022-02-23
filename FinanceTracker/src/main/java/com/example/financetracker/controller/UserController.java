@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@PreAuthorize("hasRole('ROLE_USER')")
 public class UserController {
 
     @Autowired
@@ -93,7 +94,7 @@ public class UserController {
                 + LocalDateTime.now());
     }
 
-    @GetMapping("/all_users")
+    @GetMapping("/admin/all_users")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseWrapper<List<UserProfileDTO>>> getAllUsers() {
         return ResponseWrapper.wrap("All users retrieved.", userService.getAllUsers(), HttpStatus.OK);

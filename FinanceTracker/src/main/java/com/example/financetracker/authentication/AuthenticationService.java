@@ -1,6 +1,7 @@
-package com.example.financetracker.security;
+package com.example.financetracker.authentication;
 
-import com.example.financetracker.exceptions.BadRequestException;
+import com.example.financetracker.exceptions.EmailAlreadyExistsException;
+import com.example.financetracker.exceptions.PasswordMismatchException;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
 import com.example.financetracker.model.dto.userDTOs.UserRegisterFormDTO;
 import com.example.financetracker.model.pojo.User;
@@ -27,11 +28,10 @@ public class AuthenticationService {
 
     public UserProfileDTO register(UserRegisterFormDTO form, String siteURL) {
         if (userRepository.existsByEmail(form.getEmail())) {
-            System.out.println("Email already exists");
-            throw new BadRequestException("Email already exists.");
+            throw new EmailAlreadyExistsException("Email already exists.");
         }
         if (!form.getConfirmPassword().equals(form.getPassword())){
-            throw new BadRequestException("Password does not match.");
+            throw new PasswordMismatchException("Passwords do not match.");
         }
         form.setPassword(encoder.encode(form.getPassword()));
         User user = modelMapper.map(form, User.class);
@@ -52,7 +52,7 @@ public class AuthenticationService {
                 + verifyURL
                 +"\" target=\"_self\">VERIFY</a></h3>"
                 + "Thank you,<br>"
-                + "Your company name.";
+                + "Finance Tracker team.";
 
         emailService.sendEmail("Activate your account.", user.getEmail(),
                 content, true, null, null);

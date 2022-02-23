@@ -1,6 +1,7 @@
-package com.example.financetracker.security;
+package com.example.financetracker.authentication;
 
-import com.example.financetracker.exceptions.BadRequestException;
+import com.example.financetracker.exceptions.EmailAlreadyExistsException;
+import com.example.financetracker.exceptions.PasswordMismatchException;
 import com.example.financetracker.model.dto.userDTOs.UserRegisterFormDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -22,6 +23,11 @@ public class AuthenticationController {
     @Autowired
     private MessageSource messageSource;
 
+    @GetMapping("/")
+    public String viewHomePage() {
+        return "index";
+    }
+
     @GetMapping("/register")
     public String register(final Model model){
         model.addAttribute("userRegisterFormDTO", new UserRegisterFormDTO());
@@ -37,23 +43,22 @@ public class AuthenticationController {
         try {
             String url = getSiteURL(request);
             authenticationService.register(userData, url);
-        }catch (BadRequestException e){
-            bindingResult.rejectValue("email", "userData.email","An account already exists for this email.");
+        } catch (EmailAlreadyExistsException e){
+            bindingResult.rejectValue("email", "userData.email");
+            model.addAttribute("registrationForm", userData);
+            return "account/register";
+        } catch (PasswordMismatchException e){
+            bindingResult.rejectValue("confirmPassword", "userData.confirmPassword");
             model.addAttribute("registrationForm", userData);
             return "account/register";
         }
         model.addAttribute("registrationMsg", messageSource.getMessage("user.registration.verification.email.msg", null, LocaleContextHolder.getLocale()));
-        return "account/register";
+        return "account/registerSuccess";
     }
 
     @GetMapping("/login")
     public String login(){
         return "account/login";
-    }
-
-    private String getSiteURL(HttpServletRequest request) {
-        String siteURL = request.getRequestURL().toString();
-        return siteURL.replace(request.getServletPath(), "");
     }
 
     @GetMapping("/verify")
@@ -64,4 +69,10 @@ public class AuthenticationController {
             return "account/verifyFail";
         }
     }
+
+    private String getSiteURL(HttpServletRequest request) {
+        String siteURL = request.getRequestURL().toString();
+        return siteURL.replace(request.getServletPath(), "");
+    }
+
 }

@@ -67,7 +67,6 @@ public class CronJobs {
     @Retryable(value = Exception.class,
             maxAttempts = 5, backoff = @Backoff(delay = 60*1000))
     public void sendEmailToInactiveUsersCronJob() {
-        System.out.println("IN RETRYABLE");
         List<User> inactiveUsers = userRepository.findAllInactiveUsers();
         sendAllTheEmails(inactiveUsers);
     }

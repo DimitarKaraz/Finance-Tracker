@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head th:replace="core/head :: head">  <meta charset="utf-8">
-<body>
 
-<form th:action="@{/forgot_password}" method="post" style="max-width: 420px; margin: 0 auto;">
+<body>
     <div class="container text-center">
         <h3>Sorry, we could not verify account. It maybe already verified,
             or verification code is incorrect.</h3>
+        <h4><a th:href="@{/login}">Click here to Login</a></h4>
     </div>
-</form>
 </body>
 
 </html>
