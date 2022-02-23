@@ -98,8 +98,17 @@ public class FileService {
                 PDPageContentStream contentStream = new PDPageContentStream(document, page);
                 contentStream.setLeading(20.0f);
                 contentStream.beginText();
-                contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
                 contentStream.newLineAtOffset(25, page.getTrimBox().getHeight()-25);
+                //todo check if works
+                if (i == 0){
+                    contentStream.setFont(PDType1Font.TIMES_BOLD_ITALIC, 18);
+                    contentStream.showText("Finance Tracker Statement of Transactions");
+                    contentStream.newLine();
+                    contentStream.setFont(PDType1Font.TIMES_ITALIC, 14);
+                    contentStream.showText("For dates between "+transactions.get(0).getDateTime().toLocalDate()+" and "
+                            +transactions.get(transactions.size()-1).getDateTime().toLocalDate()+".");
+                }
+                contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
                 String text;
                 for (int j = 0; j < 30; j++) {
                     contentStream.newLine();
@@ -112,7 +121,7 @@ public class FileService {
                             + "Amount: "+transaction.getAmount()+" "+transaction.getCurrency().getAbbreviation().toUpperCase()+", "
                             + "Category: "+transaction.getCategoryResponseDTO().getName()+", "
                             + "Paid with: "+transaction.getPaymentMethod().getName()+", "
-                            + "Type: " + transaction.getTransactionType().getName().toUpperCase();
+                            + " " + transaction.getTransactionType().getName().toUpperCase();
                     contentStream.showText(text);
                 }
                 contentStream.endText();
