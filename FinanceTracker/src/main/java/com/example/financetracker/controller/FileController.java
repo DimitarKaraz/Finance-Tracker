@@ -19,14 +19,14 @@ public class FileController {
     private FileService fileService;
 
     @GetMapping("/files/profile_images/{filename}/download")
-    public void downloadProfileImage(@PathVariable String filename, HttpServletResponse response){
+    public void downloadProfileImage(@PathVariable("filename") String filename, HttpServletResponse response){
         fileService.downloadProfileImage(filename, response);
     }
 
 
     @GetMapping("/files/category_icons/{filename}/download")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public void downloadCategoryIcon(@PathVariable String filename, HttpServletResponse response){
+    public void downloadCategoryIcon(@PathVariable("filename") String filename, HttpServletResponse response){
         fileService.downloadCategoryIcon(filename, response);
     }
 

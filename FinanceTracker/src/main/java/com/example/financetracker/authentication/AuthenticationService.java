@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -35,7 +36,7 @@ public class AuthenticationService {
         }
         form.setPassword(encoder.encode(form.getPassword()));
         User user = modelMapper.map(form, User.class);
-        user.setLastLogin(LocalDateTime.now());
+        user.setLastLogin(LocalDate.now());
         user.setVerificationToken(RandomString.make(30));
         user.setEnabled(false);
         user.setAuthorities("ROLE_USER");

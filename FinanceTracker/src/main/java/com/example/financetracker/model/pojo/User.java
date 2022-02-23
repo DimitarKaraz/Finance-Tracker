@@ -43,7 +43,7 @@ public class User {
     private String profileImageUrl;
 
     @Column(name = "last_login")
-    private LocalDateTime lastLogin;
+    private LocalDate lastLogin;
 
     @Column(name = "last_email_sent_on")
     private LocalDate lastEmailSentOn;

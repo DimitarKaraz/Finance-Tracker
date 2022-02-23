@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Component
@@ -27,7 +28,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
 
         User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new UnauthorizedException("Invalid user id.");});
-        user.setLastLogin(LocalDateTime.now());
+        user.setLastLogin(LocalDate.now());
         userRepository.save(user);
 
         this.setDefaultTargetUrl("/profile");
