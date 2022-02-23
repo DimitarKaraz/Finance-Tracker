@@ -53,7 +53,7 @@ public class BudgetController {
 
     @PostMapping("/budgets/{budget_id}/close")
     public ResponseEntity<ResponseWrapper<ClosedBudgetResponseDTO>> closeBudgetById(@PathVariable("budget_id") int id) {
-        return ResponseWrapper.wrap("Budget was close successfully.",
+        return ResponseWrapper.wrap("Budget was closed successfully.",
                 budgetService.closeBudgetById(id), HttpStatus.OK);
     }
 
