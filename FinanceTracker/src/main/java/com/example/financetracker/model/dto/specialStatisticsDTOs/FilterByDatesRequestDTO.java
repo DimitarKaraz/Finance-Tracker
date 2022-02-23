@@ -16,10 +16,10 @@ import java.time.LocalDate;
 public class FilterByDatesRequestDTO {
 
     @NotNull(message = "Start date cannot be null.")
-    @PastOrPresent(message = "Start date cannot be null.")
+    @PastOrPresent(message = "Start date cannot be in the future.")
     private LocalDate startDate;
 
     @NotNull(message = "End date cannot be null.")
-    @PastOrPresent(message = "Start date cannot be null.")
+    @PastOrPresent(message = "End date cannot be in the future.")
     private LocalDate endDate;
 }

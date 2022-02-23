@@ -14,8 +14,10 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,7 +36,7 @@ public class SpecialStatisticsDAO {
                     @Override
                     public TopFiveExpensesOrIncomesResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
                         TopFiveExpensesOrIncomesResponseDTO topFive = new TopFiveExpensesOrIncomesResponseDTO();
-                        topFive.setTopFiveExpensesOrIncomes(new HashMap<>());
+                        topFive.setTopFiveExpensesOrIncomes(new LinkedHashMap<>());
                         while (rs.next()) {
                             topFive.getTopFiveExpensesOrIncomes().put(rs.getString("Category"), rs.getBigDecimal("Total"));
                         }
@@ -63,7 +65,7 @@ public class SpecialStatisticsDAO {
         }
 
         sql += "AND (a.user_id = " + userId + ") AND (t.date_time BETWEEN \"" +
-                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n";
+                requestDTO.getStartDate().atTime(LocalTime.MIN) + "\" AND \"" + requestDTO.getEndDate().atTime(LocalTime.MAX) + "\")\n";
 
         sql += "GROUP BY t.category_id\n" +
                 "ORDER BY Total DESC\n" +
@@ -72,14 +74,14 @@ public class SpecialStatisticsDAO {
     }
 
     public TopFiveExpensesOrIncomesResponseDTO getTopFiveExpensesOrIncomesPaymentMethods(FilterByDatesRequestDTO requestDTO, String transactionTypeName){
-        String sql = generateTopFiveExpensesOrIncomesSQLQueryCPaymentMethods(requestDTO, transactionTypeName);
+        String sql = generateTopFiveExpensesOrIncomesSQLQueryPaymentMethods(requestDTO, transactionTypeName);
 
         return jdbcTemplate.query(sql,
                 new ResultSetExtractor<TopFiveExpensesOrIncomesResponseDTO>() {
                     @Override
                     public TopFiveExpensesOrIncomesResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
                         TopFiveExpensesOrIncomesResponseDTO topFive = new TopFiveExpensesOrIncomesResponseDTO();
-                        topFive.setTopFiveExpensesOrIncomes(new HashMap<>());
+                        topFive.setTopFiveExpensesOrIncomes(new LinkedHashMap<>());
                         while (rs.next()) {
                             topFive.getTopFiveExpensesOrIncomes().put(rs.getString("transactionType"), rs.getBigDecimal("total"));
                         }
@@ -88,7 +90,7 @@ public class SpecialStatisticsDAO {
                 });
     }
 
-    private String generateTopFiveExpensesOrIncomesSQLQueryCPaymentMethods(FilterByDatesRequestDTO requestDTO, String transactionTypeName) {
+    private String generateTopFiveExpensesOrIncomesSQLQueryPaymentMethods(FilterByDatesRequestDTO requestDTO, String transactionTypeName) {
         int userId = MyUserDetailsService.getCurrentUserId();
 
         String sql = "SELECT SUM(t.amount) AS total, p.name AS transactionType\n" +
@@ -98,7 +100,7 @@ public class SpecialStatisticsDAO {
                 "JOIN accounts AS a ON (t.account_id = a.account_id)\n" +
                 "WHERE a.user_id = " + userId + "\n" +
                 "AND LOWER(tt.name) = \"" + transactionTypeName + "\"\n" +
-                "AND (t.date_time BETWEEN \"" + requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n" +
+                "AND (t.date_time BETWEEN \"" + requestDTO.getStartDate().atTime(LocalTime.MIN) + "\" AND \"" + requestDTO.getEndDate().atTime(LocalTime.MAX) + "\")\n" +
                 "GROUP BY t.payment_method_id\n" +
                 "ORDER BY total DESC\n" +
                 "LIMIT 5;";
@@ -111,13 +113,13 @@ public class SpecialStatisticsDAO {
         return jdbcTemplate.query(sql, new ResultSetExtractor<CashFlowsResponseDTO>() {
             @Override
             public CashFlowsResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
-                Map<String, Map<String, Integer>> accountCashFlows = new LinkedHashMap<>();
+                Map<String, Map<String, BigDecimal>> accountCashFlows = new LinkedHashMap<>();
 
                 while (rs.next()) {
                     String accountName = rs.getString("accountName") + "(" + rs.getString("currency") + ")";
                     accountCashFlows.putIfAbsent(accountName, new TreeMap<>());
-                    accountCashFlows.get(accountName).put("Total income", rs.getInt("totalIncome"));
-                    accountCashFlows.get(accountName).put("Total expenses", rs.getInt("totalExpenses"));
+                    accountCashFlows.get(accountName).put("Total income", rs.getBigDecimal("totalIncome"));
+                    accountCashFlows.get(accountName).put("Total expenses", rs.getBigDecimal("totalExpenses"));
                 }
                 CashFlowsResponseDTO responseDTO = new CashFlowsResponseDTO();
                 responseDTO.setCashFlowsForAccounts(accountCashFlows);
@@ -137,7 +139,7 @@ public class SpecialStatisticsDAO {
                 "JOIN accounts AS a ON (t.account_id = a.account_id)\n" +
                 "JOIN currencies AS curr ON (curr.currency_id = a.currency_id)\n" +
                 "WHERE (a.user_id = " + userId + ") AND (t.date_time BETWEEN \"" +
-                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n" +
+                requestDTO.getStartDate().atTime(LocalTime.MIN) + "\" AND \"" + requestDTO.getEndDate().atTime(LocalTime.MAX) + "\")\n" +
                 "GROUP BY t.account_id\n" +
                 "ORDER BY a.name ASC;";
 
@@ -154,7 +156,7 @@ public class SpecialStatisticsDAO {
 
                 while (rs.next()) {
                     String transactionType = rs.getString("transactionType");
-                    averageTransactions.putIfAbsent(transactionType, (rs.getBigDecimal("average")));
+                    averageTransactions.putIfAbsent(transactionType, (rs.getBigDecimal("average").setScale(2, RoundingMode.HALF_EVEN)));
                 }
                 AverageTransactionForTransactionTypesResponseDTO responseDTO = new AverageTransactionForTransactionTypesResponseDTO();
                 responseDTO.setAverageTransactions(averageTransactions);
@@ -171,7 +173,7 @@ public class SpecialStatisticsDAO {
                 "JOIN transaction_types AS tt ON (t.transaction_type_id = tt.transaction_type_id)\n" +
                 "JOIN accounts AS a ON (t.account_id = a.account_id)\n" +
                 "WHERE (a.user_id = " + userId + ") AND (t.date_time BETWEEN \"" +
-                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n" +
+                requestDTO.getStartDate().atTime(LocalTime.MIN) + "\" AND \"" + requestDTO.getEndDate().atTime(LocalTime.MAX) + "\")\n" +
                 "GROUP BY t.transaction_type_id;";
         return sql;
     }
@@ -195,13 +197,15 @@ public class SpecialStatisticsDAO {
 
     private String generateNumberOfTransactionsByTypeSQLQuery(FilterByDatesRequestDTO requestDTO) {
         int userId = MyUserDetailsService.getCurrentUserId();
-        String sql = "SELECT transaction_types.name AS \"Type\",  COUNT(*) as Total\n" +
-                "FROM transactions\n" +
-                "JOIN transaction_types\n" +
-                "ON (transactions.transaction_type_id = transaction_types.transaction_type_id)\n" +
-                "WHERE (a.user_id = " + userId + ") AND (t.start_date BETWEEN \"" +
-                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n" +
-                "GROUP BY transactions.transaction_type_id\n" +
+        String sql = "SELECT tt.name AS \"Type\",  COUNT(*) as Total\n" +
+                "FROM transactions AS t\n" +
+                "JOIN accounts AS a\n" +
+                "ON (t.account_id = a.account_id)\n"+
+                "JOIN transaction_types AS tt\n" +
+                "ON (t.transaction_type_id = tt.transaction_type_id)\n" +
+                "WHERE (a.user_id = " + userId + ") AND (t.date_time BETWEEN \"" +
+                requestDTO.getStartDate().atTime(LocalTime.MIN) + "\" AND \"" + requestDTO.getEndDate().atTime(LocalTime.MAX) + "\")\n" +
+                "GROUP BY t.transaction_type_id\n" +
                 "ORDER BY Total\n";
         return sql;
     }
@@ -225,13 +229,15 @@ public class SpecialStatisticsDAO {
 
     private String generateSumOfTransactionsByTypeSQLQuery(FilterByDatesRequestDTO requestDTO) {
         int userId = MyUserDetailsService.getCurrentUserId();
-        String sql = "SELECT transaction_types.name AS \"Type\",  SUM(transactions.amount) as Total\n" +
-                "FROM transactions\n" +
-                "JOIN transaction_types\n" +
-                "ON (transactions.transaction_type_id = transaction_types.transaction_type_id)\n" +
-                "WHERE (a.user_id = " + userId + ") AND (t.start_date BETWEEN \"" +
-                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n" +
-                "GROUP BY transactions.transaction_type_id\n" +
+        String sql = "SELECT tt.name AS \"Type\",  SUM(t.amount) as Total\n" +
+                "FROM transactions AS t\n" +
+                "JOIN accounts AS a\n" +
+                "ON (t.account_id = a.account_id)\n"+
+                "JOIN transaction_types AS tt\n" +
+                "ON (t.transaction_type_id = tt.transaction_type_id)\n" +
+                "WHERE (a.user_id = " + userId + ") AND (t.date_time BETWEEN \"" +
+                requestDTO.getStartDate().atTime(LocalTime.MIN) + "\" AND \"" + requestDTO.getEndDate().atTime(LocalTime.MAX) + "\")\n" +
+                "GROUP BY t.transaction_type_id\n" +
                 "ORDER BY Total\n";
         return sql;
     }

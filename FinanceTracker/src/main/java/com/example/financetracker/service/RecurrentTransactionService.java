@@ -75,10 +75,8 @@ public class RecurrentTransactionService {
                 recurrentTransaction.getCategory().getTransactionType().getTransactionTypeId()){
             throw new BadRequestException("Category - transaction type mismatch.");
         }
-        if (recurrentTransaction.getCategory().getUser() == null) {
-            throw new BadRequestException("You cannot edit this category.");
-        }
-        if (recurrentTransaction.getCategory().getUser().getUserId() != account.getUser().getUserId()) {
+        if (recurrentTransaction.getCategory().getUser() != null &&
+                recurrentTransaction.getCategory().getUser().getUserId() != account.getUser().getUserId()) {
             throw new ForbiddenException("You do not have access to this category.");
         }
         if (recurrentTransaction.getStartDate().equals(LocalDate.now())){
