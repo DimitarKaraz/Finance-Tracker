@@ -64,6 +64,9 @@ public class ResetPasswordController {
 
     @GetMapping("/reset_password")
     public String showResetPasswordForm(@Param(value = "token") String token, Model model) {
+        if (token == null) {
+            throw new BadRequestException("Invalid password reset token.");
+        }
         User user = resetPasswordService.getByResetPasswordToken(token);
         model.addAttribute("token", token);
 
@@ -80,6 +83,9 @@ public class ResetPasswordController {
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
 
+        if (token == null) {
+            throw new BadRequestException("Invalid password reset token.");
+        }
         if (!password.equals(confirmPassword)) {
             throw new BadRequestException("Passwords do not match.");
         }

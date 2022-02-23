@@ -1,5 +1,6 @@
 package com.example.financetracker.authentication;
 
+import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.EmailAlreadyExistsException;
 import com.example.financetracker.exceptions.PasswordMismatchException;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
@@ -14,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Service
 public class AuthenticationService {
@@ -60,6 +60,9 @@ public class AuthenticationService {
     }
 
     public boolean verify(String verificationToken) {
+        if (verificationToken == null) {
+            throw new BadRequestException("Invalid verification token.");
+        }
         User user = userRepository.findByVerificationToken(verificationToken);
         if (user == null || user.isEnabled()) {
             return false;
