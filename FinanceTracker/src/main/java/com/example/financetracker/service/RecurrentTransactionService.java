@@ -99,7 +99,7 @@ public class RecurrentTransactionService {
         RecurrentTransaction recurrentTransaction = recurrentTransactionRepository.findById(recurrentTransactionId)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid recurrent transaction id.");});
         if (recurrentTransaction.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
-            throw new ForbiddenException("You do not have access to this recurrent transaciton.");
+            throw new ForbiddenException("You do not have access to this recurrent transaction.");
         }
         return convertToResponseDTO(recurrentTransaction);
     }

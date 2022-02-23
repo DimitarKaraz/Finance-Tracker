@@ -10,6 +10,7 @@ import com.example.financetracker.model.dto.transactionDTOs.TransactionByFilters
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.model.pojo.*;
 import com.example.financetracker.service.MyUserDetailsService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -95,7 +96,7 @@ public class StatisticsDAO {
 
         return jdbcTemplate.query(sql, new ResultSetExtractor<List<RecurrentTransactionResponseDTO>>() {
             @Override
-            public List<RecurrentTransactionResponseDTO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+            public List<RecurrentTransactionResponseDTO> extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
                 List<RecurrentTransactionResponseDTO> recurrentTransactions = new ArrayList<>();
 
                 while (rs.next()) {
@@ -111,7 +112,7 @@ public class StatisticsDAO {
 
         return jdbcTemplate.query(sql, new ResultSetExtractor<List<TransactionResponseDTO>>() {
             @Override
-            public List<TransactionResponseDTO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+            public List<TransactionResponseDTO> extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
                 List<TransactionResponseDTO> transactions = new ArrayList<>();
 
                 while (rs.next()) {
@@ -128,7 +129,7 @@ public class StatisticsDAO {
         return jdbcTemplate.query(sql,
                 new ResultSetExtractor<List<BudgetResponseDTO>>() {
                     @Override
-                    public List<BudgetResponseDTO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+                    public List<BudgetResponseDTO> extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
                         LinkedList<BudgetResponseDTO> budgets = new LinkedList<>();
                         int tempBudgetId = -1;
 
@@ -150,7 +151,7 @@ public class StatisticsDAO {
         return jdbcTemplate.query(sql,
                 new ResultSetExtractor<List<ClosedBudgetResponseDTO>>() {
                     @Override
-                    public List<ClosedBudgetResponseDTO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+                    public List<ClosedBudgetResponseDTO> extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
                         LinkedList<ClosedBudgetResponseDTO> budgets = new LinkedList<>();
                         int tempBudgetId = -1;
 

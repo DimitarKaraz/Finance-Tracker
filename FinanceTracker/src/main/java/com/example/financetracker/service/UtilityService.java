@@ -2,16 +2,9 @@ package com.example.financetracker.service;
 
 import com.example.financetracker.model.pojo.*;
 import com.example.financetracker.model.repositories.*;
-import lombok.SneakyThrows;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
-import java.util.LinkedList;
 import java.util.List;
 
 @Service

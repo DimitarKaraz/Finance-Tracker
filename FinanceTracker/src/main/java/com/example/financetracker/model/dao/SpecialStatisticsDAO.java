@@ -7,6 +7,7 @@ import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesR
 import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.NumberOfTransactionsByTypeResponseDTO;
 import com.example.financetracker.service.MyUserDetailsService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,7 +35,7 @@ public class SpecialStatisticsDAO {
         return jdbcTemplate.query(sql,
                 new ResultSetExtractor<TopFiveExpensesOrIncomesResponseDTO>() {
                     @Override
-                    public TopFiveExpensesOrIncomesResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
+                    public TopFiveExpensesOrIncomesResponseDTO extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
                         TopFiveExpensesOrIncomesResponseDTO topFive = new TopFiveExpensesOrIncomesResponseDTO();
                         topFive.setTopFiveExpensesOrIncomes(new LinkedHashMap<>());
                         while (rs.next()) {
@@ -79,7 +80,7 @@ public class SpecialStatisticsDAO {
         return jdbcTemplate.query(sql,
                 new ResultSetExtractor<TopFiveExpensesOrIncomesResponseDTO>() {
                     @Override
-                    public TopFiveExpensesOrIncomesResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
+                    public TopFiveExpensesOrIncomesResponseDTO extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
                         TopFiveExpensesOrIncomesResponseDTO topFive = new TopFiveExpensesOrIncomesResponseDTO();
                         topFive.setTopFiveExpensesOrIncomes(new LinkedHashMap<>());
                         while (rs.next()) {
@@ -112,7 +113,7 @@ public class SpecialStatisticsDAO {
 
         return jdbcTemplate.query(sql, new ResultSetExtractor<CashFlowsResponseDTO>() {
             @Override
-            public CashFlowsResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
+            public CashFlowsResponseDTO extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
                 Map<String, Map<String, BigDecimal>> accountCashFlows = new LinkedHashMap<>();
 
                 while (rs.next()) {
@@ -151,7 +152,7 @@ public class SpecialStatisticsDAO {
 
         return jdbcTemplate.query(sql, new ResultSetExtractor<AverageTransactionForTransactionTypesResponseDTO>() {
             @Override
-            public AverageTransactionForTransactionTypesResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
+            public AverageTransactionForTransactionTypesResponseDTO extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
                 Map<String, BigDecimal> averageTransactions = new TreeMap<>();
 
                 while (rs.next()) {
@@ -184,7 +185,7 @@ public class SpecialStatisticsDAO {
         return jdbcTemplate.query(sql,
                 new ResultSetExtractor<NumberOfTransactionsByTypeResponseDTO>() {
                     @Override
-                    public NumberOfTransactionsByTypeResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
+                    public NumberOfTransactionsByTypeResponseDTO extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
                         NumberOfTransactionsByTypeResponseDTO byTypeResponseDTO = new NumberOfTransactionsByTypeResponseDTO();
                         byTypeResponseDTO.setTransactionsByType(new HashMap<>());
                         while (rs.next()) {
@@ -216,7 +217,7 @@ public class SpecialStatisticsDAO {
         return jdbcTemplate.query(sql,
                 new ResultSetExtractor<SumOfTransactionsByTypeResponseDTO>() {
                     @Override
-                    public SumOfTransactionsByTypeResponseDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
+                    public SumOfTransactionsByTypeResponseDTO extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
                         SumOfTransactionsByTypeResponseDTO byTypeResponseDTO = new SumOfTransactionsByTypeResponseDTO();
                         byTypeResponseDTO.setTransactionsSum(new HashMap<>());
                         while (rs.next()) {
