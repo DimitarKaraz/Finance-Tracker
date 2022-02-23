@@ -39,7 +39,7 @@ public class UtilityController {
 
     @GetMapping("/category_icons")
     public ResponseEntity<ResponseWrapper<List<CategoryIcon>>> getAllCategoryIcons(){
-        return ResponseWrapper.wrap("All currencies retrieved.", utilityService.getAllCategoryIcons(), HttpStatus.OK);
+        return ResponseWrapper.wrap("All category icons retrieved.", utilityService.getAllCategoryIcons(), HttpStatus.OK);
     }
 
     @GetMapping("intervals")
