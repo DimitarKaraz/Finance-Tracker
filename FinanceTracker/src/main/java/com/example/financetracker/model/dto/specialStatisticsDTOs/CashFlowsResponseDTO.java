@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Component
@@ -13,6 +14,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class CashFlowsResponseDTO {
     //     accountName  totalIncome, totalExpense
-    private Map<String, Map<String, Integer>> cashFlowsForAccounts;
+    private Map<String, Map<String, BigDecimal>> cashFlowsForAccounts;
 
 }

@@ -44,8 +44,8 @@ public class StatisticsController {
     }
 
     @PutMapping("/recurrent_transactions/stats")
-    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getBudgetsByFilters(@Valid @RequestBody RecurrentTransactionByFiltersRequestDTO requestDTO) {
-        return ResponseWrapper.wrap("Budgets by filters retrieved.",
+    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getRecurrentTransactionsByFilters(@Valid @RequestBody RecurrentTransactionByFiltersRequestDTO requestDTO) {
+        return ResponseWrapper.wrap("Recurrent Transactions by filters retrieved.",
                 statisticsService.getRecurrentTransactionsByFilters(requestDTO), HttpStatus.OK);
     }
 
@@ -57,25 +57,25 @@ public class StatisticsController {
 
     @PutMapping("/categories/top-5-expenses")
     public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveExpensesCategories(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
-        return ResponseWrapper.wrap("Top five expenses retrieved.",
+        return ResponseWrapper.wrap("Top five expenses by category retrieved.",
                 statisticsService.getTopFiveExpensesCategories(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("/categories/top-5-incomes")
     public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveIncomesCategories(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
-        return ResponseWrapper.wrap("Top five incomes retrieved.",
+        return ResponseWrapper.wrap("Top five incomes by category retrieved.",
                 statisticsService.getTopFiveIncomesCategories(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("/payment_methods/top-5-expenses")
     public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveExpensesPaymentMethods(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
-        return ResponseWrapper.wrap("Top five expenses retrieved.",
+        return ResponseWrapper.wrap("Top five expenses by payment method retrieved.",
                 statisticsService.getTopFiveExpensesPaymentMethods(requestDTO), HttpStatus.OK);
     }
 
     @PutMapping("/payment_methods/top-5-incomes")
     public ResponseEntity<ResponseWrapper<TopFiveExpensesOrIncomesResponseDTO>> getTopFiveIncomesPaymentMethods(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
-        return ResponseWrapper.wrap("Top five incomes retrieved.",
+        return ResponseWrapper.wrap("Top five incomes by payment method retrieved.",
                 statisticsService.getTopFiveIncomesPaymentMethods(requestDTO), HttpStatus.OK);
     }
 
@@ -91,13 +91,13 @@ public class StatisticsController {
                 statisticsService.getAverageTransactions(requestDTO), HttpStatus.OK);
     }
 
-    @PutMapping("/transaction/count_for_transaction_types")
+    @PutMapping("/transactions/count_for_transaction_types")
     public ResponseEntity<ResponseWrapper<NumberOfTransactionsByTypeResponseDTO>> getNumberOfTransactionsByType(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Transaction count for transaction types retrieved.",
                 statisticsService.getNumberOfTransactionsByType(requestDTO), HttpStatus.OK);
     }
 
-    @PutMapping("/transaction/sum_for_transaction_types")
+    @PutMapping("/transactions/sum_for_transaction_types")
     public ResponseEntity<ResponseWrapper<SumOfTransactionsByTypeResponseDTO>> getSumOfTransactionsByType(@Valid @RequestBody FilterByDatesRequestDTO requestDTO) {
         return ResponseWrapper.wrap("Transaction sum for transaction types retrieved.",
                 statisticsService.getSumOfTransactionsByType(requestDTO), HttpStatus.OK);

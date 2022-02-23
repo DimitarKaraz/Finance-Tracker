@@ -73,7 +73,7 @@ public class StatisticsDAO {
             "ON (p.payment_method_id = t.payment_method_id)\n" +
             "WHERE\t";
 
-    private final String closedBudgetSQL = "SELECT b.budget_id, b.name, b.amount_spent, b.max_limit, b.start_date, b.note, b.end_date,\n" +
+    private final String closedBudgetSQL = "SELECT b.closed_budget_id, b.name, b.amount_spent, b.max_limit, b.start_date, b.note, b.end_date,\n" +
             "i.interval_id, i.days, i.name,\n" +
             "a.name, curr.currency_id, curr.name, curr.abbreviation,\n" +
             "c.category_id, c.user_id, c.name, tt.transaction_type_id, tt.name, ci.category_icon_id, ci.image_url\n" +
