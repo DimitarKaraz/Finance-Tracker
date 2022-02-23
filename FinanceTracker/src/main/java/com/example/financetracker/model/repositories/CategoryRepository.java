@@ -7,10 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
+
+    Optional<Category> findByName(String name);
+
     List<Category> findAllByUser_UserIdOrUser_UserIdIsNull(int userId);
 
     Set<Category> findCategoriesByCategoryIdIn(Set<Integer> categoryIds);

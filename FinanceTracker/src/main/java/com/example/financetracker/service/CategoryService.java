@@ -117,10 +117,12 @@ public class CategoryService {
 
     @Transactional
     public void deleteCategoryById(int categoryId){
-        Category otherCategory = categoryRepository.findById(1)
-                .orElseThrow(() -> {throw new NotFoundException("\"Other\" category does not exist.");});
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid category id.");});
+        String otherName = category.getTransactionType().getName().equalsIgnoreCase("income")
+                ? "Other Income" : "Other Expense";
+        Category otherCategory = categoryRepository.findByName(otherName)
+                .orElseThrow(() -> {throw new NotFoundException("\"Other\" category does not exist.");});
         if (category.getUser() == null) {
             throw new BadRequestException("This category cannot be deleted.");
         }

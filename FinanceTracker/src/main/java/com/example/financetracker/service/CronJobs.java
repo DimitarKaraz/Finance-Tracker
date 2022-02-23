@@ -28,11 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-//@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class CronJobs {
-    public static final String SENDER_MAIL = "plevenskikozi@gmail.com";
-    public static final String HOST = "smtp.gmail.com";
-    public static final String PASSWORD = "financetrackerpass";
 
     @Autowired
     private RecurrentTransactionRepository recurrentTransactionRepository;
