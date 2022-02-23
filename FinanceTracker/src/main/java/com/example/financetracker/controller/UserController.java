@@ -23,52 +23,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-  /*  @GetMapping("/checky")
-    public void checkAuthentication() {
-
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication auth = context.getAuthentication();
-        String email = auth.getName();
-        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
-        List<SimpleGrantedAuthority> authorities = auth.getAuthorities().stream()
-                .map(grantedAuthority -> new SimpleGrantedAuthority(grantedAuthority.getAuthority()))
-                .collect(Collectors.toList()) ;
-        String credentials = (String) auth.getCredentials();
-        WebAuthenticationDetails details = (WebAuthenticationDetails) auth.getDetails();
-        System.out.println(email);
-        System.out.println(myUserDetails);
-        System.out.println(authorities);
-        System.out.println(credentials);
-        System.out.println(details);
-        System.out.println("Session id: " +details.getSessionId());
-        System.out.println("Remote address: " + details.getRemoteAddress());
-
-    }*/
-
-//    @PostMapping("/register_user")
-//    public ResponseEntity<ResponseWrapper<UserProfileDTO>> register(@Valid @RequestBody UserRegisterRequestDTO requestDTO) {
-//        return ResponseWrapper.wrap("User was registered.", userService.register(requestDTO), HttpStatus.CREATED);
-//    }
-
-//    @PostMapping("/login")
-//    public ResponseEntity<ResponseWrapper<UserProfileDTO>> login(@Valid @RequestBody UserLoginRequestDTO requestDTO) {
-//        UserProfileDTO response = userService.login(requestDTO);
-//        return ResponseWrapper.wrap("User logged in.", response, HttpStatus.OK);
-//    }
-
-
     @GetMapping("/profile")
     public ResponseEntity<ResponseWrapper<UserProfileDTO>> getProfile() {
         return ResponseWrapper.wrap("User retrieved.",
                 userService.getProfile(), HttpStatus.OK);
     }
-    // You can't see other people's profiles
-/*    @GetMapping("/{id}")
-    @PreAuthorize("#id == principal.userId")
-    public ResponseEntity<ResponseWrapper<UserProfileDTO>> getUserById(@PathVariable("id") int id) {
-        return ResponseWrapper.wrap("User retrieved.", userService.getUserById(id), HttpStatus.OK);
-    }*/
-
 
     @PutMapping("/edit_profile")
     public ResponseEntity<ResponseWrapper<UserProfileDTO>> editProfile(@Valid @RequestBody UserEditProfileRequestDTO requestDTO) {

@@ -34,29 +34,6 @@ public class UserService {
     @Autowired
     private PasswordEncoder encoder;
 
-
-//    public UserProfileDTO register(UserRegisterRequestDTO requestDTO) {
-//        if (userRepository.existsByEmail(requestDTO.getEmail())) {
-//            throw new BadRequestException("Email already exists.");
-//        }
-//        if (!requestDTO.getConfirmPassword().equals(requestDTO.getPassword())){
-//            throw new BadRequestException("Password does not match.");
-//        }
-//        requestDTO.setPassword(encoder.encode(requestDTO.getPassword()));
-//        User user = modelMapper.map(requestDTO, User.class);
-//        user.setAuthorities("ROLE_USER");
-//        userRepository.save(user);
-//        return modelMapper.map(user, UserProfileDTO.class);
-//    }
-
-//    public UserProfileDTO login(UserLoginRequestDTO requestDTO){
-//        User user = userRepository.findByEmail(requestDTO.getEmail());
-//        if (user == null || !(encoder.matches(requestDTO.getPassword(), user.getPassword()))){
-//            throw new UnauthorizedException("Wrong email or password.");
-//        }
-//        return modelMapper.map(user, UserProfileDTO.class);
-//    }
-
     public UserProfileDTO getProfile() {
         User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
@@ -95,8 +72,7 @@ public class UserService {
         User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new NotFoundException("User not found.");});
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-        //todo might produce nullpointer?
-        if (!extension.matches(FileService.allowedExtensionsREGEX)){
+        if (extension == null || !extension.matches(FileService.allowedExtensionsREGEX)){
             throw new BadRequestException("Unsupported file type.");
         }
         String fileName = UUID.randomUUID() + "." + extension;

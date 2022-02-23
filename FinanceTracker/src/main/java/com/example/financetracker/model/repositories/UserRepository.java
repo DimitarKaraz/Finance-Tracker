@@ -1,6 +1,7 @@
 package com.example.financetracker.model.repositories;
 
 import com.example.financetracker.model.pojo.User;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,9 +17,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     boolean existsByEmail(String email);
 
-    List<User> findAll();
+    @NotNull List<User> findAll();
 
-    //todo verify if working properly
     @Modifying
     @Query(value = "SELECT *\n" +
             "FROM users\n" +

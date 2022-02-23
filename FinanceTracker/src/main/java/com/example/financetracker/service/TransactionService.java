@@ -200,7 +200,6 @@ public class TransactionService {
         for (Budget budget : affectedBudgets){
             budget.setAmountSpent(budget.getAmountSpent().subtract(oldTransactionAmount));
             budget.setAmountSpent(budget.getAmountSpent().add(newTransactionAmount));
-            //todo if budget is 75% spent or 100% spent send notifications/warnings to user
             budgetRepository.save(budget);
         }
     }

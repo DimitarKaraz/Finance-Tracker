@@ -23,6 +23,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -54,7 +55,7 @@ public class GlobalExceptionHandler {
         // This exception is thrown if the userId of the current principal doesn't exist in the database.
         // Therefore, it is a good idea to log out the user (and redirect him to login page)
         HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+                ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         new SecurityContextLogoutHandler().logout(request, null, null);
 
         return ResponseEntity.status(401).body(new ExceptionDTO(HttpStatus.UNAUTHORIZED, e.getMessage(), LocalDateTime.now()));
@@ -113,7 +114,7 @@ public class GlobalExceptionHandler {
         // This exception is thrown if the userId of the current principal doesn't exist in the database.
         // Therefore, it is a good idea to log out the user (and redirect him to login page)
         HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+                ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         new SecurityContextLogoutHandler().logout(request, null, null);
         return ResponseEntity.status(401).body(new ExceptionDTO(HttpStatus.UNAUTHORIZED, e.getMessage(), LocalDateTime.now()));
     }

@@ -3,7 +3,6 @@ package com.example.financetracker.authentication;
 import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.EmailAlreadyExistsException;
 import com.example.financetracker.exceptions.PasswordMismatchException;
-import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
 import com.example.financetracker.model.dto.userDTOs.UserRegisterFormDTO;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
@@ -27,7 +26,7 @@ public class AuthenticationService {
     @Autowired
     private EmailService emailService;
 
-    public UserProfileDTO register(UserRegisterFormDTO form, String siteURL) {
+    public void register(UserRegisterFormDTO form, String siteURL) {
         if (userRepository.existsByEmail(form.getEmail())) {
             throw new EmailAlreadyExistsException("Email already exists.");
         }
@@ -42,7 +41,6 @@ public class AuthenticationService {
         user.setAuthorities("ROLE_USER");
         userRepository.save(user);
         sendVerificationEmail(user, siteURL);
-        return modelMapper.map(user, UserProfileDTO.class);
     }
 
     private void sendVerificationEmail(User user, String siteURL) {
