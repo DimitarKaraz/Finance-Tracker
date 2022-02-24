@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -212,7 +213,7 @@ public class StatisticsDAO {
         int userId = MyUserDetailsService.getCurrentUserId();
         String sql = transactionSQL +
                 "(a.user_id = " + userId + ") AND (t.date_time BETWEEN \"" +
-                requestDTO.getStartDate() + "\" AND \"" + requestDTO.getEndDate() + "\")\n";
+                requestDTO.getStartDate().atTime(LocalTime.MIN) + "\" AND \"" + requestDTO.getEndDate().atTime(LocalTime.MAX) + "\")\n";
         if (requestDTO.getAccountId() != null) {
             sql += "AND (t.account_id = " + requestDTO.getAccountId() + ")\n";
         }

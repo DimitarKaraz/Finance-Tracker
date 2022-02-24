@@ -124,7 +124,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionDTO> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         return ResponseEntity.status(400).body(new ExceptionDTO(HttpStatus.BAD_REQUEST, "Invalid input data.", LocalDateTime.now()));
     }
-    
+
     @ExceptionHandler(BadSqlGrammarException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ExceptionDTO> handleBadSqlGrammarException(BadSqlGrammarException e) {
