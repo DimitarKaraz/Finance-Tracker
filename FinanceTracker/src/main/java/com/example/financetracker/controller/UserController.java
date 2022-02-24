@@ -1,10 +1,12 @@
 package com.example.financetracker.controller;
 
 
+import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.model.dto.ResponseWrapper;
 import com.example.financetracker.model.dto.userDTOs.ChangePasswordRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.UserEditProfileRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
+import com.example.financetracker.service.FileService;
 import com.example.financetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,6 +45,9 @@ public class UserController {
 
     @PostMapping("/change_profile_image")
     public String changeProfileImage(@RequestParam(name = "file") MultipartFile file){
+        if (file == null || !file.getContentType().matches(FileService.allowedExtensionsREGEX)){
+            throw new BadRequestException("Unsupported file type.");
+        }
         return userService.uploadProfileImage(file);
     }
 

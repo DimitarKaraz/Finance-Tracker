@@ -21,21 +21,23 @@ public class EmailService {
 
 
     public void sendEmail(String subject, String to, String text, boolean hasHtml, File file, String fileName){
-        try {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setSubject(subject);
-            helper.setFrom(appEmail, "Finance Tracker Support");
-            helper.setTo(to);
-            helper.setReplyTo(appEmail);
-            helper.setText(text, hasHtml);
-            if (file != null) {
-                helper.addAttachment(fileName, file);
+        Thread t = new Thread(() -> {
+            try {
+                MimeMessage message = javaMailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true);
+                helper.setSubject(subject);
+                helper.setFrom(appEmail, "Finance Tracker Support");
+                helper.setTo(to);
+                helper.setReplyTo(appEmail);
+                helper.setText(text, hasHtml);
+                if (file != null) {
+                    helper.addAttachment(fileName, file);
+                }
+                javaMailSender.send(message);
+            } catch (MessagingException | UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
-            javaMailSender.send(message);
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
 }
