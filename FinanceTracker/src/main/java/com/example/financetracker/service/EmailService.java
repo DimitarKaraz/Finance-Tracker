@@ -21,7 +21,7 @@ public class EmailService {
 
 
     public void sendEmail(String subject, String to, String text, boolean hasHtml, File file, String fileName){
-        Thread t = new Thread(() -> {
+        new Thread(() -> {
             try {
                 MimeMessage message = javaMailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -37,7 +37,7 @@ public class EmailService {
             } catch (MessagingException | UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-        });
+        }).start();
     }
 
 }
