@@ -1,11 +1,11 @@
 package com.example.financetracker.authentication;
 
+import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.EmailAlreadyExistsException;
 import com.example.financetracker.exceptions.PasswordMismatchException;
 import com.example.financetracker.model.dto.userDTOs.UserRegisterFormDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,14 +34,14 @@ public class AuthenticationController {
 
     @GetMapping("/register")
     public String register(final Model model){
-        model.addAttribute("userRegisterFormDTO", new UserRegisterFormDTO());
+        model.addAttribute("registerForm", new UserRegisterFormDTO());
         return "account/register";
     }
 
     @PostMapping("/register")
-    public String userRegistration(final @Valid UserRegisterFormDTO userData, final BindingResult bindingResult, final Model model, HttpServletRequest request) {
+    public String userRegistration(final @Valid @ModelAttribute("registerForm") UserRegisterFormDTO userData, final BindingResult bindingResult, final Model model, HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("registrationForm", userData);
+            model.addAttribute("registerForm", userData);
             return "account/register";
         }
         try {
@@ -48,14 +49,20 @@ public class AuthenticationController {
             authenticationService.register(userData, url);
         } catch (EmailAlreadyExistsException e){
             bindingResult.rejectValue("email", "userData.email");
-            model.addAttribute("registrationForm", userData);
+            model.addAttribute("registerForm", userData);
+            return "account/register";
+        } catch (BadRequestException e){
+            bindingResult.rejectValue("password", "userData.password");
+            model.addAttribute("registerForm", userData);
             return "account/register";
         } catch (PasswordMismatchException e){
             bindingResult.rejectValue("confirmPassword", "userData.confirmPassword");
-            model.addAttribute("registrationForm", userData);
+            model.addAttribute("registerForm", userData);
             return "account/register";
         }
-        model.addAttribute("registrationMsg", messageSource.getMessage("user.registration.verification.email.msg", null, LocaleContextHolder.getLocale()));
+        model.addAttribute("registrationMsg", "Thanks for your registration. " +
+                                                                    "We have sent a verification email. " +
+                                                                    "Please verify your account.");
         return "account/registerSuccess";
     }
 

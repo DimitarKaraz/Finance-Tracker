@@ -1,5 +1,6 @@
 package com.example.financetracker.model.dto.userDTOs;
 
+import com.example.financetracker.passwordValidators.ValidPassword;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,11 +27,15 @@ public class UserRegisterFormDTO implements Serializable {
 
     // For easier demonstration, the @ValidPassword is commented out.
 
-//    @ValidPassword
+    @ValidPassword(message = "Password must be between 8-50 symbols, and contain " +
+            "one lower-case letter, one upper-case letter, one digit, one special symbol, no whitespaces, " +
+            "and no 4-or-more ordered letters or digits.")
     @NotBlank(message = "Invalid password.")
     private String password;
 
-//    @ValidPassword
+    @ValidPassword(message = "Password must be between 8-50 symbols, and contain " +
+            "one lower-case letter, one upper-case letter, one digit, one special symbol, no whitespaces, " +
+            "and no 4-or-more ordered letters or digits.")
     @NotBlank(message = "Invalid password.")
     private String confirmPassword;
 

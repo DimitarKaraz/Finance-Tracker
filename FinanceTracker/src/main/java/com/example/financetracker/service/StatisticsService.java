@@ -1,6 +1,8 @@
 package com.example.financetracker.service;
 
 import com.example.financetracker.exceptions.BadRequestException;
+import com.example.financetracker.exceptions.ForbiddenException;
+import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.dao.SpecialStatisticsDAO;
 import com.example.financetracker.model.dao.StatisticsDAO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersRequestDTO;
@@ -9,12 +11,10 @@ import com.example.financetracker.model.dto.closedBudgetDTOs.ClosedBudgetRespons
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.recurrentTransactionDTOs.RecurrentTransactionResponseDTO;
 import com.example.financetracker.model.dto.specialStatisticsDTOs.*;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.AverageTransactionForTransactionTypesResponseDTO;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.FilterByDatesRequestDTO;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.NumberOfTransactionsByTypeResponseDTO;
-import com.example.financetracker.model.dto.specialStatisticsDTOs.TopFiveExpensesOrIncomesResponseDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
+import com.example.financetracker.model.pojo.Account;
+import com.example.financetracker.model.repositories.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -29,11 +29,14 @@ public class StatisticsService {
     private StatisticsDAO statisticsDAO;
     @Autowired
     private SpecialStatisticsDAO specialStatisticsDAO;
+    @Autowired
+    private AccountRepository accountRepository;
 
     public List<BudgetResponseDTO> getBudgetsByFilters(BudgetByFiltersRequestDTO requestDTO) {
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
+        validateAccountId(requestDTO.getAccountId());
         return statisticsDAO.getBudgetsByFilters(requestDTO);
     }
 
@@ -41,6 +44,7 @@ public class StatisticsService {
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
+        validateAccountId(requestDTO.getAccountId());
         return statisticsDAO.getRecurrentTransactionsByFilters(requestDTO);
     }
 
@@ -48,7 +52,16 @@ public class StatisticsService {
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
+        validateAccountId(requestDTO.getAccountId());
         return statisticsDAO.getTransactionsByFilters(requestDTO);
+    }
+
+    public List<ClosedBudgetResponseDTO> getClosedBudgetsByFilters(BudgetByFiltersRequestDTO requestDTO) {
+        if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
+            throw new BadRequestException("Start date cannot be past end date.");
+        }
+        validateAccountId(requestDTO.getAccountId());
+        return statisticsDAO.getClosedBudgetsByFilters(requestDTO);
     }
 
     public TopFiveExpensesOrIncomesResponseDTO getTopFiveExpensesCategories(FilterByDatesRequestDTO requestDTO) {
@@ -93,13 +106,6 @@ public class StatisticsService {
         return specialStatisticsDAO.getAverageTransactions(requestDTO);
     }
 
-    public List<ClosedBudgetResponseDTO> getClosedBudgetsByFilters(BudgetByFiltersRequestDTO requestDTO) {
-        if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
-            throw new BadRequestException("Start date cannot be past end date.");
-        }
-        return statisticsDAO.getClosedBudgetsByFilters(requestDTO);
-    }
-
     public NumberOfTransactionsByTypeResponseDTO getNumberOfTransactionsByType(FilterByDatesRequestDTO requestDTO) {
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
@@ -112,6 +118,14 @@ public class StatisticsService {
             throw new BadRequestException("Start date cannot be past end date.");
         }
         return specialStatisticsDAO.getSumOfTransactionsByTransactionTypes(requestDTO);
+    }
+
+    private void validateAccountId(int accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
+        if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this account.");
+        }
     }
     
 }

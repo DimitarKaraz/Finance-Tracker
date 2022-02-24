@@ -16,7 +16,6 @@ public interface RecurrentTransactionRepository extends JpaRepository<RecurrentT
 
     List<RecurrentTransaction> findAllByCategoryCategoryId(int categoryId);
 
-    @Modifying
     @Query(value = "SELECT re.*\n" +
             "FROM recurrent_transactions AS re\n" +
             "LEFT JOIN intervals AS i ON re.interval_id = i.interval_id\n" +

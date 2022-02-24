@@ -1,10 +1,11 @@
 package com.example.financetracker.passwordValidators;
 
-import lombok.SneakyThrows;
+import com.example.financetracker.exceptions.BadRequestException;
 import org.passay.*;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -16,13 +17,16 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
     public void initialize(ValidPassword arg0) {
     }
 
-    @SneakyThrows
     @Override
     public boolean isValid(String password, ConstraintValidatorContext context) {
         Properties props = new Properties();
         InputStream inputStream = getClass()
                 .getClassLoader().getResourceAsStream("passay.properties");
-        props.load(inputStream);
+        try {
+            props.load(inputStream);
+        } catch (IOException e) {
+            throw new BadRequestException("Password is too weak.");
+        }
         MessageResolver resolver = new PropertiesMessageResolver(props);
         PasswordValidator validator = new PasswordValidator(resolver, Arrays.asList(
                 // length between 8 and 50 characters

@@ -19,7 +19,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @NotNull List<User> findAll();
 
-    @Modifying
     @Query(value = "SELECT *\n" +
             "FROM users\n" +
             "WHERE last_login <= DATE_ADD(CURDATE(), INTERVAL -1 MONTH)\n" +
