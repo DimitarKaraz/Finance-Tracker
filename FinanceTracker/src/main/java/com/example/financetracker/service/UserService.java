@@ -37,9 +37,7 @@ public class UserService {
     public UserProfileDTO getProfile() {
         User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
-        UserProfileDTO userProfileDTO = modelMapper.map(user, UserProfileDTO.class);
-        System.out.println(userProfileDTO);
-        return userProfileDTO;
+        return modelMapper.map(user, UserProfileDTO.class);
     }
 
     public UserProfileDTO editProfile(UserEditProfileRequestDTO requestDTO){
