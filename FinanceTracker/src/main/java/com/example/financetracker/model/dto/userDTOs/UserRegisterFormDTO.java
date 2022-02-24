@@ -24,9 +24,13 @@ public class UserRegisterFormDTO implements Serializable {
             message = "Invalid email.")
     private String email;
 
+    // For easier demonstration, the @ValidPassword is commented out.
+
+//    @ValidPassword
     @NotBlank(message = "Invalid password.")
     private String password;
 
+//    @ValidPassword
     @NotBlank(message = "Invalid password.")
     private String confirmPassword;
 

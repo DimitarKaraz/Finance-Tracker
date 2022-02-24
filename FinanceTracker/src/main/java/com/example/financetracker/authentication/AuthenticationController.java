@@ -68,6 +68,11 @@ public class AuthenticationController {
         return "redirect:/profile";
     }
 
+    @GetMapping("/logout")
+    public String logout(){
+        return "account/logout";
+    }
+
     @GetMapping("/verify")
     public String verifyUser(@Param("code") String code) {
         if (authenticationService.verify(code)) {
