@@ -57,10 +57,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .deleteCookies("JSESSIONID"))
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-//                .sessionAuthenticationStrategy()
                 .invalidSessionUrl("/login")
             .and()
-            .csrf().disable()
+            .csrf().disable()        // For easier demonstration in Postman, csrf is disabled.
         ;
     }
 
