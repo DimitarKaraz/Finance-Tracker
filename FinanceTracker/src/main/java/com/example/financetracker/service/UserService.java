@@ -57,7 +57,6 @@ public class UserService {
     public void changePassword(ChangePasswordRequestDTO requestDTO){
         User user =  userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid user id.");});
-        //TODO: password strength
         if (!encoder.matches(requestDTO.getOldPassword(), user.getPassword())){
             throw new BadRequestException(("Wrong password."));
         }

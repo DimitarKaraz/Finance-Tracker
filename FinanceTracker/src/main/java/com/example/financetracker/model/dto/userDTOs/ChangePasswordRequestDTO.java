@@ -1,5 +1,6 @@
 package com.example.financetracker.model.dto.userDTOs;
 
+import com.example.financetracker.passwordValidators.ValidPassword;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,9 +17,11 @@ public class ChangePasswordRequestDTO {
     @NotBlank(message = "Invalid password.")
     private String oldPassword;
 
+    @ValidPassword
     @NotBlank(message = "Invalid password.")
     private String newPassword;
 
+    @ValidPassword
     @NotBlank(message = "Invalid password.")
     private String confirmNewPassword;
 
