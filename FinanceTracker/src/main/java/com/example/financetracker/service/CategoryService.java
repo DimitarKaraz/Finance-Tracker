@@ -8,14 +8,20 @@ import com.example.financetracker.model.dto.categoryDTOs.CategoryCreateRequestDT
 import com.example.financetracker.model.dto.categoryDTOs.CategoryEditRequestDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
 import com.example.financetracker.model.pojo.Category;
+import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,11 +72,11 @@ public class CategoryService {
         return modelMapper.map(category, CategoryResponseDTO.class);
     }
 
-    public List<CategoryResponseDTO> getAllCategoriesOfCurrentUser(){
+    public LinkedHashMap<String, Object> getAllCategoriesOfCurrentUser(int pageNumber){
         int userId = MyUserDetailsService.getCurrentUserId();
-        return categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(userId).stream()
-                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(pageNumber, 5, Sort.by("transactionType_transactionTypeId").ascending());
+        Page<Category> page = categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(userId, pageable);
+        return convertToMapOfDTOs(page);
     }
 
     public CategoryResponseDTO getCategoryById(int id) {
@@ -156,4 +162,15 @@ public class CategoryService {
         categoryRepository.deleteById(categoryId);
     }
 
+    private LinkedHashMap<String, Object> convertToMapOfDTOs(Page<Category> page){
+        LinkedHashMap<String, Object> pageMap = new LinkedHashMap<>();
+        pageMap.put("totalItems", page.getTotalElements());
+        pageMap.put("currentPage", page.getNumber());
+        pageMap.put("totalPages", page.getTotalPages());
+        pageMap.put("Categories", page.getContent()
+                .stream()
+                .map(category -> modelMapper.map(category, CategoryResponseDTO.class))
+                .collect(Collectors.toList()));
+        return pageMap;
+    }
 }

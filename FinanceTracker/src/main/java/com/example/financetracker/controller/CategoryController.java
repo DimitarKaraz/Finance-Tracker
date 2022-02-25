@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
@@ -26,9 +27,10 @@ public class CategoryController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<ResponseWrapper<List<CategoryResponseDTO>>> getAllCategoriesOfCurrentUser(){
+    public ResponseEntity<ResponseWrapper<LinkedHashMap<String, Object>>> getAllCategoriesOfCurrentUser
+            (@RequestParam(name = "page", defaultValue = "0") int pageNumber){
         return ResponseWrapper.wrap("Categories for user retrieved.",
-                categoryService.getAllCategoriesOfCurrentUser(), HttpStatus.OK);
+                categoryService.getAllCategoriesOfCurrentUser(pageNumber), HttpStatus.OK);
     }
 
     @GetMapping("/categories/{category_id}")
