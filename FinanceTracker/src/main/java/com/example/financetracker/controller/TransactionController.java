@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
@@ -40,9 +41,10 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions/for_account/{account_id}")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByAccountId(@PathVariable("account_id") int accountId){
+    public ResponseEntity<ResponseWrapper<LinkedHashMap<String, Object>>> getAllTransactionsByAccountId
+            (@PathVariable("account_id") int accountId, @RequestParam(name = "page", defaultValue = "0") int pageNumber){
         return ResponseWrapper.wrap("Retrieved transactions for account.",
-                transactionService.getAllTransactionsByAccountId(accountId), HttpStatus.OK);
+                transactionService.getAllTransactionsByAccountId(accountId, pageNumber), HttpStatus.OK);
     }
 
     @PutMapping("/transactions/edit")

@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -109,14 +111,20 @@ public class TransactionService {
         return convertToResponseDTO(transaction);
     }
 
-    public List<TransactionResponseDTO> getAllTransactionsByAccountId(int accountId){
+    public LinkedHashMap<String, Object> getAllTransactionsByAccountId(int accountId, int pageNumber){
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
         if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
             throw new ForbiddenException("You do not have access to this account.");
         }
-        return transactionRepository.findAllByAccount_AccountId(accountId).stream()
-                .map(this::convertToResponseDTO).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by("dateTime").descending());
+        Page<Transaction> page = transactionRepository.findAllByAccount_AccountId(accountId, pageable);
+        LinkedHashMap<String, Object> pageMap = new LinkedHashMap<>();
+        pageMap.put("totalItems", page.getTotalElements());
+        pageMap.put("currentPage", page.getNumber());
+        pageMap.put("totalPages", page.getTotalPages());
+        pageMap.put("Transactions", page.getContent().stream().map(this::convertToResponseDTO).collect(Collectors.toList()));
+        return pageMap;
     }
 
     @Transactional
@@ -218,5 +226,6 @@ public class TransactionService {
         responseDTO.setCurrency(transaction.getAccount().getCurrency());
         return responseDTO;
     }
+
 
 }
