@@ -4,18 +4,17 @@ import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.exceptions.ForbiddenException;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
-import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionCreateRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionEditRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.pojo.Budget;
-import com.example.financetracker.model.pojo.Category;
 import com.example.financetracker.model.pojo.Transaction;
 import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +22,7 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -98,38 +95,22 @@ public class TransactionService {
         return convertToResponseDTO(transaction);
     }
 
-    public List<TransactionResponseDTO> getAllTransactionsByAccountId(int accountId){
+    public LinkedHashMap<String, Object> getAllTransactionsByAccountId(int accountId, int pageNumber){
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
         if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
             throw new ForbiddenException("You do not have access to this account.");
         }
-        return transactionRepository.findAllByAccount_AccountId(accountId).stream()
-                .map(this::convertToResponseDTO).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by("dateTime").descending());
+        Page<Transaction> page = transactionRepository.findAllByAccount_AccountId(accountId, pageable);
+        LinkedHashMap<String, Object> pageMap = new LinkedHashMap<>();
+        pageMap.put("totalItems", page.getTotalElements());
+        pageMap.put("currentPage", page.getNumber());
+        pageMap.put("totalPages", page.getTotalPages());
+        pageMap.put("Transactions", page.getContent().stream().map(this::convertToResponseDTO).collect(Collectors.toList()));
+        return pageMap;
     }
 
-    public List<TransactionResponseDTO> getAllTransactionsByBudgetId(int budgetId) {
-        Budget budget = budgetRepository.findById(budgetId)
-                .orElseThrow(() -> {throw new NotFoundException("Invalid budget id.");});
-        if (budget.getAccount().getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
-            throw new ForbiddenException("You do not have access to this budget.");
-        }
-        Set<Category> categories = categoryRepository.findAllByBudgetId(budgetId);
-
-        List<Transaction> transactionsByCategoryIds = transactionRepository
-                .findTransactionsByCategoryIsInAndAccountUserUserId(categories, budget.getAccount().getUser().getUserId());
-        List<Transaction> transactionsByStartDate = transactionRepository
-                .findTransactionsByDateTimeAfter(LocalDateTime.of(budget.getStartDate(), LocalTime.now()));
-        List<Transaction> transactionsByUserId = transactionRepository
-                .findAllByAccount_User_UserId(budget.getAccount().getUser().getUserId());
-
-        transactionsByCategoryIds.retainAll(transactionsByStartDate);
-        transactionsByCategoryIds.retainAll(transactionsByUserId);
-
-        return transactionsByCategoryIds.stream()
-                .map(transaction -> convertToResponseDTO(transaction))
-                .collect(Collectors.toList());
-    }
 
     @Transactional
     public TransactionResponseDTO editTransaction(TransactionEditRequestDTO requestDTO) {
@@ -231,34 +212,5 @@ public class TransactionService {
         return responseDTO;
     }
 
-    private void applyFilters(List<Transaction> transactionsByDatesAndFilters, TransactionByFiltersRequestDTO requestDTO){
-        if (requestDTO.getCategoryIds() != null && !requestDTO.getCategoryIds().isEmpty() && requestDTO.getTransactionTypeId() != null){
-            List<Category> chosenCategories = categoryRepository.findAllByCategoryIdIsIn(requestDTO.getCategoryIds());
-            for (Category category : chosenCategories){
-                if (category.getTransactionType().getTransactionTypeId() != requestDTO.getTransactionTypeId()){
-                    throw new BadRequestException("Category transaction types have to match selected transaction type.");
-                }
-            }
-        }
-        if (requestDTO.getAmountMin() != null && requestDTO.getAmountMax() != null){
-            List<Transaction> transactionsByAmount = transactionRepository.findAllByAmountBetween(requestDTO.getAmountMin(), requestDTO.getAmountMax());
-            transactionsByDatesAndFilters.retainAll(transactionsByAmount);
-        }
-        if (requestDTO.getAccountId() != null){
-            List<Transaction> transactionsByAccountId = transactionRepository.findAllByAccount_AccountId(requestDTO.getAccountId());
-            transactionsByDatesAndFilters.retainAll(transactionsByAccountId);
-        }
-        if (requestDTO.getCategoryIds() != null && !requestDTO.getCategoryIds().isEmpty()){
-            List<Transaction> transactionsByCategoryIds = transactionRepository.findAllByCategory_CategoryIdIsIn(requestDTO.getCategoryIds());
-            transactionsByDatesAndFilters.retainAll(transactionsByCategoryIds);
-        }
-        if (requestDTO.getTransactionTypeId() != null){
-            List<Transaction> transactionsByTransactionTypeId = transactionRepository.findAllByTransactionType_TransactionTypeId(requestDTO.getTransactionTypeId());
-            transactionsByDatesAndFilters.retainAll(transactionsByTransactionTypeId);
-        }
-        if (requestDTO.getPaymentMethodId() != null){
-            List<Transaction> transactionsByPaymentMethodId = transactionRepository.findAllByPaymentMethod_PaymentMethodId(requestDTO.getPaymentMethodId());
-            transactionsByDatesAndFilters.retainAll(transactionsByPaymentMethodId);
-        }
-    }
+
 }

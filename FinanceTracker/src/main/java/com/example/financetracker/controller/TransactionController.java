@@ -6,10 +6,12 @@ import com.example.financetracker.model.dto.transactionDTOs.TransactionEditReque
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
@@ -37,15 +39,10 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions/for_account/{account_id}")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByAccountId(@PathVariable("account_id") int accountId){
+    public ResponseEntity<ResponseWrapper<LinkedHashMap<String, Object>>> getAllTransactionsByAccountId
+            (@PathVariable("account_id") int accountId, @RequestParam(name = "page", defaultValue = "0") int pageNumber){
         return ResponseWrapper.wrap("Retrieved transactions for account.",
-                transactionService.getAllTransactionsByAccountId(accountId), HttpStatus.OK);
-    }
-
-    @GetMapping("/transactions/for_budget/{budget_id}")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByBudgetId(@PathVariable("budget_id") int budgetId) {
-        return ResponseWrapper.wrap("Retrieved transactions for budget.",
-                transactionService.getAllTransactionsByBudgetId(budgetId), HttpStatus.OK);
+                transactionService.getAllTransactionsByAccountId(accountId, pageNumber), HttpStatus.OK);
     }
 
     @PutMapping("/transactions/edit")
