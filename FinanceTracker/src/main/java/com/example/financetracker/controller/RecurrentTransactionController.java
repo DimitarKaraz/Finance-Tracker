@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
@@ -25,9 +26,10 @@ public class RecurrentTransactionController {
     }
 
     @GetMapping("/recurrent_transactions")
-    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getAllRecurrentTransactionsForCurrentUser(){
+    public ResponseEntity<ResponseWrapper<LinkedHashMap<String, Object>>> getAllRecurrentTransactionsForCurrentUser
+            (@RequestParam(name = "page", defaultValue = "0") int pageNumber){
         return ResponseWrapper.wrap("Retrieved recurrent transactions for user.",
-                recurrentTransactionService.getAllRecurrentTransactionsForCurrentUser(), HttpStatus.OK);
+                recurrentTransactionService.getAllRecurrentTransactionsForCurrentUser(pageNumber), HttpStatus.OK);
     }
 
     @GetMapping("/recurrent_transactions/{rt_id}")

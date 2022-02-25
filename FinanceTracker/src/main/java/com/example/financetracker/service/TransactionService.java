@@ -80,10 +80,11 @@ public class TransactionService {
         return convertToResponseDTO(transaction);
     }
 
-    public List<TransactionResponseDTO> getAllTransactionsByCurrentUser(){
+    public LinkedHashMap<String, Object> getAllTransactionsByCurrentUser(int pageNumber){
         int userId = MyUserDetailsService.getCurrentUserId();
-        return transactionRepository.findAllByAccount_User_UserId(userId).stream()
-                .map(this::convertToResponseDTO).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by("dateTime").descending());
+        Page<Transaction> page = transactionRepository.findAllByAccount_User_UserId(userId, pageable);
+        return convertToMapOfDTOs(page);
     }
 
     public TransactionResponseDTO getTransactionsById(int transactionId){
@@ -103,12 +104,7 @@ public class TransactionService {
         }
         Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by("dateTime").descending());
         Page<Transaction> page = transactionRepository.findAllByAccount_AccountId(accountId, pageable);
-        LinkedHashMap<String, Object> pageMap = new LinkedHashMap<>();
-        pageMap.put("totalItems", page.getTotalElements());
-        pageMap.put("currentPage", page.getNumber());
-        pageMap.put("totalPages", page.getTotalPages());
-        pageMap.put("Transactions", page.getContent().stream().map(this::convertToResponseDTO).collect(Collectors.toList()));
-        return pageMap;
+        return convertToMapOfDTOs(page);
     }
 
 
@@ -212,5 +208,13 @@ public class TransactionService {
         return responseDTO;
     }
 
+    private LinkedHashMap<String, Object> convertToMapOfDTOs(Page<Transaction> page){
+        LinkedHashMap<String, Object> pageMap = new LinkedHashMap<>();
+        pageMap.put("totalItems", page.getTotalElements());
+        pageMap.put("currentPage", page.getNumber());
+        pageMap.put("totalPages", page.getTotalPages());
+        pageMap.put("Transactions", page.getContent().stream().map(this::convertToResponseDTO).collect(Collectors.toList()));
+        return pageMap;
+    }
 
 }

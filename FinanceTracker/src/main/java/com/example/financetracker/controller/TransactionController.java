@@ -27,9 +27,10 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsOfCurrentUser(){
+    public ResponseEntity<ResponseWrapper<LinkedHashMap<String, Object>>> getAllTransactionsOfCurrentUser
+            (@RequestParam(name = "page", defaultValue = "0") int pageNumber){
         return ResponseWrapper.wrap("Retrieved transactions for user.",
-                transactionService.getAllTransactionsByCurrentUser(), HttpStatus.OK);
+                transactionService.getAllTransactionsByCurrentUser(pageNumber), HttpStatus.OK);
     }
     
     @GetMapping("/transactions/{transaction_id}")

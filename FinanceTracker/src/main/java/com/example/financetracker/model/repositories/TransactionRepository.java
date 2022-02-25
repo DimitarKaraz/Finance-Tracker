@@ -14,7 +14,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     List<Transaction> findAllByCategoryCategoryId(int categoryId);
 
-    List<Transaction> findAllByAccount_User_UserId(int userId);
+    //List<Transaction> findAllByAccount_User_UserId(int userId);
+
+    Page<Transaction> findAllByAccount_User_UserId(int userId, Pageable pageable);
 
     Page<Transaction> findAllByAccount_AccountId(int accountId, Pageable pageable);
 
