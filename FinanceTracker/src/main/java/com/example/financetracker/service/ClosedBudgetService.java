@@ -59,7 +59,7 @@ public class ClosedBudgetService {
         Page<ClosedBudget> closedBudgetsPage = closedBudgetRepository.findAllByAccount_User_UserId(userId,
                 PageRequest.of(pageNo, pageSize, Sort.by("interval_intervalId").ascending()));
 
-        return covertToMap(closedBudgetsPage, pageNo);
+        return covertToMap(closedBudgetsPage);
     }
 
     public ClosedBudgetResponseDTO getClosedBudgetById(int closedBudgetId){
@@ -89,10 +89,10 @@ public class ClosedBudgetService {
         return responseDTO;
     }
 
-    private Map<String, Object> covertToMap(Page<ClosedBudget> closedBudgetsPage, int pageNo) {
+    private Map<String, Object> covertToMap(Page<ClosedBudget> closedBudgetsPage) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("totalItems", closedBudgetsPage.getTotalElements());
-        map.put("currentPage", pageNo);
+        map.put("currentPage", closedBudgetsPage.getNumber());
         map.put("totalPages", closedBudgetsPage.getTotalPages());
         map.put("Budgets", closedBudgetsPage.getContent().stream()
                 .map(budget -> convertToClosedBudgetResponseDTO(modelMapper, budget))

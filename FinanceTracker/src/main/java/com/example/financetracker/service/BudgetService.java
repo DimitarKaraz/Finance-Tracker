@@ -89,7 +89,7 @@ public class BudgetService {
         Page<Budget> budgetsPage = budgetRepository.findAllByAccount_User_UserId(userId,
                 PageRequest.of(pageNo, pageSize, Sort.by("interval_intervalId").ascending()));
 
-        return covertToMap(budgetsPage, pageNo);
+        return covertToMap(budgetsPage);
     }
 
     public BudgetResponseDTO getBudgetById(int budgetId){
@@ -187,10 +187,10 @@ public class BudgetService {
         return responseDTO;
     }
 
-    private Map<String, Object> covertToMap(Page<Budget> budgetsPage, int pageNo) {
+    private Map<String, Object> covertToMap(Page<Budget> budgetsPage) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("totalItems", budgetsPage.getTotalElements());
-        map.put("currentPage", pageNo);
+        map.put("currentPage", budgetsPage.getNumber());
         map.put("totalPages", budgetsPage.getTotalPages());
         map.put("Budgets", budgetsPage.getContent().stream()
                 .map(budget -> convertToBudgetResponseDTO(modelMapper, budget))

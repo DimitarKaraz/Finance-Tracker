@@ -69,7 +69,7 @@ public class AccountService {
         Page<Account> accountsPage = accountRepository.findAccountsByUser_UserId(userId
                     , PageRequest.of(pageNo, pageSize, Sort.by("name")));
 
-        return convertToMap(accountsPage, pageNo);
+        return convertToMap(accountsPage);
     }
 
     public AccountResponseDTO getAccountById(int accountId) {
@@ -113,10 +113,10 @@ public class AccountService {
         accountRepository.deleteById(accountId);
     }
 
-    private Map<String, Object> convertToMap(Page<Account> closedBudgetsPage, int pageNo) {
+    private Map<String, Object> convertToMap(Page<Account> closedBudgetsPage) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("totalItems", closedBudgetsPage.getTotalElements());
-        map.put("currentPage", pageNo);
+        map.put("currentPage", closedBudgetsPage.getNumber());
         map.put("totalPages", closedBudgetsPage.getTotalPages());
         map.put("Accounts", closedBudgetsPage.getContent().stream()
                 .map(account -> modelMapper.map(account, AccountResponseDTO.class))

@@ -6,14 +6,13 @@ import com.example.financetracker.model.dto.transactionDTOs.TransactionEditReque
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.Map;
 
 @RestController
 public class TransactionController {
@@ -28,7 +27,7 @@ public class TransactionController {
     }
 
     @GetMapping("/transactions/page/{page_number}")
-    public ResponseEntity<ResponseWrapper<Page<TransactionResponseDTO>>> getAllTransactionsOfCurrentUser(
+    public ResponseEntity<ResponseWrapper<Map<String, Object>>> getAllTransactionsOfCurrentUser(
             @RequestParam(name = "page_number", defaultValue = "0") int pageNo){
         return ResponseWrapper.wrap("Retrieved transactions for user.",
                 transactionService.getAllTransactionsForCurrentUser(pageNo), HttpStatus.OK);
