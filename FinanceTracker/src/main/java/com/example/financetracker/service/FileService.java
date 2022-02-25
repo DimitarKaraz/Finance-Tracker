@@ -29,6 +29,7 @@ public class FileService {
 
     public static final String PROFILE_IMAGES_PATH = "profileImages";
     public static final String allowedExtensionsREGEX = "(?i)(jpeg|png|bmp|jpg)";
+    public static final String allowedContentTypesREGEX = "(?i)(image/jpeg|image/png|image/bmp|image/jpg)";
 
     @Autowired
     private UserRepository userRepository;

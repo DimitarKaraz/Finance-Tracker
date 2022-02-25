@@ -45,7 +45,7 @@ public class UserController {
 
     @PostMapping("/change_profile_image")
     public String changeProfileImage(@RequestParam(name = "file") MultipartFile file){
-        if (file.getContentType() == null || !file.getContentType().matches(FileService.allowedExtensionsREGEX)){
+        if (file.getContentType() == null || !file.getContentType().matches(FileService.allowedContentTypesREGEX)){
             throw new BadRequestException("Unsupported file type.");
         }
         return userService.uploadProfileImage(file);
