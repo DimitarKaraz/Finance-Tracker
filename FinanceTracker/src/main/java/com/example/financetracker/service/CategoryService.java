@@ -12,6 +12,7 @@ import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,6 +49,9 @@ public class CategoryService {
     @Autowired
     private RecurrentTransactionRepository recurrentTransactionRepository;
 
+    @Value("${default.page.size}")
+    private int pageSize;
+
     public CategoryResponseDTO createCategory(CategoryCreateRequestDTO requestDTO){
         int userId = MyUserDetailsService.getCurrentUserId();
 
@@ -73,7 +77,7 @@ public class CategoryService {
 
     public LinkedHashMap<String, Object> getAllCategoriesOfCurrentUser(int pageNumber){
         int userId = MyUserDetailsService.getCurrentUserId();
-        Pageable pageable = PageRequest.of(pageNumber, 5, Sort.by("transactionType_transactionTypeId").ascending());
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("transactionType_transactionTypeId").ascending());
         Page<Category> page = categoryRepository.findAllByUser_UserIdOrUser_UserIdIsNull(userId, pageable);
         return convertToMapOfDTOs(page);
     }

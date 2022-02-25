@@ -16,10 +16,9 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +26,10 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -99,7 +99,7 @@ public class TransactionService {
 
 //        return transactionRepository.findAllByAccount_User_UserId(userId).stream()
 //                .map(this::convertToResponseDTO).collect(Collectors.toList());
-        Pageable pageable = PageRequest.of(pageNo, 10, Sort.by("dateTime").descending());
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("dateTime").descending());
         Page<Transaction> page = transactionRepository.findAllByAccount_User_UserId(userId, pageable);
         return convertToMapOfDTOs(page);
     }
@@ -119,7 +119,7 @@ public class TransactionService {
         if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
             throw new ForbiddenException("You do not have access to this account.");
         }
-        Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by("dateTime").descending());
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("dateTime").descending());
         Page<Transaction> page = transactionRepository.findAllByAccount_AccountId(accountId, pageable);
         return convertToMapOfDTOs(page);
     }

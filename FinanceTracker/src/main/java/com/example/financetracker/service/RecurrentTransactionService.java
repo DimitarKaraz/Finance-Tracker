@@ -15,6 +15,7 @@ import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +50,9 @@ public class RecurrentTransactionService {
     private ModelMapper modelMapper;
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Value("${default.page.size}")
+    private int pageSize;
 
     @Transactional
     public RecurrentTransactionResponseDTO createRecurrentTransaction(RecurrentTransactionCreateRequestDTO requestDTO) {
@@ -95,7 +99,7 @@ public class RecurrentTransactionService {
 
     public LinkedHashMap<String, Object> getAllRecurrentTransactionsForCurrentUser(int pageNumber) {
         int userId = MyUserDetailsService.getCurrentUserId();
-        Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by("interval_intervalId").ascending());
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("interval_intervalId").ascending());
         Page<RecurrentTransaction> recurrentTransactions = recurrentTransactionRepository.findAllByAccount_User_UserId(userId, pageable);
         return convertToMapOfDTOs(recurrentTransactions);
     }
