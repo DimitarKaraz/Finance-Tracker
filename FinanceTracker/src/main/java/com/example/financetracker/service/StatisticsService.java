@@ -120,7 +120,10 @@ public class StatisticsService {
         return specialStatisticsDAO.getSumOfTransactionsByTransactionTypes(requestDTO);
     }
 
-    private void validateAccountId(int accountId) {
+    private void validateAccountId(Integer accountId) {
+        if (accountId == null){
+            return;
+        }
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
         if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
