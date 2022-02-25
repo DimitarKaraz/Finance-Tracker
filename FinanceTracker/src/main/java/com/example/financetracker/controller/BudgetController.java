@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -28,9 +28,10 @@ public class BudgetController {
     }
 
     @GetMapping("/budgets")
-    public ResponseEntity<ResponseWrapper<List<BudgetResponseDTO>>> getAllBudgetsOfCurrentUser(){
+    public ResponseEntity<ResponseWrapper<Map<String, Object>>> getAllBudgetsOfCurrentUser(
+            @RequestParam(name = "page", defaultValue = "0") int pageNo) {
         return ResponseWrapper.wrap("Budgets retrieved.",
-                budgetService.getAllBudgetsOfCurrentUser(), HttpStatus.OK);
+                budgetService.getAllBudgetsOfCurrentUser(pageNo), HttpStatus.OK);
     }
 
     @GetMapping("/budgets/{budget_id}")

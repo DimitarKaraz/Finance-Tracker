@@ -16,12 +16,17 @@ import com.example.financetracker.model.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,6 +46,9 @@ public class BudgetService {
     private IntervalRepository intervalRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Value("${default.page.size}")
+    private int pageSize;
 
     public BudgetResponseDTO createBudget(BudgetCreateRequestDTO requestDTO){
         Account account = accountRepository.findById(requestDTO.getAccountId())
@@ -76,12 +84,12 @@ public class BudgetService {
         return convertToBudgetResponseDTO(modelMapper, budget);
     }
 
-    public List<BudgetResponseDTO> getAllBudgetsOfCurrentUser(){
+    public Map<String, Object> getAllBudgetsOfCurrentUser(int pageNo){
         int userId = MyUserDetailsService.getCurrentUserId();
-        List<Budget> budgets = budgetRepository.findAllByAccount_User_UserId(userId);
-        return budgets.stream()
-                .map(budget -> convertToBudgetResponseDTO(modelMapper, budget))
-                .collect(Collectors.toList());
+        Page<Budget> budgetsPage = budgetRepository.findAllByAccount_User_UserId(userId,
+                PageRequest.of(pageNo, pageSize, Sort.by("interval_intervalId").ascending()));
+
+        return covertToMap(budgetsPage, pageNo);
     }
 
     public BudgetResponseDTO getBudgetById(int budgetId){
@@ -177,5 +185,16 @@ public class BudgetService {
         }
         responseDTO.setCurrency(budget.getAccount().getCurrency());
         return responseDTO;
+    }
+
+    private Map<String, Object> covertToMap(Page<Budget> budgetsPage, int pageNo) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("totalItems", budgetsPage.getTotalElements());
+        map.put("currentPage", pageNo);
+        map.put("totalPages", budgetsPage.getTotalPages());
+        map.put("Budgets", budgetsPage.getContent().stream()
+                .map(budget -> convertToBudgetResponseDTO(modelMapper, budget))
+                .collect(Collectors.toList()));
+        return map;
     }
 }

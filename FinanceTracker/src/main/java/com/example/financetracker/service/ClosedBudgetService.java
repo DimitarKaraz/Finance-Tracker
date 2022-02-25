@@ -11,12 +11,17 @@ import com.example.financetracker.model.repositories.BudgetRepository;
 import com.example.financetracker.model.repositories.ClosedBudgetRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +34,9 @@ public class ClosedBudgetService {
     private ClosedBudgetRepository closedBudgetRepository;
     @Autowired
     private ModelMapper modelMapper;
+
+    @Value("${default.page.size}")
+    private int pageSize;
 
     @Transactional
     public BudgetResponseDTO openClosedBudgetById(int closedBudgetId) {
@@ -46,12 +54,12 @@ public class ClosedBudgetService {
         return BudgetService.convertToBudgetResponseDTO(modelMapper, budget);
     }
 
-    public List<ClosedBudgetResponseDTO> getAllClosedBudgetsOfCurrentUser(){
+    public Map<String, Object> getAllClosedBudgetsOfCurrentUser(int pageNo){
         int userId = MyUserDetailsService.getCurrentUserId();
-        List<ClosedBudget> closedBudgets = closedBudgetRepository.findAllByAccount_User_UserId(userId);
-        return closedBudgets.stream()
-                .map(closedBudget -> convertToClosedBudgetResponseDTO(modelMapper, closedBudget))
-                .collect(Collectors.toList());
+        Page<ClosedBudget> closedBudgetsPage = closedBudgetRepository.findAllByAccount_User_UserId(userId,
+                PageRequest.of(pageNo, pageSize, Sort.by("interval_intervalId").ascending()));
+
+        return covertToMap(closedBudgetsPage, pageNo);
     }
 
     public ClosedBudgetResponseDTO getClosedBudgetById(int closedBudgetId){
@@ -81,5 +89,14 @@ public class ClosedBudgetService {
         return responseDTO;
     }
 
-
+    private Map<String, Object> covertToMap(Page<ClosedBudget> closedBudgetsPage, int pageNo) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("totalItems", closedBudgetsPage.getTotalElements());
+        map.put("currentPage", pageNo);
+        map.put("totalPages", closedBudgetsPage.getTotalPages());
+        map.put("Budgets", closedBudgetsPage.getContent().stream()
+                .map(budget -> convertToClosedBudgetResponseDTO(modelMapper, budget))
+                .collect(Collectors.toList()));
+        return map;
+    }
 }

@@ -25,4 +25,5 @@ public class ResponseWrapper<DTOs> {    // Generic is for error-proofing
     public static <DTO> ResponseEntity<ResponseWrapper<DTO>> wrap(String message, DTO data, HttpStatus status) {
         return ResponseEntity.status(status.value()).body(new ResponseWrapper<>(message, data, status, LocalDateTime.now()));
     }
+
 }

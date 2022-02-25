@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -27,9 +27,10 @@ public class AccountController {
     }
 
     @GetMapping("/accounts")
-    public ResponseEntity<ResponseWrapper<List<AccountResponseDTO>>> getAllAccountsOfCurrentUser() {
+    public ResponseEntity<ResponseWrapper<Map<String, Object>>> getAllAccountsOfCurrentUser(
+            @RequestParam(name = "page", defaultValue = "0") int pageNo) {
         return ResponseWrapper.wrap("User accounts retrieved.",
-                accountService.getAllAccountsOfCurrentUser(), HttpStatus.OK);
+                accountService.getAllAccountsOfCurrentUser(pageNo), HttpStatus.OK);
     }
 
     @GetMapping("/accounts/{account_id}")

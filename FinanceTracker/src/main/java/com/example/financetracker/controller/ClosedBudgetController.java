@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ClosedBudgetController {
@@ -24,9 +24,10 @@ public class ClosedBudgetController {
     }
 
     @GetMapping("/closed_budgets")
-    public ResponseEntity<ResponseWrapper<List<ClosedBudgetResponseDTO>>> getAllClosedBudgetsOfCurrentUser(){
+    public ResponseEntity<ResponseWrapper<Map<String, Object>>> getAllClosedBudgetsOfCurrentUser(
+            @RequestParam(name = "page", defaultValue = "0") int pageNo) {
         return ResponseWrapper.wrap("ClosedBudgets retrieved.",
-                closedBudgetService.getAllClosedBudgetsOfCurrentUser(), HttpStatus.OK);
+                closedBudgetService.getAllClosedBudgetsOfCurrentUser(pageNo), HttpStatus.OK);
     }
 
     @GetMapping("/closed_budgets/{cb_id}")

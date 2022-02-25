@@ -15,10 +15,15 @@ import com.example.financetracker.model.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +40,9 @@ public class AccountService {
     private AccountTypeRepository accountTypeRepository;
     @Autowired
     private CurrencyRepository currencyRepository;
+
+    @Value("${default.page.size}")
+    private int pageSize;
 
     public AccountResponseDTO createAccount(AccountCreateRequestDTO requestDTO){
         int userId = MyUserDetailsService.getCurrentUserId();
@@ -56,11 +64,12 @@ public class AccountService {
         return modelMapper.map(account, AccountResponseDTO.class);
     }
 
-    public List<AccountResponseDTO> getAllAccountsOfCurrentUser() {
+    public Map<String, Object> getAllAccountsOfCurrentUser(int pageNo) {
         int userId = MyUserDetailsService.getCurrentUserId();
-        List<Account> accounts = accountRepository.findAccountsByUser_UserId(userId);
-        return accounts.stream().map(account -> modelMapper.map(account, AccountResponseDTO.class))
-                .collect(Collectors.toList());
+        Page<Account> accountsPage = accountRepository.findAccountsByUser_UserId(userId
+                    , PageRequest.of(pageNo, pageSize, Sort.by("name")));
+
+        return convertToMap(accountsPage, pageNo);
     }
 
     public AccountResponseDTO getAccountById(int accountId) {
@@ -102,5 +111,16 @@ public class AccountService {
             throw new ForbiddenException("You do not have access to this account.");
         }
         accountRepository.deleteById(accountId);
+    }
+
+    private Map<String, Object> convertToMap(Page<Account> closedBudgetsPage, int pageNo) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("totalItems", closedBudgetsPage.getTotalElements());
+        map.put("currentPage", pageNo);
+        map.put("totalPages", closedBudgetsPage.getTotalPages());
+        map.put("Accounts", closedBudgetsPage.getContent().stream()
+                .map(account -> modelMapper.map(account, AccountResponseDTO.class))
+                .collect(Collectors.toList()));
+        return map;
     }
 }
