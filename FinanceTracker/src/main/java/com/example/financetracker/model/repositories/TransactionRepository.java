@@ -24,8 +24,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     List<Transaction> findTransactionsByDateTimeAfter(LocalDateTime localDateTime);
 
-    List<Transaction> findAllByDateTimeBetweenAndAccount_User_UserId(LocalDateTime start, LocalDateTime end, int userId);
-
     List<Transaction> findAllByAmountBetween(BigDecimal min, BigDecimal max);
 
     List<Transaction> findAllByCategory_CategoryIdIsIn(Set<Integer> categoryIds);
