@@ -45,11 +45,11 @@ public class UserController {
     }
 
     @PostMapping("/change_profile_image")
-    public String changeProfileImage(@RequestParam(name = "file") MultipartFile file){
+    public ResponseEntity<ResponseWrapper<String>> changeProfileImage(@RequestParam(name = "file") MultipartFile file){
         if (file.getContentType() == null || !file.getContentType().matches(FileService.allowedContentTypesREGEX)){
             throw new BadRequestException("Unsupported file type.");
         }
-        return userService.uploadProfileImage(file);
+        return ResponseWrapper.wrap("Uploaded profile image:", userService.uploadProfileImage(file), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/delete_user")

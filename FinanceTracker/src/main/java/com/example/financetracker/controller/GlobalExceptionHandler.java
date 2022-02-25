@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MultipartException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -135,8 +136,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FileSizeLimitExceededException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ExceptionDTO> handleFileSizeLimitExceededException(FileSizeLimitExceededException e) {
-        return ResponseEntity.status(500).body(new ExceptionDTO(HttpStatus.BAD_REQUEST,
+        return ResponseEntity.status(400).body(new ExceptionDTO(HttpStatus.BAD_REQUEST,
                 "The file you are trying to upload is too big, it cannot exceed 50mb.", LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ExceptionDTO> handleMultipartException(MultipartException e) {
+        return ResponseEntity.status(400).body(new ExceptionDTO(HttpStatus.BAD_REQUEST, e.getMessage(), LocalDateTime.now()));
     }
 
 
