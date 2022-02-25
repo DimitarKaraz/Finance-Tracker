@@ -37,6 +37,9 @@ public class EmailService {
             } catch (MessagingException | UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+            if (file != null){
+                file.delete();
+            }
         }).start();
     }
 
