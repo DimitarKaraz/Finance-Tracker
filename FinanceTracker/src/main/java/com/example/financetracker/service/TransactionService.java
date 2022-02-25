@@ -195,7 +195,7 @@ public class TransactionService {
         transactionRepository.deleteById(transactionId);
     }
 
-    private void updateAffectedBudgets(BigDecimal oldTransactionAmount, BigDecimal newTransactionAmount, int accountId, int categoryId, LocalDate date) {
+    public void updateAffectedBudgets(BigDecimal oldTransactionAmount, BigDecimal newTransactionAmount, int accountId, int categoryId, LocalDate date) {
         Set<Budget> affectedBudgets = budgetRepository.findAllByCategoryIdAndAccountIdAndStartDate(accountId, categoryId, date);
         for (Budget budget : affectedBudgets){
             budget.setAmountSpent(budget.getAmountSpent().subtract(oldTransactionAmount));

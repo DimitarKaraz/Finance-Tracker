@@ -1,13 +1,7 @@
 package com.example.financetracker.service;
 
-import com.example.financetracker.model.pojo.Budget;
-import com.example.financetracker.model.pojo.RecurrentTransaction;
-import com.example.financetracker.model.pojo.Transaction;
-import com.example.financetracker.model.pojo.User;
-import com.example.financetracker.model.repositories.BudgetRepository;
-import com.example.financetracker.model.repositories.RecurrentTransactionRepository;
-import com.example.financetracker.model.repositories.TransactionRepository;
-import com.example.financetracker.model.repositories.UserRepository;
+import com.example.financetracker.model.pojo.*;
+import com.example.financetracker.model.repositories.*;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
@@ -127,9 +121,6 @@ public class CronJobs {
             }
         });
     }
-
-
-
 
 
 }
