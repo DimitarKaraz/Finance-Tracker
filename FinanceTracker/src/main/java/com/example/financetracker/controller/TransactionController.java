@@ -6,9 +6,11 @@ import com.example.financetracker.model.dto.transactionDTOs.TransactionEditReque
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
 import java.util.List;
 
@@ -24,10 +26,11 @@ public class TransactionController {
                 transactionService.createTransaction(requestDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping("/transactions")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsOfCurrentUser(){
+    @GetMapping("/transactions/page/{page_number}")
+    public ResponseEntity<ResponseWrapper<Page<TransactionResponseDTO>>> getAllTransactionsOfCurrentUser(
+            @RequestParam(name = "page_number", defaultValue = "0") int pageNo){
         return ResponseWrapper.wrap("Retrieved transactions for user.",
-                transactionService.getAllTransactionsByCurrentUser(), HttpStatus.OK);
+                transactionService.getAllTransactionsForCurrentUser(pageNo), HttpStatus.OK);
     }
     
     @GetMapping("/transactions/{transaction_id}")
@@ -40,12 +43,6 @@ public class TransactionController {
     public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByAccountId(@PathVariable("account_id") int accountId){
         return ResponseWrapper.wrap("Retrieved transactions for account.",
                 transactionService.getAllTransactionsByAccountId(accountId), HttpStatus.OK);
-    }
-
-    @GetMapping("/transactions/for_budget/{budget_id}")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getAllTransactionsByBudgetId(@PathVariable("budget_id") int budgetId) {
-        return ResponseWrapper.wrap("Retrieved transactions for budget.",
-                transactionService.getAllTransactionsByBudgetId(budgetId), HttpStatus.OK);
     }
 
     @PutMapping("/transactions/edit")
