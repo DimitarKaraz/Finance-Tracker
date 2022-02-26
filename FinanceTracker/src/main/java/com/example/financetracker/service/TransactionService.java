@@ -41,8 +41,6 @@ public class TransactionService {
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private TransactionTypeRepository transactionTypeRepository;
     @Autowired
     private CategoryRepository categoryRepository;

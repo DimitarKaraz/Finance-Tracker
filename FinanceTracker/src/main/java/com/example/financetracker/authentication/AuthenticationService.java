@@ -8,6 +8,7 @@ import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
 import com.example.financetracker.service.EmailService;
 import net.bytebuddy.utility.RandomString;
+import org.assertj.core.util.VisibleForTesting;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,7 +44,8 @@ public class AuthenticationService {
         sendVerificationEmail(user, siteURL);
     }
 
-    private void sendVerificationEmail(User user, String siteURL) {
+    @VisibleForTesting
+    public void sendVerificationEmail(User user, String siteURL) {
         String verifyURL = siteURL + "/verify?code=" + user.getVerificationToken();
         String content = "Dear user,<br>"
                 + "Please click the link below to verify your registration:<br>"

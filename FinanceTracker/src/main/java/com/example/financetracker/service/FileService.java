@@ -100,7 +100,6 @@ public class FileService {
                 contentStream.setLeading(20.0f);
                 contentStream.beginText();
                 contentStream.newLineAtOffset(25, page.getTrimBox().getHeight()-25);
-                //todo check if works
                 if (i == 0){
                     contentStream.setFont(PDType1Font.TIMES_BOLD_ITALIC, 18);
                     contentStream.showText("Finance Tracker Statement of Transactions");
