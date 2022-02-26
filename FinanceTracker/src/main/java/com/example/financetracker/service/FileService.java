@@ -12,6 +12,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -74,7 +75,7 @@ public class FileService {
     }
 
     public void sendPDFToEmail(TransactionByFiltersRequestDTO requestDTO){
-        List<TransactionResponseDTO> requestedTransactions = statisticsDAO.getTransactionsByFilters(requestDTO);
+        List<TransactionResponseDTO> requestedTransactions = statisticsDAO.getTransactionsByFilters(requestDTO, null, null);
         if (requestedTransactions.isEmpty()){
             throw new BadRequestException("You have no transactions to show!");
         }

@@ -1,5 +1,6 @@
 package com.example.financetracker.model.dao;
 
+import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
@@ -29,22 +30,18 @@ import java.util.List;
 @Component
 public class StatisticsDAO {
 
-    private final String recurrentTransactionSQL = "SELECT rt.recurrent_transaction_id, rt.name, rt.amount, rt.start_date, rt.interval_count, rt.end_date, rt.remaining_payments,\n" +
-            "i.interval_id, i.days, i.name,\n" +
-            "a.name, curr.currency_id, curr.name, curr.abbreviation,\n" +
-            "c.category_id, c.user_id, c.name, ci.category_icon_id, ci.image_url,\n" +
-            "tt.transaction_type_id, tt.name,\n" +
-            "p.payment_method_id, p.name\n" +
+    private final String recurrentTransactionSQL =
             "FROM recurrent_transactions AS rt\n" +
             "JOIN categories AS c ON (rt.category_id = c.category_id)\n" +
             "JOIN category_icons AS ci ON (c.category_icon_id = ci.category_icon_id)\n" +
             "JOIN transaction_types AS tt ON (rt.transaction_type_id = tt.transaction_type_id)\n" +
             "JOIN payment_methods AS p ON (rt.payment_method_id = p.payment_method_id)\n" +
             "JOIN accounts AS a ON (rt.account_id = a.account_id)\n" +
-            "JOIN currencies AS curr ON (curr.currency_id = a.account_id)\n" +
+            "JOIN currencies AS curr ON (curr.currency_id = a.currency_id)\n" +
             "JOIN intervals AS i ON (rt.interval_id = i.interval_id)\n" +
             "WHERE\t";
-    private final String budgetSQL = "SELECT b.budget_id, b.name, b.amount_spent, b.max_limit, b.start_date, b.note, b.end_date,\n" +
+    private final String budgetSQL =
+            "SELECT b.budget_id, b.name, b.amount_spent, b.max_limit, b.start_date, b.note, b.end_date,\n" +
             "i.interval_id, i.days, i.name,\n" +
             "a.name, curr.currency_id, curr.name, curr.abbreviation,\n" +
             "c.category_id, c.user_id, c.name, tt.transaction_type_id, tt.name, ci.category_icon_id, ci.image_url\n" +
@@ -58,8 +55,7 @@ public class StatisticsDAO {
             "LEFT JOIN intervals AS i ON (b.interval_id = i.interval_id)\n" +
             "WHERE\t";
 
-    private final String transactionSQL = "SELECT t.transaction_id, t.amount, t.date_time, a.name, curr.currency_id, curr.abbreviation, curr.name, tt.transaction_type_id, tt.name,\n" +
-            "c.category_id, c.name, c.user_id, ci.category_icon_id, ci.image_url, p.payment_method_id, p.name\n" +
+    private final String transactionSQL =
             "FROM transactions AS t\n" +
             "JOIN accounts AS a\n" +
             "ON (a.account_id = t.account_id)\n" +
@@ -75,7 +71,8 @@ public class StatisticsDAO {
             "ON (p.payment_method_id = t.payment_method_id)\n" +
             "WHERE\t";
 
-    private final String closedBudgetSQL = "SELECT b.closed_budget_id, b.name, b.amount_spent, b.max_limit, b.start_date, b.note, b.end_date,\n" +
+    private final String closedBudgetSQL =
+            "SELECT b.closed_budget_id, b.name, b.amount_spent, b.max_limit, b.start_date, b.note, b.end_date,\n" +
             "i.interval_id, i.days, i.name,\n" +
             "a.name, curr.currency_id, curr.name, curr.abbreviation,\n" +
             "c.category_id, c.user_id, c.name, tt.transaction_type_id, tt.name, ci.category_icon_id, ci.image_url\n" +
@@ -92,8 +89,9 @@ public class StatisticsDAO {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public List<RecurrentTransactionResponseDTO> getRecurrentTransactionsByFilters(RecurrentTransactionByFiltersRequestDTO filtersDTO) {
-        String sql = generateRecurrentTransactionSQLQuery(filtersDTO);
+    //todo
+    public List<RecurrentTransactionResponseDTO> getRecurrentTransactionsByFilters(RecurrentTransactionByFiltersRequestDTO filtersDTO, Integer pageSize, Integer pageNumber) {
+        String sql = generateRecurrentTransactionSQLQuery(filtersDTO, pageSize, pageNumber, false);
 
         return jdbcTemplate.query(sql, new ResultSetExtractor<List<RecurrentTransactionResponseDTO>>() {
             @Override
@@ -108,9 +106,19 @@ public class StatisticsDAO {
         });
     }
 
-    public List<TransactionResponseDTO> getTransactionsByFilters(TransactionByFiltersRequestDTO requestDTO){
-        String sql = generateTransactionSQLQuery(requestDTO);
+    public Integer getRecurrentTransactionsByFiltersCountOnly(RecurrentTransactionByFiltersRequestDTO requestDTO){
+        String sql = generateRecurrentTransactionSQLQuery(requestDTO, null, null, true);
+        return jdbcTemplate.query(sql, new ResultSetExtractor<Integer>() {
+            @Override
+            public Integer extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
+                rs.next();
+                return rs.getInt("totalItems");
+            }
+        });
+    }
 
+    public List<TransactionResponseDTO> getTransactionsByFilters(TransactionByFiltersRequestDTO requestDTO, Integer pageSize, Integer pageNumber){
+        String sql = generateTransactionSQLQuery(requestDTO, pageSize, pageNumber, false);
         return jdbcTemplate.query(sql, new ResultSetExtractor<List<TransactionResponseDTO>>() {
             @Override
             public List<TransactionResponseDTO> extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
@@ -120,6 +128,17 @@ public class StatisticsDAO {
                     transactions.add(buildTransactionResponseDTO(rs));
                 }
                 return transactions;
+            }
+        });
+    }
+
+    public Integer getTransactionsByFiltersCountOnly(TransactionByFiltersRequestDTO requestDTO){
+        String sql = generateTransactionSQLQuery(requestDTO, null, null, true);
+        return jdbcTemplate.query(sql, new ResultSetExtractor<Integer>() {
+            @Override
+            public Integer extractData(@NotNull ResultSet rs) throws SQLException, DataAccessException {
+                rs.next();
+                return rs.getInt("totalItems");
             }
         });
     }
@@ -170,10 +189,21 @@ public class StatisticsDAO {
 
 //  Generate SQL methods:
 
-    private String generateRecurrentTransactionSQLQuery(RecurrentTransactionByFiltersRequestDTO filtersDTO) {
+    private String generateRecurrentTransactionSQLQuery(RecurrentTransactionByFiltersRequestDTO filtersDTO, Integer pageSize, Integer pageNumber, boolean countOnly) {
         int userId = MyUserDetailsService.getCurrentUserId();
+        String sql;
+        if (countOnly){
+            sql = "SELECT COUNT(*) AS totalItems\n";
+        } else {
+            sql = "SELECT rt.recurrent_transaction_id, rt.name, rt.amount, rt.start_date, rt.interval_count, rt.end_date, rt.remaining_payments,\n" +
+                    "i.interval_id, i.days, i.name,\n" +
+                    "a.name, curr.currency_id, curr.name, curr.abbreviation,\n" +
+                    "c.category_id, c.user_id, c.name, ci.category_icon_id, ci.image_url,\n" +
+                    "tt.transaction_type_id, tt.name,\n" +
+                    "p.payment_method_id, p.name\n";
+        }
 
-        String sql = recurrentTransactionSQL +
+        sql += recurrentTransactionSQL +
                 "(a.user_id = " + userId + ") AND (rt.start_date BETWEEN \"" +
                 filtersDTO.getStartDate() + "\" AND \"" + filtersDTO.getEndDate() + "\")\n";
         if (filtersDTO.getAccountId() != null) {
@@ -205,13 +235,29 @@ public class StatisticsDAO {
                     (filtersDTO.getAmountMax() != null ? filtersDTO.getAmountMax() : BigDecimal.valueOf(9999999999999.99)) +
                     ")\n";
         }
-        sql += "ORDER BY rt.interval_id ASC;";
+        sql += "ORDER BY rt.interval_id ASC\n";
+
+        if (pageSize != null && pageNumber != null && !countOnly){
+            sql += "LIMIT "+pageSize+"\n";
+            sql += "OFFSET "+ (pageSize*pageNumber)+";";
+        }
+        else {
+            sql += ";";
+        }
+        System.out.println(sql);
         return sql;
     }
 
-    private String generateTransactionSQLQuery(TransactionByFiltersRequestDTO requestDTO){
+    private String generateTransactionSQLQuery(TransactionByFiltersRequestDTO requestDTO, Integer pageSize, Integer pageNumber, boolean countOnly){
         int userId = MyUserDetailsService.getCurrentUserId();
-        String sql = transactionSQL +
+        String sql;
+        if (countOnly){
+            sql = "SELECT COUNT(*) AS totalItems\n";
+        } else {
+            sql = "SELECT t.transaction_id, t.amount, t.date_time, a.name, curr.currency_id, curr.abbreviation, curr.name, tt.transaction_type_id, tt.name,\n" +
+                    "c.category_id, c.name, c.user_id, ci.category_icon_id, ci.image_url, p.payment_method_id, p.name\n";
+        }
+        sql += transactionSQL +
                 "(a.user_id = " + userId + ") AND (t.date_time BETWEEN \"" +
                 requestDTO.getStartDate().atTime(LocalTime.MIN) + "\" AND \"" + requestDTO.getEndDate().atTime(LocalTime.MAX) + "\")\n";
         if (requestDTO.getAccountId() != null) {
@@ -240,7 +286,11 @@ public class StatisticsDAO {
                     (requestDTO.getAmountMax() != null ? requestDTO.getAmountMax() : BigDecimal.valueOf(9999999999999.99)) +
                     ")\n";
         }
-        sql += "ORDER BY t.date_time ASC;";
+        sql += "ORDER BY t.date_time ASC\n";
+        if (pageSize != null && pageNumber != null && !countOnly){
+            sql += "LIMIT "+pageSize+"\n";
+            sql += "OFFSET "+ (pageSize*pageNumber)+";";
+        }
         return sql;
     }
 
