@@ -20,9 +20,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
@@ -44,15 +46,17 @@ public class StatisticsController {
     }
 
     @PutMapping("/recurrent_transactions/stats")
-    public ResponseEntity<ResponseWrapper<List<RecurrentTransactionResponseDTO>>> getRecurrentTransactionsByFilters(@Valid @RequestBody RecurrentTransactionByFiltersRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<LinkedHashMap<String, Object>>> getRecurrentTransactionsByFilters
+            (@Valid @RequestBody RecurrentTransactionByFiltersRequestDTO requestDTO, @RequestParam(name = "page", defaultValue = "0") int pageNumber) {
         return ResponseWrapper.wrap("Recurrent Transactions by filters retrieved.",
-                statisticsService.getRecurrentTransactionsByFilters(requestDTO), HttpStatus.OK);
+                statisticsService.getRecurrentTransactionsByFilters(requestDTO, pageNumber), HttpStatus.OK);
     }
 
     @PutMapping("/transactions/stats")
-    public ResponseEntity<ResponseWrapper<List<TransactionResponseDTO>>> getTransactionsByFilters(@Valid @RequestBody TransactionByFiltersRequestDTO requestDTO) {
+    public ResponseEntity<ResponseWrapper<LinkedHashMap<String, Object>>> getTransactionsByFilters
+            (@Valid @RequestBody TransactionByFiltersRequestDTO requestDTO, @RequestParam(name = "page", defaultValue = "0") int pageNumber) {
         return ResponseWrapper.wrap("Transactions by filters retrieved.",
-                statisticsService.getTransactionsByFilters(requestDTO), HttpStatus.OK);
+                statisticsService.getTransactionsByFilters(requestDTO, pageNumber), HttpStatus.OK);
     }
 
     @PutMapping("/categories/top-5-expenses")

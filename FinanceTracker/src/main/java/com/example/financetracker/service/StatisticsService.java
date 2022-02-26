@@ -16,10 +16,13 @@ import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseD
 import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.repositories.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @PreAuthorize("hasRole('ROLE_USER')")
@@ -32,6 +35,9 @@ public class StatisticsService {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Value("${default.page.size}")
+    private int pageSize;
+
     public List<BudgetResponseDTO> getBudgetsByFilters(BudgetByFiltersRequestDTO requestDTO) {
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
@@ -40,20 +46,34 @@ public class StatisticsService {
         return statisticsDAO.getBudgetsByFilters(requestDTO);
     }
 
-    public List<RecurrentTransactionResponseDTO> getRecurrentTransactionsByFilters(RecurrentTransactionByFiltersRequestDTO requestDTO) {
+    public LinkedHashMap<String, Object> getRecurrentTransactionsByFilters(RecurrentTransactionByFiltersRequestDTO requestDTO, int pageNumber) {
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
         validateAccountId(requestDTO.getAccountId());
-        return statisticsDAO.getRecurrentTransactionsByFilters(requestDTO);
+        List<RecurrentTransactionResponseDTO> transactions = statisticsDAO.getRecurrentTransactionsByFilters(requestDTO, pageSize, pageNumber);
+        int totalItems = statisticsDAO.getRecurrentTransactionsByFiltersCountOnly(requestDTO);
+        LinkedHashMap<String, Object> pageMap = new LinkedHashMap<>();
+        pageMap.put("totalItems", totalItems);
+        pageMap.put("currentPage", pageNumber);
+        pageMap.put("totalPages", Math.max(totalItems / pageSize, 1));
+        pageMap.put("Transactions", transactions);
+        return pageMap;
     }
 
-    public List<TransactionResponseDTO> getTransactionsByFilters(TransactionByFiltersRequestDTO requestDTO) {
+    public LinkedHashMap<String, Object> getTransactionsByFilters(TransactionByFiltersRequestDTO requestDTO, int pageNumber) {
         if (requestDTO.getEndDate() != null && requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
             throw new BadRequestException("Start date cannot be past end date.");
         }
         validateAccountId(requestDTO.getAccountId());
-        return statisticsDAO.getTransactionsByFilters(requestDTO);
+        List<TransactionResponseDTO> transactions = statisticsDAO.getTransactionsByFilters(requestDTO, pageSize, pageNumber);
+        int totalItems = statisticsDAO.getTransactionsByFiltersCountOnly(requestDTO);
+        LinkedHashMap<String, Object> pageMap = new LinkedHashMap<>();
+        pageMap.put("totalItems", totalItems);
+        pageMap.put("currentPage", pageNumber);
+        pageMap.put("totalPages", Math.max(totalItems / pageSize, 1));
+        pageMap.put("Transactions", transactions);
+        return pageMap;
     }
 
     public List<ClosedBudgetResponseDTO> getClosedBudgetsByFilters(BudgetByFiltersRequestDTO requestDTO) {

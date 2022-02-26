@@ -26,9 +26,9 @@ public class TransactionController {
                 transactionService.createTransaction(requestDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping("/transactions/page/{page_number}")
+    @GetMapping("/transactions")
     public ResponseEntity<ResponseWrapper<Map<String, Object>>> getAllTransactionsOfCurrentUser(
-            @RequestParam(name = "page_number", defaultValue = "0") int pageNo){
+            @RequestParam(name = "page", defaultValue = "0") int pageNo){
         return ResponseWrapper.wrap("Retrieved transactions for user.",
                 transactionService.getAllTransactionsForCurrentUser(pageNo), HttpStatus.OK);
     }

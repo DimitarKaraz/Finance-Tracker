@@ -91,14 +91,6 @@ public class TransactionService {
 
     public Map<String, Object> getAllTransactionsForCurrentUser(int pageNo){
         int userId = MyUserDetailsService.getCurrentUserId();
-        List<TransactionResponseDTO> list =
-                transactionRepository.findAllByAccount_User_UserId(userId,
-                                PageRequest.of(pageNo, pageSize, Sort.by("dateTime").descending()))
-                .stream().map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
-
-//        return transactionRepository.findAllByAccount_User_UserId(userId).stream()
-//                .map(this::convertToResponseDTO).collect(Collectors.toList());
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("dateTime").descending());
         Page<Transaction> page = transactionRepository.findAllByAccount_User_UserId(userId, pageable);
         return convertToMapOfDTOs(page);
