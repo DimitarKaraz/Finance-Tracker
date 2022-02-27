@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,24 +39,27 @@ public class CurrencyExchangeDAO {
         });
     }
 
-    public void updateDatabase(Map<String, BigDecimal> rates) {
+    public int[] updateExchangeRates(Map<String, BigDecimal> rates) {
         if (rates == null || rates.isEmpty()) {
-            return;
+            return null;
         }
+        ArrayList<Map.Entry<String, BigDecimal>> ratesList = new ArrayList<>(rates.entrySet());
+
         final String sqlUpdate = "UPDATE currencies\n" +
                                 "SET exchange_rate_from_BGN = ?\n" +
-                                "WHERE currency = \"?\";";
-        int rowsAffected = jdbcTemplate.batchUpdate(sqlUpdate, new BatchPreparedStatementSetter() {
+                                "WHERE currency = ? ;";
+        return jdbcTemplate.batchUpdate(sqlUpdate, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ps.setBigDecimal(1, );
+                ps.setBigDecimal(1, ratesList.get(i).getValue());
+                ps.setString(2, ratesList.get(i).getKey());
             }
 
             @Override
             public int getBatchSize() {
-                return 0;
+                return ratesList.size();
             }
-        })
+        });
     }
 
 }
