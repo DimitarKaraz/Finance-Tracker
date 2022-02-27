@@ -86,7 +86,7 @@ public class ResetPasswordController {
         if (token == null) {
             throw new BadRequestException("Invalid password reset token.");
         }
-        if (!password.equals(confirmPassword)) {
+        if (password == null || !password.equals(confirmPassword)) {
             throw new BadRequestException("Passwords do not match.");
         }
 

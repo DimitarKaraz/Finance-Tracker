@@ -46,7 +46,8 @@ public class UserController {
     @PutMapping("/change_password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequestDTO requestDTO){
         userService.changePassword(requestDTO);
-        return ResponseEntity.ok().body("Password was changed.");
+        return ResponseEntity.ok().body("message: Password was changed successfully!\n" + "timestamp: "
+                + LocalDateTime.now());
     }
 
     @PostMapping("/change_profile_image")
@@ -63,7 +64,7 @@ public class UserController {
         HttpServletRequest request =
                 ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         new SecurityContextLogoutHandler().logout(request, null, null);
-        return ResponseEntity.ok().body("\"message\": \"Your profile was deleted. We will miss you!\"\n" + "\"timestamp\": "
+        return ResponseEntity.ok().body("message: Your profile was deleted. We will miss you!\n" + "timestamp: "
                 + LocalDateTime.now());
     }
 
