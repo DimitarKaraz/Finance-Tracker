@@ -29,7 +29,7 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
         }
         MessageResolver resolver = new PropertiesMessageResolver(props);
         PasswordValidator validator = new PasswordValidator(resolver, Arrays.asList(
-                // length between 8 and 50 characters
+        // length between 8 and 50 characters
         new LengthRule(8, 50),
         // at least one upper-case character
         new CharacterRule(EnglishCharacterData.UpperCase, 1),
@@ -50,7 +50,7 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
             return true;
         }
         List<String> messages = validator.getMessages(result);
-        String messageTemplate = String.join(",", messages);
+        String messageTemplate = String.join("\n", messages);
         context.buildConstraintViolationWithTemplate(messageTemplate)
                 .addConstraintViolation()
                 .disableDefaultConstraintViolation();

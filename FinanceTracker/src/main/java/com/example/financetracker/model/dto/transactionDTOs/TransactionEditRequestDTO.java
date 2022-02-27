@@ -38,7 +38,7 @@ public class TransactionEditRequestDTO {
     @Min(value = 1, message = "Invalid payment method id.")
     private int paymentMethodId;
 
-    @PastOrPresent(message = "Invalid date/time.")
+    @PastOrPresent(message = "Date and time must not be in the future.")
     @NotNull(message = "Invalid date/time.")
     private LocalDateTime dateTime;
 }

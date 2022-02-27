@@ -5,14 +5,15 @@ import com.example.financetracker.model.dao.StatisticsDAO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionByFiltersRequestDTO;
 import com.example.financetracker.model.dto.transactionDTOs.TransactionResponseDTO;
 import com.example.financetracker.model.dto.userDTOs.MyUserDetails;
+import com.example.financetracker.model.pojo.Account;
 import com.example.financetracker.model.pojo.User;
+import com.example.financetracker.model.repositories.AccountRepository;
 import com.example.financetracker.model.repositories.UserRepository;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,8 @@ public class FileService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AccountRepository accountRepository;
     @Autowired
     private StatisticsDAO statisticsDAO;
     @Autowired
@@ -75,6 +78,11 @@ public class FileService {
     }
 
     public void sendPDFToEmail(TransactionByFiltersRequestDTO requestDTO){
+        Account account = accountRepository.findById(requestDTO.getAccountId())
+                .orElseThrow(() -> {throw new NotFoundException("Invalid account id.");});
+        if (account.getUser().getUserId() != MyUserDetailsService.getCurrentUserId()) {
+            throw new ForbiddenException("You do not have access to this account.");
+        }
         List<TransactionResponseDTO> requestedTransactions = statisticsDAO.getTransactionsByFilters(requestDTO, null, null);
         if (requestedTransactions.isEmpty()){
             throw new BadRequestException("You have no transactions to show!");

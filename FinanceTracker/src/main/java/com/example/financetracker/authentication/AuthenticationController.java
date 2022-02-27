@@ -48,15 +48,17 @@ public class AuthenticationController {
             String url = getSiteURL(request);
             authenticationService.register(userData, url);
         } catch (EmailAlreadyExistsException e){
-            bindingResult.rejectValue("email", "userData.email");
+            bindingResult.rejectValue("email", "registerForm.email",
+                    "Email is already used.");
             model.addAttribute("registerForm", userData);
             return "account/register";
         } catch (BadRequestException e){
-            bindingResult.rejectValue("password", "userData.password");
+            bindingResult.rejectValue("password", "registerForm.password");
             model.addAttribute("registerForm", userData);
             return "account/register";
         } catch (PasswordMismatchException e){
-            bindingResult.rejectValue("confirmPassword", "userData.confirmPassword");
+            bindingResult.rejectValue("confirmPassword", "registerForm.confirmPassword",
+                    "Passwords do not match.");
             model.addAttribute("registerForm", userData);
             return "account/register";
         }

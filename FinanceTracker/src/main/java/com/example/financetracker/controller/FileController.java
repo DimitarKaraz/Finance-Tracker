@@ -39,7 +39,7 @@ public class FileController {
    @PutMapping("/files/pdf_statement")
     public ResponseEntity<String> sendPDFToEmail(@Valid @RequestBody TransactionByFiltersRequestDTO requestDTO){
         fileService.sendPDFToEmail(requestDTO);
-       return ResponseEntity.ok().body("\"message\": \"Email was sent.\"\n" + "\"timestamp\": "
+       return ResponseEntity.ok().body("message: Email was sent.\n" + "timestamp: "
                + LocalDateTime.now());
     }
 
