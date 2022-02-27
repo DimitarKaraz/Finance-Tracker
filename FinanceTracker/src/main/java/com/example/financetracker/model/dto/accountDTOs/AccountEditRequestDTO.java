@@ -24,7 +24,6 @@ public class AccountEditRequestDTO {
     private String name;
 
     @NotNull(message = "Invalid balance.")
-    @Min(value = 0, message = "Invalid balance.")
     @Digits(integer = 13, fraction = 2, message = "Invalid balance.")
     private BigDecimal balance;
 

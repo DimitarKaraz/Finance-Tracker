@@ -27,7 +27,7 @@ public class UserEditProfileRequestDTO {
     @Pattern(regexp = "(?i)(male|female|other)", message = "Invalid gender.")
     private String gender;
 
-    @PastOrPresent
+    @PastOrPresent(message = "Date must be in the past or present.")
     private LocalDate dateOfBirth;
 
 }
