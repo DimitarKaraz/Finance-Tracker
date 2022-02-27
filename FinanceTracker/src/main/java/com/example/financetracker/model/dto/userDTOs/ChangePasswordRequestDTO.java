@@ -16,7 +16,7 @@ public class ChangePasswordRequestDTO {
     @NotBlank(message = "Invalid password.")
     private String oldPassword;
 
-    //@ValidPassword
+//    @ValidPassword
     @NotBlank(message = "Invalid password.")
     private String newPassword;
 

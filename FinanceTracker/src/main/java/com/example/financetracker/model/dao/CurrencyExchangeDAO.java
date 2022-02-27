@@ -22,9 +22,11 @@ public class CurrencyExchangeDAO {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public Map<String, BigDecimal> getExchangeRatesFromDatabase(String currencyFrom, String currencyTo) {
-        final String sql = "SELECT abbreviation, exchange_rate_from_BGN\n" +
-                "FROM currencies;";
+
+    public Map<String, BigDecimal> getExchangeRatesFromDatabase() {
+        final String sql = "SELECT c.abbreviation, er.exchange_rate_from_BGN\n" +
+                "FROM currencies AS c\n" +
+                "JOIN exchange_rates AS er ON (c.currency_id = er.currency_id);";
 
         return jdbcTemplate.query(sql,new ResultSetExtractor<Map<String, BigDecimal>>() {
             @Override
@@ -39,15 +41,16 @@ public class CurrencyExchangeDAO {
         });
     }
 
-    public int[] updateExchangeRates(Map<String, BigDecimal> rates) {
+    public int[] updateDatabaseExchangeRates(Map<String, BigDecimal> rates) {
         if (rates == null || rates.isEmpty()) {
             return null;
         }
         ArrayList<Map.Entry<String, BigDecimal>> ratesList = new ArrayList<>(rates.entrySet());
 
-        final String sqlUpdate = "UPDATE currencies\n" +
-                                "SET exchange_rate_from_BGN = ?\n" +
-                                "WHERE currency = ? ;";
+        final String sqlUpdate = "UPDATE exchange_rates AS er\n" +
+                                "JOIN currencies AS c USING (currency_id)\n" +
+                                "SET er.exchange_rate_from_BGN = ?\n" +
+                                "WHERE c.currency = ? ;";
         return jdbcTemplate.batchUpdate(sqlUpdate, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -61,5 +64,7 @@ public class CurrencyExchangeDAO {
             }
         });
     }
+
+
 
 }

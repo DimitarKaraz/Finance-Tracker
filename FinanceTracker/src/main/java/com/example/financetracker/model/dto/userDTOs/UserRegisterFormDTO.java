@@ -1,6 +1,5 @@
 package com.example.financetracker.model.dto.userDTOs;
 
-import com.example.financetracker.passwordValidators.ValidPassword;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,7 +26,7 @@ public class UserRegisterFormDTO implements Serializable {
 
     // For easier demonstration, the @ValidPassword is commented out.
 
-    @ValidPassword
+//    @ValidPassword
     @NotBlank
     private String password;
 
