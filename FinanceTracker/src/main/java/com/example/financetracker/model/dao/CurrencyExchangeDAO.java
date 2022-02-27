@@ -50,7 +50,7 @@ public class CurrencyExchangeDAO {
         final String sqlUpdate = "UPDATE exchange_rates AS er\n" +
                                 "JOIN currencies AS c USING (currency_id)\n" +
                                 "SET er.exchange_rate_from_BGN = ?\n" +
-                                "WHERE c.currency = ? ;";
+                                "WHERE c.abbreviation = ? ;";
         return jdbcTemplate.batchUpdate(sqlUpdate, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
