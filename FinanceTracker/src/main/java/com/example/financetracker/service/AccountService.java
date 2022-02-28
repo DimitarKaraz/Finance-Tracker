@@ -8,6 +8,7 @@ import com.example.financetracker.model.dto.accountDTOs.AccountCreateRequestDTO;
 import com.example.financetracker.model.dto.accountDTOs.AccountEditRequestDTO;
 import com.example.financetracker.model.dto.accountDTOs.AccountResponseDTO;
 import com.example.financetracker.model.pojo.Account;
+import com.example.financetracker.model.pojo.Currency;
 import com.example.financetracker.model.repositories.AccountRepository;
 import com.example.financetracker.model.repositories.AccountTypeRepository;
 import com.example.financetracker.model.repositories.CurrencyRepository;
@@ -31,9 +32,11 @@ import java.util.stream.Collectors;
 public class AccountService {
 
     @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private CurrencyExchangeService currencyExchangeService;
+    @Autowired
+    private AccountRepository accountRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -95,10 +98,16 @@ public class AccountService {
         }
         account.setAccountType(accountTypeRepository.findById(requestDTO.getAccountTypeId())
                 .orElseThrow(() -> {throw new NotFoundException("Invalid account type id.");}));
-        account.setCurrency(currencyRepository.findById(requestDTO.getCurrencyId())
-                .orElseThrow(() -> {throw new NotFoundException("Invalid currency id.");}));
-        //TODO: recalculate absolute value
-        account.setBalance(requestDTO.getBalance());
+        Currency newCurrency = currencyRepository.findById(requestDTO.getCurrencyId())
+                .orElseThrow(() -> {throw new NotFoundException("Invalid currency id.");});
+        if (requestDTO.getCurrencyId() != account.getCurrency().getCurrencyId()) {
+            account.setBalance(currencyExchangeService.calculateCurrencyConversion(account.getCurrency().getAbbreviation(),
+                    newCurrency.getAbbreviation(), account.getBalance()));
+            System.out.println(account.getBalance().doubleValue());
+        } else {
+            account.setBalance(requestDTO.getBalance());
+        }
+        account.setCurrency(newCurrency);
         account.setName(requestDTO.getName());
         accountRepository.save(account);
         return modelMapper.map(account, AccountResponseDTO.class);

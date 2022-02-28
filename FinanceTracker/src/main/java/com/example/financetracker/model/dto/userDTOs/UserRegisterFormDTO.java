@@ -26,16 +26,11 @@ public class UserRegisterFormDTO implements Serializable {
 
     // For easier demonstration, the @ValidPassword is commented out.
 
-    /*@ValidPassword(message = "Password must be between 8-50 symbols, and contain " +
-            "one lower-case letter, one upper-case letter, one digit, one special symbol, no whitespaces, " +
-            "and no 4-or-more ordered letters or digits.")*/
-    @NotBlank(message = "Invalid password.")
+//    @ValidPassword
+    @NotBlank
     private String password;
 
-//    @ValidPassword(message = "Password must be between 8-50 symbols, and contain " +
-//            "one lower-case letter, one upper-case letter, one digit, one special symbol, no whitespaces, " +
-//            "and no 4-or-more ordered letters or digits.")
-    @NotBlank(message = "Invalid password.")
+    @NotBlank
     private String confirmPassword;
 
 }

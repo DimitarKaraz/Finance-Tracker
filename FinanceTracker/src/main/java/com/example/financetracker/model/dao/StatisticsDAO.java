@@ -1,6 +1,5 @@
 package com.example.financetracker.model.dao;
 
-import com.example.financetracker.exceptions.BadRequestException;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetByFiltersRequestDTO;
 import com.example.financetracker.model.dto.budgetDTOs.BudgetResponseDTO;
 import com.example.financetracker.model.dto.categoryDTOs.CategoryResponseDTO;
@@ -215,7 +214,7 @@ public class StatisticsDAO {
         if (filtersDTO.getTransactionTypeId() != null) {
             sql += "AND (rt.transaction_type_id = " + filtersDTO.getTransactionTypeId() + ")\n";
         }
-        if (filtersDTO.getCategoryIds() != null) {
+        if (filtersDTO.getCategoryIds() != null && !filtersDTO.getCategoryIds().isEmpty()) {
             StringBuffer categoryIds = new StringBuffer();
             filtersDTO.getCategoryIds()
                     .forEach(integer -> categoryIds.append(integer).append(","));
@@ -266,7 +265,7 @@ public class StatisticsDAO {
         if (requestDTO.getTransactionTypeId() != null) {
             sql += "AND (t.transaction_type_id = " + requestDTO.getTransactionTypeId() + ")\n";
         }
-        if (requestDTO.getCategoryIds() != null) {
+        if (requestDTO.getCategoryIds() != null && !requestDTO.getCategoryIds().isEmpty()) {
             StringBuffer categoryIds = new StringBuffer();
             requestDTO.getCategoryIds()
                     .forEach(integer -> categoryIds.append(integer).append(","));
@@ -306,7 +305,7 @@ public class StatisticsDAO {
         if (filtersDTO.getIntervalId() != null) {
             sql += "AND (b.interval_id = " + filtersDTO.getIntervalId() + ")\n";
         }
-        if (filtersDTO.getCategoryIds() != null) {
+        if (filtersDTO.getCategoryIds() != null && !filtersDTO.getCategoryIds().isEmpty()) {
             StringBuffer categoryIds = new StringBuffer();
             filtersDTO.getCategoryIds()
                     .forEach(integer -> categoryIds.append(integer).append(","));
@@ -337,7 +336,7 @@ public class StatisticsDAO {
         if (filtersDTO.getIntervalId() != null) {
             sql += "AND (b.interval_id = " + filtersDTO.getIntervalId() + ")\n";
         }
-        if (filtersDTO.getCategoryIds() != null) {
+        if (filtersDTO.getCategoryIds() != null && !filtersDTO.getCategoryIds().isEmpty()) {
             StringBuffer categoryIds = new StringBuffer();
             filtersDTO.getCategoryIds()
                     .forEach(integer -> categoryIds.append(integer).append(","));
