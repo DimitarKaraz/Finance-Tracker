@@ -152,5 +152,4 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionDTO> handleMultipartException(DataIntegrityViolationException e) {
         return ResponseEntity.status(400).body(new ExceptionDTO(HttpStatus.BAD_REQUEST, "Sorry the requested amount is too large.", LocalDateTime.now()));
     }
-    
 }

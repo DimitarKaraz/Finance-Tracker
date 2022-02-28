@@ -88,7 +88,6 @@ public class StatisticsDAO {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    //todo
     public List<RecurrentTransactionResponseDTO> getRecurrentTransactionsByFilters(RecurrentTransactionByFiltersRequestDTO filtersDTO, Integer pageSize, Integer pageNumber) {
         String sql = generateRecurrentTransactionSQLQuery(filtersDTO, pageSize, pageNumber, false);
 
