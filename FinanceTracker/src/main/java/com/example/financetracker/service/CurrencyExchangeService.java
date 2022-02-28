@@ -34,7 +34,8 @@ public class CurrencyExchangeService {
     private CurrencyExchangeDAO currencyExchangeDAO;
 
     public BigDecimal calculateCurrencyConversion(String currencyFrom, String currencyTo, BigDecimal quantity) {
-        return quantity.multiply(exchangeRatesCache.get(currencyTo).divide(exchangeRatesCache.get(currencyFrom), 2, RoundingMode.HALF_EVEN));
+        return quantity.multiply(exchangeRatesCache.get(currencyTo).divide(exchangeRatesCache.get(currencyFrom), 20, RoundingMode.HALF_EVEN))
+                .setScale(2, RoundingMode.HALF_EVEN);
     }
 
     @PostConstruct
