@@ -5,10 +5,10 @@ Technologies used are:
 Java 11, Html5
 Spring Framework;
 Spring Boot + Tomcat Servlet Container
-Spring Security - Security filters; 
-                  Authentication with DAOAuthenticationProvider and Database-storage of credentials; 
-                  Method security with both authorization and manual validation of the acceptable resources requested by the logged user;
-                  Session management; CSRF filter
+Spring Security: Security filters; 
+                 Authentication with DAOAuthenticationProvider and Database-storage of credentials; 
+                 Method security with both authorization and manual validation of the acceptable resources requested by the logged user;
+                 Session management; CSRF filter
 Spring Data: JPA + Hibernate; JdbcTemplate
 SpringMVC: RESTful Webservice
 Spring Framework's WebClient - reactive requests to external APIs (ExchangeRate-API)
