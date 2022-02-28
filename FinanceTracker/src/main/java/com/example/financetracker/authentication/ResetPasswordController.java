@@ -7,9 +7,6 @@ import com.example.financetracker.service.EmailService;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,19 +23,11 @@ public class ResetPasswordController {
 
     @GetMapping("/forgot_password")
     public String showForgotPasswordForm() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null || !(authentication instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/profile";
-        }
         return "account/forgotPassword";
     }
 
     @PostMapping("/forgot_password")
     public String processForgotPassword(HttpServletRequest request, Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null || !(authentication instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/profile";
-        }
         String email = request.getParameter("email");
         String token = RandomString.make(30);
         try {
@@ -75,10 +64,6 @@ public class ResetPasswordController {
 
     @GetMapping("/reset_password")
     public String showResetPasswordForm(@Param(value = "token") String token, Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null || !(authentication instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/profile";
-        }
         if (token == null) {
             throw new BadRequestException("Invalid password reset token.");
         }
@@ -94,10 +79,6 @@ public class ResetPasswordController {
 
     @PostMapping("/reset_password")
     public String processResetPassword(HttpServletRequest request, Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null || !(authentication instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/profile";
-        }
         String token = request.getParameter("token");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");

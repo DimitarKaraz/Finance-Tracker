@@ -1,6 +1,7 @@
 package com.example.financetracker.passwordValidators;
 
 import javax.validation.Constraint;
+import javax.validation.ConstraintTarget;
 import javax.validation.Payload;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -11,7 +12,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Documented
 @Constraint(validatedBy = PasswordConstraintValidator.class)
-@Target({ TYPE, FIELD, ANNOTATION_TYPE })
+@Target({ METHOD, PARAMETER, TYPE, FIELD, ANNOTATION_TYPE })
 @Retention(RUNTIME)
 public @interface ValidPassword {
 
@@ -21,4 +22,5 @@ public @interface ValidPassword {
 
     Class<? extends Payload>[] payload() default {};
 
+    ConstraintTarget validationAppliesTo() default ConstraintTarget.IMPLICIT;
 }

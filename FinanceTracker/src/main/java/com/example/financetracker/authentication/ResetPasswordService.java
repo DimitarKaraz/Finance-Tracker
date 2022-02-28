@@ -3,11 +3,13 @@ package com.example.financetracker.authentication;
 import com.example.financetracker.exceptions.NotFoundException;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
+import com.example.financetracker.passwordValidators.ValidPassword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.ConstraintTarget;
 
 @Service
 @Transactional
@@ -30,6 +32,7 @@ public class ResetPasswordService {
         return userRepository.findByResetPasswordToken(token);
     }
 
+    @ValidPassword(validationAppliesTo = ConstraintTarget.PARAMETERS)
     public void updatePassword(User user, String newPassword) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(newPassword);

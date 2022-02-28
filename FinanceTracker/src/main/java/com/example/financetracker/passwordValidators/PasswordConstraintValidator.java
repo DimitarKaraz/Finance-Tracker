@@ -5,20 +5,26 @@ import org.passay.*;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.constraintvalidation.SupportedValidationTarget;
+import javax.validation.constraintvalidation.ValidationTarget;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-public class PasswordConstraintValidator implements ConstraintValidator<ValidPassword, String> {
+@SupportedValidationTarget({ValidationTarget.PARAMETERS, ValidationTarget.ANNOTATED_ELEMENT})
+public class PasswordConstraintValidator implements ConstraintValidator<ValidPassword, Object> {
 
     @Override
     public void initialize(ValidPassword arg0) {
     }
 
     @Override
-    public boolean isValid(String password, ConstraintValidatorContext context) {
+    public boolean isValid(Object password, ConstraintValidatorContext context) {
+        if (password.getClass() != String.class) {
+            return false;
+        }
         Properties props = new Properties();
         InputStream inputStream = getClass()
                 .getClassLoader().getResourceAsStream("passay.properties");
@@ -45,7 +51,7 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
         new IllegalSequenceRule(EnglishSequenceData.Alphabetical, 5, false),
         // rejects passwords that contain a sequence of >= 5 characters numerical   (e.g. 12345)
         new IllegalSequenceRule(EnglishSequenceData.Numerical, 5, false)));
-        RuleResult result = validator.validate(new PasswordData(password));
+        RuleResult result = validator.validate(new PasswordData((String) password));
         if (result.isValid()) {
             return true;
         }
