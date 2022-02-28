@@ -8,6 +8,7 @@ import com.example.financetracker.model.dto.userDTOs.UserEditProfileRequestDTO;
 import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
 import com.example.financetracker.service.FileService;
 import com.example.financetracker.service.UserService;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -52,9 +54,6 @@ public class UserController {
 
     @PostMapping("/change_profile_image")
     public ResponseEntity<ResponseWrapper<String>> changeProfileImage(@RequestParam(name = "file") MultipartFile file){
-        if (file.getContentType() == null || !file.getContentType().matches(FileService.allowedContentTypesREGEX)){
-            throw new BadRequestException("Unsupported file type.");
-        }
         return ResponseWrapper.wrap("Uploaded profile image:", userService.uploadProfileImage(file), HttpStatus.CREATED);
     }
 
