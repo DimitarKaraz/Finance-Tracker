@@ -77,6 +77,9 @@ public class UserService {
         } catch (IOException e) {
             throw new FileTransferException("Error reading file.");
         }
+        if (extension == null || !extension.matches(FileService.allowedExtensionsREGEX)){
+            throw new BadRequestException("Unsupported file type.");
+        }
         if (!detectedType.contains("image")){
             throw new BadRequestException("Invalid file type.");
         }

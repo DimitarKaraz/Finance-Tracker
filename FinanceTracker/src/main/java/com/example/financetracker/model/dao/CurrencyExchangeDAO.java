@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,6 +42,7 @@ public class CurrencyExchangeDAO {
         });
     }
 
+    @Transactional
     public int[] updateDatabaseExchangeRates(Map<String, BigDecimal> rates) {
         if (rates == null || rates.isEmpty()) {
             return null;
