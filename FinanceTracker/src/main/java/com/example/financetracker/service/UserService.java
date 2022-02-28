@@ -9,6 +9,7 @@ import com.example.financetracker.model.dto.userDTOs.UserProfileDTO;
 import com.example.financetracker.model.pojo.User;
 import com.example.financetracker.model.repositories.UserRepository;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.tika.Tika;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -69,8 +70,18 @@ public class UserService {
         User user = userRepository.findById(MyUserDetailsService.getCurrentUserId())
                 .orElseThrow(() -> {throw new NotFoundException("User not found.");});
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+        Tika tika = new Tika();
+        String detectedType = null;
+        try {
+            detectedType = tika.detect(file.getInputStream());
+        } catch (IOException e) {
+            throw new FileTransferException("Error reading file.");
+        }
         if (extension == null || !extension.matches(FileService.allowedExtensionsREGEX)){
             throw new BadRequestException("Unsupported file type.");
+        }
+        if (!detectedType.contains("image")){
+            throw new BadRequestException("Invalid file type.");
         }
         String fileName = UUID.randomUUID() + "." + extension;
         try {
