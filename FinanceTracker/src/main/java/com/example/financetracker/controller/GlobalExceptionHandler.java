@@ -4,6 +4,7 @@ import com.example.financetracker.exceptions.*;
 import com.example.financetracker.model.dto.ExceptionDTO;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -146,5 +147,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(new ExceptionDTO(HttpStatus.BAD_REQUEST, e.getMessage(), LocalDateTime.now()));
     }
 
-
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ExceptionDTO> handleMultipartException(DataIntegrityViolationException e) {
+        return ResponseEntity.status(400).body(new ExceptionDTO(HttpStatus.BAD_REQUEST, "Sorry the requested amount is too large.", LocalDateTime.now()));
+    }
 }
